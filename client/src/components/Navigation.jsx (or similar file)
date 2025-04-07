@@ -1,0 +1,10 @@
+import { Settings as SettingsIcon } from '@mui/icons-material';
+
+// ...existing code...
+
+// Use this in your navigation items array:
+const navigationItems = [
+  // ...existing code...
+  { text: 'Configurations', icon: <SettingsIcon />, path: '/admin/configs' },
+  // ...existing code...
+];

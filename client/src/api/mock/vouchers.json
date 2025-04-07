@@ -1,0 +1,67 @@
+[
+  {
+    "voucher_id": 1,
+    "voucher_name": "Khuyến mãi tháng 3",
+    "voucher_code": "MARCH2024",
+    "voucher_description": "Giảm giá 10%",
+    "voucher_search_name": "khuyen mai thang 3",
+    "voucher_createAt": "2025-03-22 21:35:14.737",
+    "voucher_startAt": "2025-03-01 00:00:00.000",
+    "voucher_endAt": "2025-03-31 00:00:00.000",
+    "voucher_discount": 0.1,
+    "voucher_maxValue": 100000,
+    "voucher_available": 1
+  },
+  {
+    "voucher_id": 2,
+    "voucher_name": "Sinh nhật CGV",
+    "voucher_code": "CGVBDAY",
+    "voucher_description": "Giảm giá 20%",
+    "voucher_search_name": "sinh nhat cgv",
+    "voucher_createAt": "2025-03-22 21:35:14.737",
+    "voucher_startAt": "2024-03-15 00:00:00.000",
+    "voucher_endAt": "2024-03-20 00:00:00.000",
+    "voucher_discount": 0.2,
+    "voucher_maxValue": 200000,
+    "voucher_available": 1
+  },
+  {
+    "voucher_id": 3,
+    "voucher_name": "Mừng năm mới",
+    "voucher_code": "TET2024",
+    "voucher_description": "Giảm giá 15%",
+    "voucher_search_name": "mung nam moi",
+    "voucher_createAt": "2025-03-22 21:35:14.737",
+    "voucher_startAt": "2024-01-01 00:00:00.000",
+    "voucher_endAt": "2024-01-15 00:00:00.000",
+    "voucher_discount": 0.15,
+    "voucher_maxValue": 150000,
+    "voucher_available": 0
+  },
+  {
+    "voucher_id": 4,
+    "voucher_name": "Black Friday",
+    "voucher_code": "BLACK24",
+    "voucher_description": "Giảm giá 30%",
+    "voucher_search_name": "black friday",
+    "voucher_createAt": "2025-03-22 21:35:14.737",
+    "voucher_startAt": "2024-11-24 00:00:00.000",
+    "voucher_endAt": "2024-11-25 00:00:00.000",
+    "voucher_discount": 0.3,
+    "voucher_maxValue": 300000,
+    "voucher_available": 0
+  },
+  {
+    "voucher_id": 5,
+    "voucher_name": "Thành viên mới",
+    "voucher_code": "NEWMEM",
+    "voucher_description": "Giảm giá 10%",
+    "voucher_search_name": "thanh vien moi",
+    "voucher_createAt": "2025-03-22 21:35:14.737",
+    "voucher_startAt": "2024-01-01 00:00:00.000",
+    "voucher_endAt": "2024-12-31 00:00:00.000",
+    "voucher_discount": 0.1,
+    "voucher_maxValue": 100000,
+    "voucher_available": 1
+  }
+]

@@ -1,0 +1,26 @@
+[
+  {
+    "id": "1",
+    "name": "CGV Vincom Center",
+    "address": "Tầng 5, TTTM Vincom Center, 72 Lê Thánh Tôn, Quận 1, TP. HCM",
+    "imageUrl": "https://www.cgv.vn/media/site/cache/3/980x415/top_images/2023/12/cgv-at-vincom.jpg"
+  },
+  {
+    "id": "2",
+    "name": "Galaxy Cinema Nguyễn Du",
+    "address": "116 Nguyễn Du, Phường Bến Thành, Quận 1, TP. HCM",
+    "imageUrl": "https://galaxycine.vn/media/2019/5/6/rapgiave-hinhrap-nguyen-du-1_1557132956356.jpg"
+  },
+  {
+    "id": "3",
+    "name": "BHD Star Cineplex - Bitexco",
+    "address": "Tầng 3 & 4, TTTM Icon 68, 2 Hải Triều, Quận 1, TP. HCM",
+    "imageUrl": "https://static.mservice.io/cinema/momo-upload-api-211223172652-637758423123802811.jpg"
+  },
+  {
+    "id": "4",
+    "name": "Lotte Cinema Nowzone",
+    "address": "Tầng 5, TTTM Nowzone, 235 Nguyễn Văn Cừ, Quận 1, TP. HCM",
+    "imageUrl": "https://lottecimena.vn/upload/cinema/5GxWFMu8ZYzh3UBWPK9VXODnIUJZTg6ZaHyN7Hg3.png"
+  }
+]

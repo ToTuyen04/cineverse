@@ -1,0 +1,216 @@
+[
+  {
+    "orderId": 1,
+    "orderCreateAt": "2025-04-05T10:30:00",
+    "orderName": "Nguyễn Văn A",
+    "orderEmail": "nguyenvana@example.com",
+    "orderPhone": "0901234567",
+    "userId": "user123",
+    "totalPrice": 350000,
+    "discountPrice": 50000,
+    "paymentPrice": 300000,
+    "orderStatus": "Completed",
+    "orderDetails": [
+      {
+        "orderDetailId": 101,
+        "ticketCode": "TK001",
+        "chairName": "G7",
+        "chairType": "VIP",
+        "chairPosition": "Giữa",
+        "price": 150000
+      },
+      {
+        "orderDetailId": 102,
+        "ticketCode": "TK002",
+        "chairName": "G8",
+        "chairType": "VIP",
+        "chairPosition": "Giữa",
+        "price": 150000
+      }
+    ],
+    "orderComboItems": [
+      {
+        "comboName": "Bắp + Nước lớn",
+        "comboQuantity": 1,
+        "comboPrice": 50000
+      }
+    ],
+    "showtimeInfos": [
+      {
+        "movieName": "Người Nhện: Không còn nhà",
+        "theaterName": "CGV Aeon Mall Hà Đông",
+        "roomName": "Phòng chiếu 3",
+        "startTime": "2025-04-05T15:30:00"
+      }
+    ]
+  },
+  {
+    "orderId": 2,
+    "orderCreateAt": "2025-04-04T14:15:00",
+    "orderName": "Trần Thị B",
+    "orderEmail": "tranthib@example.com",
+    "orderPhone": "0987654321",
+    "userId": "user456",
+    "totalPrice": 450000,
+    "discountPrice": 0,
+    "paymentPrice": 450000,
+    "orderStatus": "Pending",
+    "orderDetails": [
+      {
+        "orderDetailId": 201,
+        "ticketCode": "TK003",
+        "chairName": "E5",
+        "chairType": "Thường",
+        "chairPosition": "Cánh trái",
+        "price": 120000
+      },
+      {
+        "orderDetailId": 202,
+        "ticketCode": "TK004",
+        "chairName": "E6",
+        "chairType": "Thường",
+        "chairPosition": "Cánh trái",
+        "price": 120000
+      }
+    ],
+    "orderComboItems": [
+      {
+        "comboName": "Combo Gia đình",
+        "comboQuantity": 1,
+        "comboPrice": 210000
+      }
+    ],
+    "showtimeInfos": [
+      {
+        "movieName": "Oppenheimer",
+        "theaterName": "CGV Vincom Bà Triệu",
+        "roomName": "Phòng chiếu 1",
+        "startTime": "2025-04-04T20:00:00"
+      }
+    ]
+  },
+  {
+    "orderId": 3,
+    "orderCreateAt": "2025-04-06T09:45:00",
+    "orderName": "Lê Văn C",
+    "orderEmail": "levanc@example.com",
+    "orderPhone": "0912345678",
+    "userId": "user789",
+    "totalPrice": 280000,
+    "discountPrice": 30000,
+    "paymentPrice": 250000,
+    "orderStatus": "Printed",
+    "orderDetails": [
+      {
+        "orderDetailId": 301,
+        "ticketCode": "TK005",
+        "chairName": "F10",
+        "chairType": "VIP",
+        "chairPosition": "Giữa",
+        "price": 150000
+      }
+    ],
+    "orderComboItems": [
+      {
+        "comboName": "Bắp lớn",
+        "comboQuantity": 1,
+        "comboPrice": 65000
+      },
+      {
+        "comboName": "Coca-Cola",
+        "comboQuantity": 2,
+        "comboPrice": 35000
+      }
+    ],
+    "showtimeInfos": [
+      {
+        "movieName": "Avengers: Endgame",
+        "theaterName": "CGV Mipec Tower",
+        "roomName": "Phòng chiếu 5",
+        "startTime": "2025-04-06T14:30:00"
+      }
+    ]
+  },
+  {
+    "orderId": 4,
+    "orderCreateAt": "2025-04-03T18:20:00",
+    "orderName": "Phạm Thị D",
+    "orderEmail": "phamthid@example.com",
+    "orderPhone": "0978123456",
+    "userId": "user234",
+    "totalPrice": 180000,
+    "discountPrice": 0,
+    "paymentPrice": 180000,
+    "orderStatus": "Canceled",
+    "orderDetails": [
+      {
+        "orderDetailId": 401,
+        "ticketCode": "TK006",
+        "chairName": "D8",
+        "chairType": "Thường",
+        "chairPosition": "Cánh phải",
+        "price": 120000
+      }
+    ],
+    "orderComboItems": [
+      {
+        "comboName": "Nước ngọt cỡ vừa",
+        "comboQuantity": 2,
+        "comboPrice": 30000
+      }
+    ],
+    "showtimeInfos": [
+      {
+        "movieName": "Quỷ Quyệt 5",
+        "theaterName": "CGV Vincom Royal City",
+        "roomName": "Phòng chiếu 2",
+        "startTime": "2025-04-03T20:30:00"
+      }
+    ]
+  },
+  {
+    "orderId": 5,
+    "orderCreateAt": "2025-04-02T09:10:00",
+    "orderName": "Vũ Văn E",
+    "orderEmail": "vuvane@example.com",
+    "orderPhone": "0903456789",
+    "userId": "user345",
+    "totalPrice": 320000,
+    "discountPrice": 20000,
+    "paymentPrice": 300000,
+    "orderStatus": "Failed",
+    "orderDetails": [
+      {
+        "orderDetailId": 501,
+        "ticketCode": "TK007",
+        "chairName": "H5",
+        "chairType": "VIP",
+        "chairPosition": "Giữa",
+        "price": 150000
+      },
+      {
+        "orderDetailId": 502,
+        "ticketCode": "TK008",
+        "chairName": "H6",
+        "chairType": "VIP",
+        "chairPosition": "Giữa",
+        "price": 150000
+      }
+    ],
+    "orderComboItems": [
+      {
+        "comboName": "Bắp rang bơ nhỏ",
+        "comboQuantity": 1,
+        "comboPrice": 40000
+      }
+    ],
+    "showtimeInfos": [
+      {
+        "movieName": "Fast & Furious 10",
+        "theaterName": "CGV Tràng Tiền Plaza",
+        "roomName": "Phòng chiếu 4",
+        "startTime": "2025-04-02T13:45:00"
+      }
+    ]
+  }
+]

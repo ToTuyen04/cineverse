@@ -1,0 +1,96 @@
+{
+  "1": {
+    "dates": [
+      {
+        "date": "2025-03-21",
+        "day": "Thứ sáu",
+        "times": [
+          { "id": "st1", "time": "10:30", "room": "Cinema 1", "price": 80000, "type": "2D Phụ đề" },
+          { "id": "st2", "time": "13:45", "room": "Cinema 1", "price": 90000, "type": "2D Phụ đề" },
+          { "id": "st3", "time": "16:20", "room": "Cinema 2", "price": 100000, "type": "2D Phụ đề" },
+          { "id": "st4", "time": "18:45", "room": "Cinema 2", "price": 120000, "type": "2D Phụ đề" },
+          { "id": "st5", "time": "21:15", "room": "Cinema 1", "price": 120000, "type": "2D Phụ đề" },
+          { "id": "st6", "time": "23:30", "room": "Cinema 3", "price": 110000, "type": "2D Phụ đề" }
+        ]
+      },
+      {
+        "date": "2025-03-22",
+        "day": "Thứ bảy",
+        "times": [
+          { "id": "st7", "time": "10:00", "room": "Cinema 1", "price": 90000, "type": "2D Phụ đề" },
+          { "id": "st8", "time": "12:30", "room": "Cinema 3", "price": 100000, "type": "2D Phụ đề" },
+          { "id": "st9", "time": "15:00", "room": "Cinema 2", "price": 110000, "type": "2D Phụ đề" },
+          { "id": "st10", "time": "17:30", "room": "Cinema 1", "price": 130000, "type": "2D Phụ đề" },
+          { "id": "st11", "time": "20:00", "room": "Cinema 3", "price": 140000, "type": "2D Phụ đề" },
+          { "id": "st12", "time": "22:45", "room": "Cinema 2", "price": 120000, "type": "2D Phụ đề" }
+        ]
+      },
+      {
+        "date": "2025-03-23",
+        "day": "Chủ nhật",
+        "times": [
+          { "id": "st13", "time": "10:00", "room": "Cinema 2", "price": 90000, "type": "2D Phụ đề" },
+          { "id": "st14", "time": "13:15", "room": "Cinema 1", "price": 100000, "type": "2D Phụ đề" },
+          { "id": "st15", "time": "15:45", "room": "Cinema 3", "price": 110000, "type": "2D Phụ đề" },
+          { "id": "st16", "time": "18:30", "room": "Cinema 1", "price": 130000, "type": "2D Phụ đề" },
+          { "id": "st17", "time": "21:00", "room": "Cinema 3", "price": 120000, "type": "2D Phụ đề" }
+        ]
+      }
+    ]
+  },
+  "2": {
+    "dates": [
+      {
+        "date": "2025-03-21",
+        "day": "Thứ sáu",
+        "times": [
+          { "id": "st18", "time": "09:30", "room": "Cinema 1", "price": 70000, "type": "2D Phụ đề" },
+          { "id": "st19", "time": "12:00", "room": "Cinema 2", "price": 80000, "type": "2D Phụ đề" },
+          { "id": "st20", "time": "15:00", "room": "Cinema 3", "price": 90000, "type": "2D Phụ đề" },
+          { "id": "st21", "time": "17:30", "room": "Cinema 1", "price": 110000, "type": "2D Phụ đề" },
+          { "id": "st22", "time": "20:15", "room": "Cinema 2", "price": 120000, "type": "2D Phụ đề" }
+        ]
+      },
+      {
+        "date": "2025-03-22",
+        "day": "Thứ bảy",
+        "times": [
+          { "id": "st23", "time": "10:30", "room": "Cinema 2", "price": 85000, "type": "2D Phụ đề" },
+          { "id": "st24", "time": "13:00", "room": "Cinema 1", "price": 95000, "type": "2D Phụ đề" },
+          { "id": "st25", "time": "16:15", "room": "Cinema 3", "price": 105000, "type": "2D Phụ đề" },
+          { "id": "st26", "time": "19:00", "room": "Cinema 1", "price": 125000, "type": "2D Phụ đề" },
+          { "id": "st27", "time": "21:45", "room": "Cinema 2", "price": 115000, "type": "2D Phụ đề" }
+        ]
+      }
+    ]
+  },
+  "3": {
+    "dates": [
+      {
+        "date": "2025-03-21",
+        "day": "Thứ sáu",
+        "times": [
+          { "id": "st28", "time": "11:00", "room": "Cinema 1", "price": 80000, "type": "2D Phụ đề" },
+          { "id": "st29", "time": "14:30", "room": "Cinema 3", "price": 90000, "type": "2D Phụ đề" },
+          { "id": "st30", "time": "18:00", "room": "Cinema 2", "price": 110000, "type": "2D Phụ đề" },
+          { "id": "st31", "time": "20:30", "room": "Cinema 1", "price": 120000, "type": "2D Phụ đề" }
+        ]
+      }
+    ]
+  },
+  "4": {
+    "dates": [
+      {
+        "date": "2025-03-22",
+        "day": "Thứ bảy",
+        "times": [
+          { "id": "st32", "time": "10:45", "room": "Cinema 2", "price": 85000, "type": "2D Phụ đề" },
+          { "id": "st33", "time": "13:30", "room": "Cinema 1", "price": 95000, "type": "2D Phụ đề" },
+          { "id": "st34", "time": "16:00", "room": "Cinema 3", "price": 105000, "type": "2D Phụ đề" },
+          { "id": "st35", "time": "19:15", "room": "Cinema 1", "price": 125000, "type": "2D Phụ đề" },
+          { "id": "st36", "time": "22:00", "room": "Cinema 2", "price": 115000, "type": "2D Phụ đề" }
+        ]
+      }
+    ]
+  }
+}

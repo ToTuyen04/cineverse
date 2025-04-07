@@ -1,0 +1,82 @@
+{
+  "combos": [
+    {
+      "id": 1,
+      "name": "Combo Đơn",
+      "description": "1 bắp rang + 1 nước ngọt cỡ lớn",
+      "price": 85000,
+      "image": "https://www.cgv.vn/media/concession/web/6262c68455326_1650618060.png",
+      "type": "combo"
+    },
+    {
+      "id": 2,
+      "name": "Combo Đôi",
+      "description": "1 bắp rang + 2 nước ngọt cỡ lớn",
+      "price": 110000,
+      "image": "https://www.cgv.vn/media/concession/web/62bb0d97763f1_1656398304.png",
+      "type": "combo"
+    },
+    {
+      "id": 3,
+      "name": "Combo Gia Đình",
+      "description": "2 bắp rang + 4 nước ngọt cỡ vừa + 1 snack",
+      "price": 190000,
+      "image": "https://www.cgv.vn/media/concession/web/6262c61ba4e75_1650617883.png",
+      "type": "combo"
+    }
+  ],
+  "popcorn": [
+    {
+      "id": 4,
+      "name": "Bắp Caramel",
+      "description": "Bắp rang hương vị caramel ngọt ngào",
+      "price": 50000,
+      "image": "https://www.cgv.vn/media/concession/web/6262cc8d80853_1650619021.png",
+      "type": "popcorn"
+    },
+    {
+      "id": 5,
+      "name": "Bắp Phô Mai",
+      "description": "Bắp rang hương vị phô mai thơm ngon",
+      "price": 55000,
+      "image": "https://www.cgv.vn/media/concession/web/62631ad84b45f_1650636220.png",
+      "type": "popcorn"
+    }
+  ],
+  "drinks": [
+    {
+      "id": 6,
+      "name": "Coca-Cola (L)",
+      "description": "Nước ngọt Coca-Cola cỡ lớn",
+      "price": 35000,
+      "image": "https://www.cgv.vn/media/concession/web/6262be18f3065_1650616857.png",
+      "type": "drink"
+    },
+    {
+      "id": 7,
+      "name": "Sprite (L)",
+      "description": "Nước ngọt Sprite cỡ lớn",
+      "price": 35000,
+      "image": "https://www.cgv.vn/media/concession/web/62631a9dabf5e_1650636189.png",
+      "type": "drink"
+    }
+  ],
+  "snacks": [
+    {
+      "id": 8,
+      "name": "Khoai Tây Chiên",
+      "description": "Khoai tây chiên giòn rụm",
+      "price": 45000,
+      "image": "https://www.cgv.vn/media/concession/web/6262ced3e5874_1650619604.png",
+      "type": "snack"
+    },
+    {
+      "id": 9,
+      "name": "Nachos & Cheese",
+      "description": "Bánh Nachos giòn với phô mai",
+      "price": 50000,
+      "image": "https://www.cgv.vn/media/concession/web/627a2e2b1fb2c_1652176379.png",
+      "type": "snack"
+    }
+  ]
+}

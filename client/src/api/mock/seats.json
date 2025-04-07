@@ -1,0 +1,377 @@
+{
+  "st1": {
+    "rows": 10,
+    "seatsPerRow": 16,
+    "reservedSeats": ["A1", "A2", "B5", "C7", "C8", "D12", "E14", "F10", "G3", "G4", "H8", "H9", "I15", "J2"],
+    "seatTypes": {
+      "standard": ["A", "B", "C", "D", "E"],
+      "vip": ["F", "G", "H"],
+      "couple": ["I", "J"]
+    },
+    "seats": [
+      {
+        "chairId": 1,
+        "chairName": "A1",
+        "available": false,
+        "chairPosition": "A1",
+        "chairTypeName": "Ghế thường"
+      },
+      {
+        "chairId": 2,
+        "chairName": "A2",
+        "available": false,
+        "chairPosition": "A2",
+        "chairTypeName": "Ghế thường"
+      },
+      {
+        "chairId": 3,
+        "chairName": "A3",
+        "available": true,
+        "chairPosition": "A3",
+        "chairTypeName": "Ghế thường"
+      },
+      {
+        "chairId": 4,
+        "chairName": "A4",
+        "available": true,
+        "chairPosition": "A4",
+        "chairTypeName": "Ghế thường"
+      },
+      {
+        "chairId": 5,
+        "chairName": "A5",
+        "available": true,
+        "chairPosition": "A5",
+        "chairTypeName": "Ghế thường"
+      },
+      {
+        "chairId": 6,
+        "chairName": "A6",
+        "available": true,
+        "chairPosition": "A6",
+        "chairTypeName": "Ghế thường"
+      },
+      {
+        "chairId": 7,
+        "chairName": "A7",
+        "available": true,
+        "chairPosition": "A7",
+        "chairTypeName": "Ghế thường"
+      },
+      {
+        "chairId": 8,
+        "chairName": "A8",
+        "available": true,
+        "chairPosition": "A8",
+        "chairTypeName": "Ghế thường"
+      },
+      {
+        "chairId": 9,
+        "chairName": "A9",
+        "available": true,
+        "chairPosition": "A9",
+        "chairTypeName": "Ghế thường"
+      },
+      {
+        "chairId": 10,
+        "chairName": "A10",
+        "available": true,
+        "chairPosition": "A10",
+        "chairTypeName": "Ghế thường"
+      },
+      {
+        "chairId": 11,
+        "chairName": "B1",
+        "available": true,
+        "chairPosition": "B1",
+        "chairTypeName": "Ghế thường"
+      },
+      {
+        "chairId": 12,
+        "chairName": "B2",
+        "available": true,
+        "chairPosition": "B2",
+        "chairTypeName": "Ghế thường"
+      },
+      {
+        "chairId": 13,
+        "chairName": "B3",
+        "available": true,
+        "chairPosition": "B3",
+        "chairTypeName": "Ghế thường"
+      },
+      {
+        "chairId": 14,
+        "chairName": "B4",
+        "available": true,
+        "chairPosition": "B4",
+        "chairTypeName": "Ghế thường"
+      },
+      {
+        "chairId": 15,
+        "chairName": "B5",
+        "available": false,
+        "chairPosition": "B5",
+        "chairTypeName": "Ghế thường"
+      },
+      {
+        "chairId": 16,
+        "chairName": "B6",
+        "available": true,
+        "chairPosition": "B6",
+        "chairTypeName": "Ghế thường"
+      },
+      {
+        "chairId": 17,
+        "chairName": "B7",
+        "available": true,
+        "chairPosition": "B7",
+        "chairTypeName": "Ghế thường"
+      },
+      {
+        "chairId": 18,
+        "chairName": "B8",
+        "available": true,
+        "chairPosition": "B8",
+        "chairTypeName": "Ghế thường"
+      },
+      {
+        "chairId": 19,
+        "chairName": "B9",
+        "available": true,
+        "chairPosition": "B9",
+        "chairTypeName": "Ghế thường"
+      },
+      {
+        "chairId": 20,
+        "chairName": "B10",
+        "available": true,
+        "chairPosition": "B10",
+        "chairTypeName": "Ghế thường"
+      }
+    ],
+    "seatPrices": {
+      "Ghế thường": 0,
+      "Ghế VIP": 20000,
+      "Ghế đôi": 40000
+    }
+  },
+  "st2": {
+    "rows": 10,
+    "seatsPerRow": 16,
+    "reservedSeats": ["A3", "A4", "B6", "C9", "D10", "D11", "E15", "F2", "G5", "G6", "H10", "I12", "I13", "J4"],
+    "seatTypes": {
+      "standard": ["A", "B", "C", "D", "E"],
+      "vip": ["F", "G", "H"],
+      "couple": ["I", "J"]
+    },
+    "seats": [
+      {
+        "chairId": 21,
+        "chairName": "A1",
+        "available": true,
+        "chairPosition": "A1",
+        "chairTypeName": "Ghế VIP"
+      },
+      {
+        "chairId": 22,
+        "chairName": "A2",
+        "available": true,
+        "chairPosition": "A2",
+        "chairTypeName": "Ghế VIP"
+      },
+      {
+        "chairId": 23,
+        "chairName": "A3",
+        "available": false,
+        "chairPosition": "A3",
+        "chairTypeName": "Ghế VIP"
+      },
+      {
+        "chairId": 24,
+        "chairName": "A4",
+        "available": false,
+        "chairPosition": "A4",
+        "chairTypeName": "Ghế VIP"
+      },
+      {
+        "chairId": 25,
+        "chairName": "A5",
+        "available": true,
+        "chairPosition": "A5",
+        "chairTypeName": "Ghế VIP"
+      },
+      {
+        "chairId": 26,
+        "chairName": "A6",
+        "available": true,
+        "chairPosition": "A6",
+        "chairTypeName": "Ghế VIP"
+      },
+      {
+        "chairId": 27,
+        "chairName": "A7",
+        "available": true,
+        "chairPosition": "A7",
+        "chairTypeName": "Ghế VIP"
+      },
+      {
+        "chairId": 28,
+        "chairName": "A8",
+        "available": true,
+        "chairPosition": "A8",
+        "chairTypeName": "Ghế VIP"
+      },
+      {
+        "chairId": 29,
+        "chairName": "A9",
+        "available": true,
+        "chairPosition": "A9",
+        "chairTypeName": "Ghế VIP"
+      },
+      {
+        "chairId": 30,
+        "chairName": "A10",
+        "available": true,
+        "chairPosition": "A10",
+        "chairTypeName": "Ghế VIP"
+      },
+      {
+        "chairId": 31,
+        "chairName": "B1",
+        "available": true,
+        "chairPosition": "B1",
+        "chairTypeName": "Ghế VIP"
+      },
+      {
+        "chairId": 32,
+        "chairName": "B2",
+        "available": true,
+        "chairPosition": "B2",
+        "chairTypeName": "Ghế VIP"
+      },
+      {
+        "chairId": 33,
+        "chairName": "B3",
+        "available": true,
+        "chairPosition": "B3",
+        "chairTypeName": "Ghế VIP"
+      },
+      {
+        "chairId": 34,
+        "chairName": "B4",
+        "available": true,
+        "chairPosition": "B4",
+        "chairTypeName": "Ghế VIP"
+      },
+      {
+        "chairId": 35,
+        "chairName": "B5",
+        "available": true,
+        "chairPosition": "B5",
+        "chairTypeName": "Ghế VIP"
+      },
+      {
+        "chairId": 36,
+        "chairName": "B6",
+        "available": false,
+        "chairPosition": "B6",
+        "chairTypeName": "Ghế VIP"
+      },
+      {
+        "chairId": 37,
+        "chairName": "B7",
+        "available": true,
+        "chairPosition": "B7",
+        "chairTypeName": "Ghế VIP"
+      },
+      {
+        "chairId": 38,
+        "chairName": "B8",
+        "available": true,
+        "chairPosition": "B8",
+        "chairTypeName": "Ghế VIP"
+      },
+      {
+        "chairId": 39,
+        "chairName": "B9",
+        "available": true,
+        "chairPosition": "B9",
+        "chairTypeName": "Ghế VIP"
+      },
+      {
+        "chairId": 40,
+        "chairName": "B10",
+        "available": true,
+        "chairPosition": "B10",
+        "chairTypeName": "Ghế VIP"
+      }
+    ],
+    "seatPrices": {
+      "Ghế thường": 0,
+      "Ghế VIP": 20000,
+      "Ghế đôi": 40000
+    }
+  },
+  "st3": {
+    "rows": 8,
+    "seatsPerRow": 15,
+    "reservedSeats": ["A3", "B4", "C7", "D12", "E14", "F10", "G3", "H8"],
+    "seatTypes": {
+      "standard": ["A", "B", "C", "D"],
+      "vip": ["E", "F", "G"],
+      "couple": ["H"]
+    },
+    "seats": [
+      
+      
+      {"chairId": 301, "chairName": "A1", "available": true, "chairPosition": "A1", "chairTypeName": "Ghế thường"},
+      {"chairId": 302, "chairName": "A2", "available": true, "chairPosition": "A2", "chairTypeName": "Ghế thường"},
+      {"chairId": 303, "chairName": "A3", "available": false, "chairPosition": "A3", "chairTypeName": "Ghế thường"},
+      {"chairId": 304, "chairName": "A4", "available": true, "chairPosition": "A4", "chairTypeName": "Ghế thường"},
+      {"chairId": 305, "chairName": "A5", "available": true, "chairPosition": "A5", "chairTypeName": "Ghế thường"},
+      {"chairId": 306, "chairName": "A6", "available": true, "chairPosition": "A6", "chairTypeName": "Ghế thường"},
+      {"chairId": 307, "chairName": "A7", "available": true, "chairPosition": "A7", "chairTypeName": "Ghế thường"},
+      {"chairId": 308, "chairName": "A8", "available": true, "chairPosition": "A8", "chairTypeName": "Ghế thường"},
+      {"chairId": 309, "chairName": "A9", "available": true, "chairPosition": "A9", "chairTypeName": "Ghế thường"},
+      {"chairId": 311, "chairName": "A11", "available": true, "chairPosition": "A11", "chairTypeName": "Ghế thường"},
+      {"chairId": 312, "chairName": "A12", "available": true, "chairPosition": "A12", "chairTypeName": "Ghế thường"},
+      {"chairId": 313, "chairName": "A13", "available": true, "chairPosition": "A13", "chairTypeName": "Ghế thường"},
+      {"chairId": 314, "chairName": "A14", "available": true, "chairPosition": "A14", "chairTypeName": "Ghế thường"},
+      {"chairId": 315, "chairName": "A15", "available": true, "chairPosition": "A15", "chairTypeName": "Ghế thường"},
+      {"chairId": 316, "chairName": "A16", "available": true, "chairPosition": "A16", "chairTypeName": "Ghế thường"},
+      {"chairId": 317, "chairName": "A17", "available": true, "chairPosition": "A17", "chairTypeName": "Ghế thường"},
+      {"chairId": 318, "chairName": "A18", "available": true, "chairPosition": "A18", "chairTypeName": "Ghế thường"},
+      {"chairId": 319, "chairName": "A19", "available": true, "chairPosition": "A19", "chairTypeName": "Ghế thường"},
+      {"chairId": 320, "chairName": "A20", "available": true, "chairPosition": "A20", "chairTypeName": "Ghế thường"},
+      
+     
+      
+      {"chairId": 316, "chairName": "B1", "available": true, "chairPosition": "B1", "chairTypeName": "Ghế thường"},
+      {"chairId": 317, "chairName": "B2", "available": true, "chairPosition": "B2", "chairTypeName": "Ghế thường"},
+      {"chairId": 318, "chairName": "B3", "available": true, "chairPosition": "B3", "chairTypeName": "Ghế thường"},
+      {"chairId": 319, "chairName": "B4", "available": false, "chairPosition": "B4", "chairTypeName": "Ghế thường"},
+      
+      
+      {"chairId": 361, "chairName": "E1", "available": true, "chairPosition": "E1", "chairTypeName": "Ghế VIP"},
+      {"chairId": 362, "chairName": "E2", "available": true, "chairPosition": "E2", "chairTypeName": "Ghế VIP"},
+      {"chairId": 363, "chairName": "E3", "available": true, "chairPosition": "E3", "chairTypeName": "Ghế VIP"},
+      
+
+      {"chairId": 416, "chairName": "H1", "available": true, "chairPosition": "H1", "chairTypeName": "Ghế đôi"},
+      {"chairId": 417, "chairName": "H2", "available": true, "chairPosition": "H2", "chairTypeName": "Ghế đôi"},
+      {"chairId": 418, "chairName": "H3", "available": true, "chairPosition": "H3", "chairTypeName": "Ghế đôi"},
+      {"chairId": 419, "chairName": "H4", "available": true, "chairPosition": "H4", "chairTypeName": "Ghế đôi"},
+      {"chairId": 420, "chairName": "H5", "available": true, "chairPosition": "H5", "chairTypeName": "Ghế đôi"},
+      {"chairId": 421, "chairName": "H6", "available": true, "chairPosition": "H6", "chairTypeName": "Ghế đôi"},
+      {"chairId": 422, "chairName": "H7", "available": true, "chairPosition": "H7", "chairTypeName": "Ghế đôi"}
+      
+      
+    ],
+    "seatPrices": {
+      "Ghế thường": 80000,
+      "Ghế VIP": 120000, 
+      "Ghế đôi": 220000
+    }
+  }
+}

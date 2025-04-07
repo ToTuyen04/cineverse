@@ -1,0 +1,31 @@
+{
+  "promotions": [
+    {
+      "id": 1,
+      "title": "Happy Tuesday - Tickets 50% Off",
+      "description": "Every Tuesday, enjoy 50% off on all movie tickets with any bank card payment.",
+      "imageUrl": "https://cdn.galaxycine.vn/media/2023/2/3/happy-day-1_1675395683475.jpg",
+      "startDate": "2024-05-01",
+      "endDate": "2024-06-30",
+      "couponCode": "TUESDAY50"
+    },
+    {
+      "id": 2,
+      "title": "Weekend Combo Deal",
+      "description": "Get a large popcorn and two drinks for only 100,000 VND every weekend.",
+      "imageUrl": "https://www.cgv.vn/media/wysiwyg/2023/042024/350X495-01.jpg",
+      "startDate": "2024-05-01",
+      "endDate": "2024-05-31",
+      "couponCode": "WKNDCOMBO"
+    },
+    {
+      "id": 3,
+      "title": "Premium Member Month",
+      "description": "Premium members get double points on all purchases during May.",
+      "imageUrl": "https://cdn.galaxycine.vn/media/2023/5/19/combo-du-chien_1684472153449.jpg",
+      "startDate": "2024-05-01",
+      "endDate": "2024-05-31",
+      "couponCode": "PREMIUM2X"
+    }
+  ]
+}
