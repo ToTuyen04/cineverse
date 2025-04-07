@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import {
   Box,
   Table,
@@ -24,9 +24,6 @@ import {
   DialogTitle,
   DialogContent,
   DialogActions,
-  CircularProgress,
-  Alert,
-  TablePagination,
 } from "@mui/material";
 import {
   Search,
@@ -49,9 +46,165 @@ import {
 import { format } from "date-fns";
 import { vi } from "date-fns/locale";
 import StaffForm from "./StaffForm";
-import { useStaff } from "../../../hooks/useStaff";
 
-// Fake theaters data - to be replaced by API
+// Fake data based on the provided SQL results
+const fakeStaffs = [
+  {
+    staffId: 1,
+    staffEmail: "admin1@cinema.com",
+    staffPassword: "123456",
+    staffAvatar: null,
+    staffFirstName: "Nguyễn",
+    staffLastName: "Văn A",
+    staffSearchName: "nguyen van a admin1 0901234561",
+    staffPhoneNumber: "0901234561",
+    staffDateOfBirth: "1990-01-01",
+    staffCreateAt: "2023-01-15 09:30:00.000",
+    staffGender: 1,
+    staffRoleId: 1,
+    staffStatus: 1,
+    staffTheaterId: 1,
+  },
+  {
+    staffId: 2,
+    staffEmail: "admin2@cinema.com",
+    staffPassword: "123456",
+    staffAvatar: null,
+    staffFirstName: "Trần",
+    staffLastName: "Thị B",
+    staffSearchName: "tran thi b admin2 0901234562",
+    staffPhoneNumber: "0901234562",
+    staffDateOfBirth: "1991-02-02",
+    staffCreateAt: "2023-03-22 14:15:00.000",
+    staffGender: 2,
+    staffRoleId: 1,
+    staffStatus: 1,
+    staffTheaterId: 1,
+  },
+  {
+    staffId: 3,
+    staffEmail: "admin3@cinema.com",
+    staffPassword: "123456",
+    staffAvatar: null,
+    staffFirstName: "Lê",
+    staffLastName: "Văn C",
+    staffSearchName: "le van c admin3 0901234563",
+    staffPhoneNumber: "0901234563",
+    staffDateOfBirth: "1992-03-03",
+    staffCreateAt: "2023-05-10 11:45:00.000",
+    staffGender: 1,
+    staffRoleId: 1,
+    staffStatus: 1,
+    staffTheaterId: 3,
+  },
+  {
+    staffId: 4,
+    staffEmail: "admin4@cinema.com",
+    staffPassword: "123456",
+    staffAvatar: null,
+    staffFirstName: "Phạm",
+    staffLastName: "Thị D",
+    staffPhoneNumber: "0901234564",
+    staffDateOfBirth: "1993-04-04",
+    staffCreateAt: "2023-07-18 16:20:00.000",
+    staffGender: 2,
+    staffRoleId: 1,
+    staffStatus: 1,
+    staffTheaterId: 4,
+  },
+  {
+    staffId: 5,
+    staffEmail: "admin5@cinema.com",
+    staffPassword: "123456",
+    staffAvatar: null,
+    staffFirstName: "Hoàng",
+    staffLastName: "Văn E",
+    staffPhoneNumber: "0901234565",
+    staffDateOfBirth: "1994-05-05",
+    staffCreateAt: "2023-09-05 10:10:00.000",
+    staffGender: 1,
+    staffRoleId: 1,
+    staffStatus: 1,
+    staffTheaterId: 1,
+  },
+  {
+    staffId: 6,
+    staffEmail: "admin6@cinema.com",
+    staffPassword: "123456",
+    staffAvatar: null,
+    staffFirstName: "Đỗ",
+    staffLastName: "Thị F",
+    staffPhoneNumber: "0901234566",
+    staffDateOfBirth: "1995-06-06",
+    staffCreateAt: "2023-11-12 13:40:00.000",
+    staffGender: 2,
+    staffRoleId: 1,
+    staffStatus: 1,
+    staffTheaterId: 1,
+  },
+  {
+    staffId: 7,
+    staffEmail: "admin7@cinema.com",
+    staffPassword: "123456",
+    staffAvatar: null,
+    staffFirstName: "Vũ",
+    staffLastName: "Văn G",
+    staffPhoneNumber: "0901234567",
+    staffDateOfBirth: "1996-07-07",
+    staffCreateAt: "2024-01-08 15:25:00.000",
+    staffGender: 1,
+    staffRoleId: 1,
+    staffStatus: 1,
+    staffTheaterId: 2,
+  },
+  {
+    staffId: 8,
+    staffEmail: "admin8@cinema.com",
+    staffPassword: "123456",
+    staffAvatar: null,
+    staffFirstName: "Ngô",
+    staffLastName: "Thị H",
+    staffPhoneNumber: "0901234568",
+    staffDateOfBirth: "1997-08-08",
+    staffCreateAt: "2024-02-14 09:50:00.000",
+    staffGender: 2,
+    staffRoleId: 1,
+    staffStatus: 1,
+    staffTheaterId: 3,
+  },
+  {
+    staffId: 9,
+    staffEmail: "admin9@cinema.com",
+    staffPassword: "123456",
+    staffAvatar: null,
+    staffFirstName: "Bùi",
+    staffLastName: "Văn I",
+    staffPhoneNumber: "0901234569",
+    staffDateOfBirth: "1998-09-09",
+    staffCreateAt: "2024-03-01 11:30:00.000",
+    staffGender: 1,
+    staffRoleId: 1,
+    staffStatus: 1,
+    staffTheaterId: 4,
+  },
+  {
+    staffId: 10,
+    staffEmail: "admin10@cinema.com",
+    staffPassword: "123456",
+    staffAvatar: null,
+    staffFirstName: "Mai",
+    staffLastName: "Thị K",
+    staffPhoneNumber: "0901234570",
+    staffDateOfBirth: "1999-10-10",
+    staffCreateAt: "2024-03-20 14:45:00.000",
+    staffGender: 2,
+    staffRoleId: 1,
+    staffStatus: 1,
+    staffTheaterId: 5,
+  },
+];
+
+// Fake theaters data
 const theaters = [
   { id: 1, name: "Cinema Đà Nẵng" },
   { id: 2, name: "Cinema Hà Nội" },
@@ -60,41 +213,20 @@ const theaters = [
   { id: 5, name: "Cinema Nha Trang" },
 ];
 
-// Fake roles data - to be replaced by API
+// Fake roles data
 const roles = [
   { id: 1, name: "Admin" },
-  { id: 2, name: "Staff" },
+  { id: 2, name: "Manager" },
+  { id: 3, name: "Staff" },
 ];
 
 export default function Staff() {
-  const { 
-    staffs, 
-    loading, 
-    error, 
-    fetchStaffs, 
-    addStaff, 
-    editStaff, 
-    removeStaff 
-  } = useStaff();
-  
+  const [staffs, setStaffs] = useState(fakeStaffs);
   const [searchTerm, setSearchTerm] = useState("");
   const [openForm, setOpenForm] = useState(false);
   const [currentStaff, setCurrentStaff] = useState(null);
   const [openDeleteDialog, setOpenDeleteDialog] = useState(false);
   const [staffToDelete, setStaffToDelete] = useState(null);
-  const [openViewDialog, setOpenViewDialog] = useState(false);
-  const [viewStaff, setViewStaff] = useState(null);
-  // Add state for API messages
-  const [apiError, setApiError] = useState("");
-  const [apiSuccess, setApiSuccess] = useState("");
-  
-  // Pagination states
-  const [page, setPage] = useState(0);
-  const [rowsPerPage, setRowsPerPage] = useState(10);
-  
-  // Sorting states
-  const [orderBy, setOrderBy] = useState('fullName');
-  const [order, setOrder] = useState('asc');
 
   // Format date function
   const formatDate = (dateString) => {
@@ -107,99 +239,19 @@ export default function Staff() {
     }
   };
 
-  // Refresh data
-  const handleRefresh = () => {
-    setSearchTerm("");
-    setPage(0);
-    fetchStaffs();
-  };
-
-  // Handle sorting
-  const handleRequestSort = (property) => {
-    const isAsc = orderBy === property && order === 'asc';
-    setOrder(isAsc ? 'desc' : 'asc');
-    setOrderBy(property);
-  };
-
-  // Sort function
-  const getSortedData = (data, order, orderBy) => {
-    return [...data].sort((a, b) => {
-      // Handle special case for fullName which might be composed of firstName and lastName
-      if (orderBy === 'fullName') {
-        const nameA = a.fullName || `${a.firstName || ''} ${a.lastName || ''}`;
-        const nameB = b.fullName || `${b.firstName || ''} ${b.lastName || ''}`;
-        return order === 'asc' 
-          ? nameA.localeCompare(nameB)
-          : nameB.localeCompare(nameA);
-      }
-      
-      // Handle special case for date
-      if (orderBy === 'dateOfBirth') {
-        const dateA = a.dateOfBirth ? new Date(a.dateOfBirth) : new Date(0);
-        const dateB = b.dateOfBirth ? new Date(b.dateOfBirth) : new Date(0);
-        return order === 'asc' 
-          ? dateA - dateB 
-          : dateB - dateA;
-      }
-      
-      // For other fields
-      if (a[orderBy] === undefined || a[orderBy] === null) return order === 'asc' ? -1 : 1;
-      if (b[orderBy] === undefined || b[orderBy] === null) return order === 'asc' ? 1 : -1;
-      
-      return order === 'asc'
-        ? a[orderBy].toString().localeCompare(b[orderBy].toString())
-        : b[orderBy].toString().localeCompare(a[orderBy].toString());
-    });
-  };
-
-  // Filter staffs based on search term - focusing on name, phone number, and email
+  // Filter staffs based on search term
   const filteredStaffs = staffs.filter((staff) => {
-    if (!searchTerm.trim()) return true; // Return all results if search is empty
-    
-    const searchValue = searchTerm.toLowerCase().trim();
-    const searchTerms = searchValue.split(' ').filter(term => term.length > 0); // Split search into words
-    
-    // If no valid search terms after splitting, return all results
-    if (searchTerms.length === 0) return true;
-    
-    // Check if any search term is contained in name, phone number, or email fields
-    return searchTerms.some(term => {
-      // Check name fields
-      const nameMatch = 
-        (staff.firstName && staff.firstName.toLowerCase().includes(term)) ||
-        (staff.lastName && staff.lastName.toLowerCase().includes(term)) ||
-        (staff.fullName && staff.fullName.toLowerCase().includes(term));
-      
-      // Check phone number
-      const phoneMatch = staff.phoneNumber && staff.phoneNumber.includes(term);
-      
-      // Check email
-      const emailMatch = staff.email && staff.email.toLowerCase().includes(term);
-      
-      // Return true if name, phone, or email matches
-      return nameMatch || phoneMatch || emailMatch;
-    });
+    const searchValue = searchTerm.toLowerCase();
+    return (
+      (staff.staffFirstName &&
+        staff.staffFirstName.toLowerCase().includes(searchValue)) ||
+      (staff.staffLastName &&
+        staff.staffLastName.toLowerCase().includes(searchValue)) ||
+      (staff.staffEmail &&
+        staff.staffEmail.toLowerCase().includes(searchValue)) ||
+      (staff.staffPhoneNumber && staff.staffPhoneNumber.includes(searchValue))
+    );
   });
-
-  // Apply sorting to filtered staff data
-  const sortedStaffs = getSortedData(filteredStaffs, order, orderBy);
-
-  // Get paginated data from sorted staff
-  const paginatedStaffs = sortedStaffs.slice(
-    page * rowsPerPage,
-    page * rowsPerPage + rowsPerPage
-  );
-
-  // Handle page change
-  const handleChangePage = (event, newPage) => {
-    setPage(newPage);
-  };
-
-  // Handle rows per page change
-  const handleChangeRowsPerPage = (event) => {
-    setRowsPerPage(parseInt(event.target.value, 10));
-    setPage(0);
-  };
 
   // Get status chip
   const getStatusChip = (status) => {
@@ -211,6 +263,18 @@ export default function Staff() {
       default:
         return <Chip label="Không xác định" color="default" size="small" />;
     }
+  };
+
+  // Get role name
+  const getRoleName = (roleId) => {
+    const role = roles.find((r) => r.id === roleId);
+    return role ? role.name : "Không xác định";
+  };
+
+  // Get theater name
+  const getTheaterName = (theaterId) => {
+    const theater = theaters.find((t) => t.id === theaterId);
+    return theater ? theater.name : "Không xác định";
   };
 
   // Handle form open for creating new staff
@@ -225,61 +289,34 @@ export default function Staff() {
     setOpenForm(true);
   };
 
-  // Handle form close with reset messages
+  // Handle form close
   const handleFormClose = () => {
     setOpenForm(false);
     setCurrentStaff(null);
-    setApiError("");
-    setApiSuccess("");
   };
 
-  // Handle view staff details
-  const handleViewStaff = (staff) => {
-    setViewStaff(staff);
-    setOpenViewDialog(true);
-  };
-
-  // Handle save staff with success/error handling
-  const handleSaveStaff = async (staffData) => {
-    try {
-      setApiError("");
-      setApiSuccess("");
-      
-      if (currentStaff) {
-        // Update existing staff
-        const result = await editStaff({
-          email: currentStaff.email,
-          ...staffData
-        });
-        
-        if (result.success) {
-          setApiSuccess(result.message);
-          // Change timeout to 3 seconds
-          setTimeout(() => {
-            setOpenForm(false);
-            setCurrentStaff(null);
-          }, 3000); // Changed from 1500 to 3000 (3 seconds)
-        } else {
-          setApiError(result.message);
-        }
-      } else {
-        // Add new staff
-        const result = await addStaff(staffData);
-        
-        if (result.success) {
-          setApiSuccess(result.message);
-          // Change timeout to 3 seconds
-          setTimeout(() => {
-            setOpenForm(false);
-          }, 3000); // Changed from 1500 to 3000 (3 seconds)
-        } else {
-          setApiError(result.message);
-        }
-      }
-    } catch (err) {
-      console.error("Error saving staff:", err);
-      setApiError("Có lỗi xảy ra. Vui lòng thử lại sau.");
+  // Handle save staff
+  const handleSaveStaff = (staffData) => {
+    if (currentStaff) {
+      // Update existing staff
+      setStaffs((prevStaffs) =>
+        prevStaffs.map((staff) =>
+          staff.staffId === currentStaff.staffId
+            ? { ...staff, ...staffData }
+            : staff
+        )
+      );
+    } else {
+      // Add new staff
+      const newStaff = {
+        staffId: Math.max(...staffs.map((s) => s.staffId)) + 1,
+        staffCreateAt: new Date().toISOString(),
+        staffStatus: 1,
+        ...staffData,
+      };
+      setStaffs((prevStaffs) => [...prevStaffs, newStaff]);
     }
+    setOpenForm(false);
   };
 
   // Handle delete staff
@@ -289,41 +326,16 @@ export default function Staff() {
   };
 
   // Confirm delete
-  const confirmDelete = async () => {
+  const confirmDelete = () => {
     if (staffToDelete) {
-      try {
-        await removeStaff(staffToDelete.email);
-        setOpenDeleteDialog(false);
-        setStaffToDelete(null);
-      } catch (err) {
-        console.error("Error deleting staff:", err);
-        // Error is already handled by the hook
-      }
+      setStaffs((prevStaffs) =>
+        prevStaffs.filter((staff) => staff.staffId !== staffToDelete.staffId)
+      );
+      setOpenDeleteDialog(false);
+      setStaffToDelete(null);
     }
   };
 
-  // Add a component for sortable column headers
-  const SortableTableCell = ({ id, label, align }) => {
-    return (
-      <TableCell 
-        align={align || 'left'}
-        sortDirection={orderBy === id ? order : false}
-        sx={{ cursor: 'pointer' }}
-        onClick={() => handleRequestSort(id)}
-      >
-        <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: align === 'center' ? 'center' : 'flex-start' }}>
-          {label}
-          <Box component="span" sx={{ ml: 0.5 }}>
-            {orderBy === id ? (
-              order === 'asc' ? '↑' : '↓'
-            ) : ''}
-          </Box>
-        </Box>
-      </TableCell>
-    );
-  };
-
-  // Update the table to display roleName
   return (
     <Container maxWidth="xl">
       <Box sx={{ p: 3 }}>
@@ -342,7 +354,7 @@ export default function Staff() {
             <TextField
               variant="outlined"
               size="small"
-              placeholder="Tìm theo tên, sđt hoặc email..."
+              placeholder="Tìm kiếm nhân viên..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
               sx={{ width: 300 }}
@@ -355,7 +367,7 @@ export default function Staff() {
               }}
             />
             <Tooltip title="Làm mới dữ liệu">
-              <IconButton onClick={handleRefresh} color="primary">
+              <IconButton onClick={() => setSearchTerm("")} color="primary">
                 <Refresh />
               </IconButton>
             </Tooltip>
@@ -406,7 +418,7 @@ export default function Staff() {
                       fontWeight="bold"
                       color="success.main"
                     >
-                      {staffs.filter((staff) => staff.status === 1).length}
+                      {staffs.filter((staff) => staff.staffStatus === 1).length}
                     </Typography>
                   </Box>
                   <Box
@@ -418,7 +430,7 @@ export default function Staff() {
                       fontWeight="bold"
                       color="error.main"
                     >
-                      {staffs.filter((staff) => staff.status === 0).length}
+                      {staffs.filter((staff) => staff.staffStatus === 0).length}
                     </Typography>
                   </Box>
                 </Box>
@@ -445,7 +457,7 @@ export default function Staff() {
                       <Typography variant="body2">Nam:</Typography>
                     </Box>
                     <Typography variant="body2" fontWeight="bold">
-                      {staffs.filter((staff) => staff.gender === 1).length}
+                      {staffs.filter((staff) => staff.staffGender === 1).length}
                     </Typography>
                   </Box>
                   <Box
@@ -460,7 +472,7 @@ export default function Staff() {
                       <Typography variant="body2">Nữ:</Typography>
                     </Box>
                     <Typography variant="body2" fontWeight="bold">
-                      {staffs.filter((staff) => staff.gender === 2).length}
+                      {staffs.filter((staff) => staff.staffGender === 2).length}
                     </Typography>
                   </Box>
                   <Box
@@ -474,9 +486,9 @@ export default function Staff() {
                       {
                         staffs.filter(
                           (staff) =>
-                            staff.gender !== 1 &&
-                            staff.gender !== 2 &&
-                            staff.gender !== null
+                            staff.staffGender !== 1 &&
+                            staff.staffGender !== 2 &&
+                            staff.staffGender !== null
                         ).length
                       }
                     </Typography>
@@ -490,53 +502,35 @@ export default function Staff() {
             <Card elevation={3} sx={{ bgcolor: 'background.paper' }}>
               <CardContent>
                 <Typography variant="h6" gutterBottom color="primary">
-                  Bộ lọc và sắp xếp
+                  Phân bố theo chi nhánh
                 </Typography>
                 <Box sx={{ mt: 2 }}>
-                  <Box sx={{ display: "flex", alignItems: "center", mb: 2 }}>
-                    <PersonOutline color="action" sx={{ mr: 1 }} />
-                    <TextField
-                      fullWidth
-                      size="small"
-                      label="Tên nhân viên"
-                      variant="outlined"
-                      placeholder="Nhập tên nhân viên..."
-                      onChange={(e) => setSearchTerm(e.target.value)}
-                      sx={{ flex: 1 }}
-                    />
-                  </Box>
-                  <Box sx={{ display: "flex", alignItems: "center", mb: 2 }}>
-                    <Email color="action" sx={{ mr: 1 }} />
-                    <TextField
-                      fullWidth
-                      size="small"
-                      label="Email"
-                      variant="outlined"
-                      placeholder="Nhập email..."
-                      onChange={(e) => setSearchTerm(e.target.value)}
-                      sx={{ flex: 1 }}
-                    />
-                  </Box>
-                  <Box sx={{ display: "flex", alignItems: "center", mb: 2 }}>
-                    <Phone color="action" sx={{ mr: 1 }} />
-                    <TextField
-                      fullWidth
-                      size="small"
-                      label="Số điện thoại"
-                      variant="outlined"
-                      placeholder="Nhập số điện thoại..."
-                      onChange={(e) => setSearchTerm(e.target.value)}
-                      sx={{ flex: 1 }}
-                    />
-                  </Box>
-                  <Typography variant="body2" color="text.secondary" sx={{ mt: 1 }}>
-                    Nhấp vào tiêu đề cột để sắp xếp
-                  </Typography>
+                  {theaters.map((theater) => (
+                    <Box
+                      key={theater.id}
+                      sx={{
+                        display: "flex",
+                        justifyContent: "space-between",
+                        mb: theater.id !== theaters.length ? 2 : 0,
+                      }}
+                    >
+                      <Box sx={{ display: "flex", alignItems: "center" }}>
+                        <TheaterComedy color="action" sx={{ mr: 1 }} />
+                        <Typography variant="body2">{theater.name}:</Typography>
+                      </Box>
+                      <Typography variant="body2" fontWeight="bold">
+                        {
+                          staffs.filter(
+                            (staff) => staff.staffTheaterId === theater.id
+                          ).length
+                        }
+                      </Typography>
+                    </Box>
+                  ))}
                 </Box>
               </CardContent>
             </Card>
           </Grid>
-
         </Grid>
 
         <Card elevation={3} sx={{ bgcolor: 'background.paper' }}>
@@ -544,7 +538,7 @@ export default function Staff() {
             <Box
               sx={{
                 p: 2,
-                bgcolor: "primary.main",
+                bgcolor: "primary.main", // Changed from primary.light for better contrast in dark mode
                 borderRadius: "4px 4px 0 0",
               }}
             >
@@ -553,260 +547,220 @@ export default function Staff() {
               </Typography>
             </Box>
 
-            {error && (
-              <Alert severity="error" sx={{ m: 2 }}>
-                {error}
-              </Alert>
-            )}
-
-            {loading ? (
-              <Box sx={{ display: 'flex', justifyContent: 'center', p: 4 }}>
-                <CircularProgress />
-              </Box>
-            ) : (
-              <>
-                <TableContainer 
-                  component={Paper} 
-                  elevation={0}
-                  sx={{ 
-                    bgcolor: 'background.paper',
-                    '& .MuiTableCell-root': {
-                      color: 'text.primary'
-                    }
-                  }}
-                >
-                  <Table sx={{ minWidth: 650 }}>
-                    <TableHead>
-                      <TableRow sx={{ 
-                        backgroundColor: (theme) => 
-                          theme.palette.mode === 'dark' 
-                            ? 'rgba(255, 255, 255, 0.1)' 
-                            : '#f5f5f5'
-                      }}>
-                        <SortableTableCell id="fullName" label="Nhân viên" />
-                        <SortableTableCell id="email" label="Email" />
-                        <SortableTableCell id="phoneNumber" label="Số điện thoại" />
-                        <SortableTableCell id="dateOfBirth" label="Ngày sinh" />
-                        <SortableTableCell id="roleName" label="Vai trò" />
-                        <SortableTableCell id="status" label="Trạng thái" align="center" />
-                        <TableCell align="center">Thao tác</TableCell>
-                      </TableRow>
-                    </TableHead>
-                    <TableBody>
-                      {paginatedStaffs.length > 0 ? (
-                        paginatedStaffs.map((staff) => (
-                          <TableRow 
-                            key={staff.email} 
-                            hover
-                            onClick={() => handleViewStaff(staff)}
-                            sx={{ cursor: 'pointer' }}
-                          >
-                            {/* Name cell - no changes */}
-                            <TableCell>
-                              <Box sx={{ display: "flex", alignItems: "center" }}>
-                                <Avatar
-                                  src={staff.avatar}
-                                  alt={staff.fullName}
-                                  sx={{
-                                    width: 40,
-                                    height: 40,
-                                    mr: 2,
-                                    bgcolor: "primary.main",
-                                  }}
-                                >
-                                  {staff.firstName?.charAt(0) ||
-                                    staff.lastName?.charAt(0) || (
-                                      <PersonOutline />
-                                    )}
-                                </Avatar>
-                                <Box>
-                                  <Typography variant="subtitle2" fontWeight="bold">
-                                    {staff.fullName || `${staff.firstName || ""} ${staff.lastName || ""}`}
-                                  </Typography>
-                                  <Typography
-                                    variant="caption"
-                                    color="text.secondary"
-                                  >
-                                    {staff.gender === 1 ? (
-                                      <Box
-                                        sx={{
-                                          display: "flex",
-                                          alignItems: "center",
-                                        }}
-                                      >
-                                        <Male
-                                          fontSize="small"
-                                          color="primary"
-                                          sx={{ mr: 0.5 }}
-                                        />
-                                        <span>Nam</span>
-                                      </Box>
-                                    ) : staff.gender === 2 ? (
-                                      <Box
-                                        sx={{
-                                          display: "flex",
-                                          alignItems: "center",
-                                        }}
-                                      >
-                                        <Female
-                                          fontSize="small"
-                                          color="secondary"
-                                          sx={{ mr: 0.5 }}
-                                        />
-                                        <span>Nữ</span>
-                                      </Box>
-                                    ) : (
-                                      <Box
-                                        sx={{
-                                          display: "flex",
-                                          alignItems: "center",
-                                        }}
-                                      >
-                                        <Wc
-                                          fontSize="small"
-                                          color="action"
-                                          sx={{ mr: 0.5 }}
-                                        />
-                                        <span>Khác</span>
-                                      </Box>
-                                    )}
-                                  </Typography>
-                                </Box>
-                              </Box>
-                            </TableCell>
-                            
-                            {/* Email cell - no changes */}
-                            <TableCell>
-                              <Box sx={{ display: "flex", alignItems: "center" }}>
-                                <Email
-                                  fontSize="small"
-                                  color="action"
-                                  sx={{ mr: 1 }}
-                                />
-                                {staff.email || "N/A"}
-                              </Box>
-                            </TableCell>
-                            
-                            {/* Phone cell - no changes */}
-                            <TableCell>
-                              <Box sx={{ display: "flex", alignItems: "center" }}>
-                                <Phone
-                                  fontSize="small"
-                                  color="action"
-                                  sx={{ mr: 1 }}
-                                />
-                                {staff.phoneNumber || "N/A"}
-                              </Box>
-                            </TableCell>
-                            
-                            {/* Birthday cell - no changes */}
-                            <TableCell>
-                              <Box sx={{ display: "flex", alignItems: "center" }}>
-                                <Cake
-                                  fontSize="small"
-                                  color="action"
-                                  sx={{ mr: 1 }}
-                                />
-                                {formatDate(staff.dateOfBirth)}
-                              </Box>
-                            </TableCell>
-                            
-                            {/* Role cell - New */}
-                            <TableCell>
-                              <Box sx={{ display: "flex", alignItems: "center" }}>
-                                <WorkOutline
-                                  fontSize="small"
-                                  color="action"
-                                  sx={{ mr: 1 }}
-                                />
-                                {staff.roleName || (staff.roleId === 1 ? "Admin" : "Staff")}
-                              </Box>
-                            </TableCell>
-                            
-                            {/* Status cell - no changes */}
-                            <TableCell align="center">
-                              {getStatusChip(staff.status)}
-                            </TableCell>
-                            
-                            {/* Actions cell - no changes */}
-                            <TableCell align="center" onClick={(e) => e.stopPropagation()}>
-                              <Box
-                                sx={{ display: "flex", justifyContent: "center" }}
-                              >
-                                <Tooltip title="Xem chi tiết">
-                                  <IconButton 
-                                    size="small" 
-                                    color="info"
-                                    onClick={() => handleViewStaff(staff)}
-                                  >
-                                    <Visibility fontSize="small" />
-                                  </IconButton>
-                                </Tooltip>
-                                <Tooltip title="Chỉnh sửa">
-                                  <IconButton
-                                    size="small"
-                                    color="primary"
-                                    onClick={() => handleEditStaff(staff)}
-                                  >
-                                    <Edit fontSize="small" />
-                                  </IconButton>
-                                </Tooltip>
-                                <Tooltip title="Xóa">
-                                  <IconButton
-                                    size="small"
-                                    color="error"
-                                    onClick={() => handleDeleteClick(staff)}
-                                  >
-                                    <Delete fontSize="small" />
-                                  </IconButton>
-                                </Tooltip>
-                              </Box>
-                            </TableCell>
-                          </TableRow>
-                        ))
-                      ) : (
-                        <TableRow>
-                          <TableCell colSpan={7} align="center" sx={{ py: 3 }}>
-                            <Box
+            <TableContainer 
+              component={Paper} 
+              elevation={0}
+              sx={{ 
+                bgcolor: 'background.paper',
+                '& .MuiTableCell-root': {
+                  color: 'text.primary'
+                }
+              }}
+            >
+              <Table sx={{ minWidth: 650 }}>
+                <TableHead>
+                  <TableRow sx={{ 
+                    backgroundColor: (theme) => 
+                      theme.palette.mode === 'dark' 
+                        ? 'rgba(255, 255, 255, 0.1)' 
+                        : '#f5f5f5'
+                  }}>
+                    <TableCell align="center" width={50}>
+                      ID
+                    </TableCell>
+                    <TableCell>Nhân viên</TableCell>
+                    <TableCell>Email</TableCell>
+                    <TableCell>Số điện thoại</TableCell>
+                    <TableCell>Ngày sinh</TableCell>
+                    <TableCell align="center">Vai trò</TableCell>
+                    <TableCell align="center">Chi nhánh</TableCell>
+                    <TableCell align="center">Trạng thái</TableCell>
+                    <TableCell align="center">Thao tác</TableCell>
+                  </TableRow>
+                </TableHead>
+                <TableBody>
+                  {filteredStaffs.length > 0 ? (
+                    filteredStaffs.map((staff) => (
+                      <TableRow key={staff.staffId} hover>
+                        <TableCell align="center">{staff.staffId}</TableCell>
+                        <TableCell>
+                          <Box sx={{ display: "flex", alignItems: "center" }}>
+                            <Avatar
+                              src={staff.staffAvatar}
+                              alt={`${staff.staffFirstName} ${staff.staffLastName}`}
                               sx={{
-                                display: "flex",
-                                flexDirection: "column",
-                                alignItems: "center",
+                                width: 40,
+                                height: 40,
+                                mr: 2,
+                                bgcolor: "primary.main",
                               }}
                             >
-                              <Typography variant="body1" color="text.secondary">
-                                {searchTerm
-                                  ? "Không tìm thấy kết quả nào."
-                                  : "Chưa có dữ liệu nhân viên."}
+                              {staff.staffFirstName?.charAt(0) ||
+                                staff.staffLastName?.charAt(0) || (
+                                  <PersonOutline />
+                                )}
+                            </Avatar>
+                            <Box>
+                              <Typography variant="subtitle2" fontWeight="bold">
+                                {`${staff.staffFirstName || ""} ${
+                                  staff.staffLastName || ""
+                                }`}
+                              </Typography>
+                              <Typography
+                                variant="caption"
+                                color="text.secondary"
+                              >
+                                {staff.staffGender === 1 ? (
+                                  <Box
+                                    sx={{
+                                      display: "flex",
+                                      alignItems: "center",
+                                    }}
+                                  >
+                                    <Male
+                                      fontSize="small"
+                                      color="primary"
+                                      sx={{ mr: 0.5 }}
+                                    />
+                                    <span>Nam</span>
+                                  </Box>
+                                ) : staff.staffGender === 2 ? (
+                                  <Box
+                                    sx={{
+                                      display: "flex",
+                                      alignItems: "center",
+                                    }}
+                                  >
+                                    <Female
+                                      fontSize="small"
+                                      color="secondary"
+                                      sx={{ mr: 0.5 }}
+                                    />
+                                    <span>Nữ</span>
+                                  </Box>
+                                ) : (
+                                  <Box
+                                    sx={{
+                                      display: "flex",
+                                      alignItems: "center",
+                                    }}
+                                  >
+                                    <Wc
+                                      fontSize="small"
+                                      color="action"
+                                      sx={{ mr: 0.5 }}
+                                    />
+                                    <span>Khác</span>
+                                  </Box>
+                                )}
                               </Typography>
                             </Box>
-                          </TableCell>
-                        </TableRow>
-                      )}
-                    </TableBody>
-                  </Table>
-                </TableContainer>
-                
-                {/* Pagination control */}
-                <TablePagination
-                  rowsPerPageOptions={[5, 10, 25, 50]}
-                  component="div"
-                  count={filteredStaffs.length}
-                  rowsPerPage={rowsPerPage}
-                  page={filteredStaffs.length > 0 ? page : 0}
-                  onPageChange={handleChangePage}
-                  onRowsPerPageChange={handleChangeRowsPerPage}
-                  labelRowsPerPage="Số hàng mỗi trang:"
-                  labelDisplayedRows={({ from, to, count }) =>
-                    `${from}-${to} của ${count}`
-                  }
-                  sx={{
-                    bgcolor: 'background.paper',
-                    color: 'text.primary',
-                  }}
-                />
-              </>
-            )}
+                          </Box>
+                        </TableCell>
+                        <TableCell>
+                          <Box sx={{ display: "flex", alignItems: "center" }}>
+                            <Email
+                              fontSize="small"
+                              color="action"
+                              sx={{ mr: 1 }}
+                            />
+                            {staff.staffEmail || "N/A"}
+                          </Box>
+                        </TableCell>
+                        <TableCell>
+                          <Box sx={{ display: "flex", alignItems: "center" }}>
+                            <Phone
+                              fontSize="small"
+                              color="action"
+                              sx={{ mr: 1 }}
+                            />
+                            {staff.staffPhoneNumber || "N/A"}
+                          </Box>
+                        </TableCell>
+                        <TableCell>
+                          <Box sx={{ display: "flex", alignItems: "center" }}>
+                            <Cake
+                              fontSize="small"
+                              color="action"
+                              sx={{ mr: 1 }}
+                            />
+                            {formatDate(staff.staffDateOfBirth)}
+                          </Box>
+                        </TableCell>
+                        <TableCell align="center">
+                          <Chip
+                            icon={<WorkOutline fontSize="small" />}
+                            label={getRoleName(staff.staffRoleId)}
+                            variant="outlined"
+                            color="primary"
+                            size="small"
+                          />
+                        </TableCell>
+                        <TableCell align="center">
+                          <Chip
+                            icon={<TheaterComedy fontSize="small" />}
+                            label={getTheaterName(staff.staffTheaterId)}
+                            variant="outlined"
+                            color="info"
+                            size="small"
+                          />
+                        </TableCell>
+                        <TableCell align="center">
+                          {getStatusChip(staff.staffStatus)}
+                        </TableCell>
+                        <TableCell align="center">
+                          <Box
+                            sx={{ display: "flex", justifyContent: "center" }}
+                          >
+                            <Tooltip title="Xem chi tiết">
+                              <IconButton size="small" color="info">
+                                <Visibility fontSize="small" />
+                              </IconButton>
+                            </Tooltip>
+                            <Tooltip title="Chỉnh sửa">
+                              <IconButton
+                                size="small"
+                                color="primary"
+                                onClick={() => handleEditStaff(staff)}
+                              >
+                                <Edit fontSize="small" />
+                              </IconButton>
+                            </Tooltip>
+                            <Tooltip title="Xóa">
+                              <IconButton
+                                size="small"
+                                color="error"
+                                onClick={() => handleDeleteClick(staff)}
+                              >
+                                <Delete fontSize="small" />
+                              </IconButton>
+                            </Tooltip>
+                          </Box>
+                        </TableCell>
+                      </TableRow>
+                    ))
+                  ) : (
+                    <TableRow>
+                      <TableCell colSpan={9} align="center" sx={{ py: 3 }}>
+                        <Box
+                          sx={{
+                            display: "flex",
+                            flexDirection: "column",
+                            alignItems: "center",
+                          }}
+                        >
+                          <Typography variant="body1" color="text.secondary">
+                            {searchTerm
+                              ? "Không tìm thấy kết quả nào."
+                              : "Chưa có dữ liệu nhân viên."}
+                          </Typography>
+                        </Box>
+                      </TableCell>
+                    </TableRow>
+                  )}
+                </TableBody>
+              </Table>
+            </TableContainer>
           </CardContent>
         </Card>
       </Box>
@@ -833,101 +787,11 @@ export default function Staff() {
             onSave={handleSaveStaff}
             theaters={theaters}
             roles={roles}
-            apiError={apiError}
-            apiSuccess={apiSuccess}
           />
         </DialogContent>
         <DialogActions>
           <Button onClick={handleFormClose} color="inherit">
             Hủy
-          </Button>
-        </DialogActions>
-      </Dialog>
-
-      {/* View Staff Dialog */}
-      <Dialog
-        open={openViewDialog}
-        onClose={() => setOpenViewDialog(false)}
-        maxWidth="sm"
-        fullWidth
-        PaperProps={{
-          sx: {
-            bgcolor: 'background.paper',
-            color: 'text.primary'
-          }
-        }}
-      >
-        <DialogTitle>Thông tin nhân viên</DialogTitle>
-        <DialogContent dividers>
-          {viewStaff && (
-            <Box>
-              <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', mb: 3 }}>
-                <Avatar
-                  src={viewStaff.avatar}
-                  alt={viewStaff.fullName}
-                  sx={{ width: 100, height: 100, mb: 2 }}
-                >
-                  {viewStaff.firstName?.charAt(0) || viewStaff.lastName?.charAt(0) || <PersonOutline />}
-                </Avatar>
-                <Typography variant="h6">{viewStaff.fullName}</Typography>
-                <Chip 
-                  label={viewStaff.status === 1 ? "Hoạt động" : "Không hoạt động"} 
-                  color={viewStaff.status === 1 ? "success" : "error"} 
-                  size="small"
-                  sx={{ mt: 1 }}
-                />
-              </Box>
-              
-              <Grid container spacing={2}>
-                <Grid item xs={12}>
-                  <Typography variant="subtitle2" color="text.secondary">Email</Typography>
-                  <Typography variant="body1">{viewStaff.email}</Typography>
-                </Grid>
-                <Grid item xs={6}>
-                  <Typography variant="subtitle2" color="text.secondary">Số điện thoại</Typography>
-                  <Typography variant="body1">{viewStaff.phoneNumber || "N/A"}</Typography>
-                </Grid>
-                <Grid item xs={6}>
-                  <Typography variant="subtitle2" color="text.secondary">Ngày sinh</Typography>
-                  <Typography variant="body1">{formatDate(viewStaff.dateOfBirth)}</Typography>
-                </Grid>
-                <Grid item xs={6}>
-                  <Typography variant="subtitle2" color="text.secondary">Giới tính</Typography>
-                  <Typography variant="body1">
-                    {viewStaff.gender === 1 ? "Nam" : viewStaff.gender === 2 ? "Nữ" : "Khác"}
-                  </Typography>
-                </Grid>
-                <Grid item xs={6}>
-                  <Typography variant="subtitle2" color="text.secondary">Vai trò</Typography>
-                  <Typography variant="body1">
-                    {viewStaff.roleName || 
-                      (viewStaff.roleId === 1 ? "Admin" : 
-                      viewStaff.roleId === 2 ? "Staff" : "Không xác định")}
-                  </Typography>
-                </Grid>
-                {/* <Grid item xs={12}>
-                  <Typography variant="subtitle2" color="text.secondary">Chi nhánh</Typography>
-                  <Typography variant="body1">
-                    {theaters.find(t => t.id === viewStaff.theaterId)?.name || "Không xác định"}
-                  </Typography>
-                </Grid> */}
-              </Grid>
-            </Box>
-          )}
-        </DialogContent>
-        <DialogActions>
-          <Button onClick={() => setOpenViewDialog(false)} color="primary">
-            Đóng
-          </Button>
-          <Button 
-            onClick={() => {
-              setOpenViewDialog(false);
-              handleEditStaff(viewStaff);
-            }} 
-            color="primary"
-            startIcon={<Edit />}
-          >
-            Chỉnh sửa
           </Button>
         </DialogActions>
       </Dialog>
@@ -946,7 +810,8 @@ export default function Staff() {
         <DialogTitle>Xác nhận xóa nhân viên</DialogTitle>
         <DialogContent>
           <Typography color="text.primary">
-            Bạn có chắc chắn muốn xóa nhân viên "{staffToDelete?.fullName || `${staffToDelete?.firstName || ""} ${staffToDelete?.lastName || ""}`}" không?
+            Bạn có chắc chắn muốn xóa nhân viên "{staffToDelete?.staffFirstName}{" "}
+            {staffToDelete?.staffLastName}" không?
           </Typography>
           <Typography variant="body2" color="error" sx={{ mt: 2 }}>
             Lưu ý: Hành động này không thể hoàn tác.

@@ -3,8 +3,8 @@ import apiClient from './apiClient';
 // Lấy danh sách tất cả nhân viên
 export const getAllStaffs = async () => {
   try {
-    const response = await apiClient.get('/Staff/get-all');
-    return response.data.staffs; // Trả về mảng staffs từ response
+    const response = await apiClient.get('/Staff/GetAll');
+    return response.data;
   } catch (error) {
     console.error('Error fetching staffs:', error);
     throw error;
@@ -26,15 +26,7 @@ export const getStaffById = async (id) => {
 export const getStaffByEmail = async (email) => {
   try {
     const response = await apiClient.get(`/Staff/email/${encodeURIComponent(email)}`);
-    console.log("API response for getStaffByEmail:", response.data);
-    
-    // Check if response has expected structure with staff object
-    if (response.data && response.data.isSuccessful && response.data.staff) {
-      return response.data.staff; // Return just the staff object
-    } else {
-      // If API response doesn't have expected structure, throw error
-      throw new Error(response.data?.message || 'Không thể lấy thông tin nhân viên');
-    }
+    return response.data;
   } catch (error) {
     console.error(`Error fetching staff with email ${email}:`, error);
     throw error;
@@ -45,29 +37,7 @@ export const getStaffByEmail = async (email) => {
 export const createStaff = async (staffData) => {
   try {
     const response = await apiClient.post('/Staff', staffData);
-    
-    // Return the full API response including success message
-    return {
-      isSuccessful: response.data.isSuccessful,
-      message: response.data.message,
-      staff: {
-        email: staffData.email,
-        firstName: staffData.firstName,
-        lastName: staffData.lastName,
-        fullName: `${staffData.firstName} ${staffData.lastName}`,
-        phoneNumber: staffData.phoneNumber,
-        dateOfBirth: staffData.dateOfBirth,
-        gender: staffData.gender,
-        status: 1, // Mặc định là active
-        roleId: staffData.roleId,
-        roleName: staffData.roleId === 1 ? "Admin" : "Staff", // Add roleName based on roleId
-        theaterId: staffData.theaterId
-      },
-      userEmail: response.data.userEmail,
-      userFullName: response.data.userFullName,
-      isStaff: response.data.isStaff,
-      role: response.data.role
-    };
+    return response.data;
   } catch (error) {
     console.error('Error creating staff:', error);
     throw error;
@@ -77,11 +47,10 @@ export const createStaff = async (staffData) => {
 // Cập nhật thông tin nhân viên
 export const updateStaff = async (staffData) => {
   try {
-    const response = await apiClient.put('/Staff/update-staff', staffData);
-    console.log('Update staff response:', response.data);
-    return response.data; // Trả về response với staff đã được cập nhật
+    const response = await apiClient.put(`/Staff/${id}`, staffData);
+    return response.data;
   } catch (error) {
-    console.error(`Error updating staff with email ${staffData.email}:`, error);
+    console.error(`Error updating staff with id ${id}:`, error);
     throw error;
   }
 };
@@ -98,55 +67,33 @@ export const updateStaffProfile = async (profileData) => {
   }
 };
 
-// Xóa nhân viên - giữ lại để tương thích trong tương lai
-export const deleteStaff = async (email) => {
+// Xóa nhân viên
+export const deleteStaff = async (id) => {
   try {
-    // Giả sử API xóa nhân viên theo email (hoặc có thể là endpoint khác)
-    // const response = await apiClient.delete(`/Staff/email/${encodeURIComponent(email)}`);
-    // return response.data;
-    
-    // Tạm thời sử dụng cách này để giả lập xóa nhân viên (vì API chưa có endpoint xóa)
-    console.warn('Delete staff API not implemented yet');
-    return { isSuccessful: true, message: "Xóa nhân viên thành công" };
+    const response = await apiClient.delete(`/Staff/${id}`);
+    return response.data;
   } catch (error) {
-    console.error(`Error deleting staff with email ${email}:`, error);
+    console.error(`Error deleting staff with id ${id}:`, error);
     throw error;
   }
 };
 
-// Lấy danh sách các vai trò - giữ lại để tương thích trong tương lai
+// Lấy danh sách các vai trò
 export const getRoles = async () => {
   try {
-    // Giả sử API lấy danh sách vai trò
-    // const response = await apiClient.get('/Role/GetAll');
-    // return response.data;
-    
-    // Tạm thời trả về danh sách vai trò cứng
-    return [
-      { id: 1, name: "Admin" },
-      { id: 2, name: "Staff" }
-    ];
+    const response = await apiClient.get('/Role/GetAll');
+    return response.data;
   } catch (error) {
     console.error('Error fetching roles:', error);
     throw error;
   }
 };
 
-// Lấy danh sách các chi nhánh - giữ lại để tương thích trong tương lai
+// Lấy danh sách các chi nhánh
 export const getTheaters = async () => {
   try {
-    // Giả sử API lấy danh sách chi nhánh
-    // const response = await apiClient.get('/Theater/GetAll');
-    // return response.data;
-    
-    // Tạm thời trả về danh sách chi nhánh cứng
-    return [
-      { id: 1, name: "Cinema Đà Nẵng" },
-      { id: 2, name: "Cinema Hà Nội" },
-      { id: 3, name: "Cinema TP. Hồ Chí Minh" },
-      { id: 4, name: "Cinema Huế" },
-      { id: 5, name: "Cinema Nha Trang" }
-    ];
+    const response = await apiClient.get('/Theater/GetAll');
+    return response.data;
   } catch (error) {
     console.error('Error fetching theaters:', error);
     throw error;

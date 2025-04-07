@@ -287,7 +287,7 @@ const Combos = () => {
         sx={{ mb: 3 }}
       >
         <Typography variant="h4" component="h1" fontWeight="bold">
-          Quản lý combo
+          Combos Management
         </Typography>
 
         <Button
@@ -296,7 +296,7 @@ const Combos = () => {
           onClick={handleAddComboClick}
           sx={{ borderRadius: 2 }}
         >
-          Tạo combo mới
+          Add Combo
         </Button>
       </Stack>
 
@@ -304,7 +304,7 @@ const Combos = () => {
       <TextField
         fullWidth
         variant="outlined"
-        placeholder="Tìm kiểm theo tên combo..."
+        placeholder="Search combos..."
         value={searchTerm}
         onChange={(e) => setSearchTerm(e.target.value)}
         sx={{ mb: 3 }}
@@ -316,20 +316,16 @@ const Combos = () => {
           <TableHead>
             <TableRow>
               <StyledTableCell>ID</StyledTableCell>
-              <StyledTableCell>Hình ảnh</StyledTableCell>
-              <StyledTableCell>Tên</StyledTableCell>
-              <StyledTableCell>Giảm giá</StyledTableCell>
-              <StyledTableCell>Trạng thái</StyledTableCell>
-              <StyledTableCell align="right">Chức năng</StyledTableCell>
+              <StyledTableCell>Image</StyledTableCell>
+              <StyledTableCell>Name</StyledTableCell>
+              <StyledTableCell>Discount</StyledTableCell>
+              <StyledTableCell>Status</StyledTableCell>
+              <StyledTableCell align="right">Actions</StyledTableCell>
             </TableRow>
           </TableHead>
           <TableBody>
             {combos.map((combo) => (
-              <StyledTableRow 
-                key={combo.comboId}
-                onClick={() => handleViewClick(combo)}
-                sx={{ cursor: 'pointer' }}
-              >
+              <StyledTableRow key={combo.comboId}>
                 <StyledTableCell>{combo.comboId}</StyledTableCell>
                 <StyledTableCell>
                   <ComboImage src={combo.comboImage} alt={combo.comboName} />
@@ -341,47 +337,20 @@ const Combos = () => {
                 <StyledTableCell>
                   <StatusChip status={combo.comboAvailable} />
                 </StyledTableCell>
-                <StyledTableCell align="right" onClick={(e) => e.stopPropagation()}>
+                <StyledTableCell align="right">
                   <Tooltip title="View Details">
-                    <IconButton 
-                      onClick={() => handleViewClick(combo)}
-                      color="info" // Changed to info color to match Vouchers
-                      sx={{
-                        backgroundColor: alpha(theme.palette.info.main, 0.1),
-                        mr: 1,
-                        '&:hover': {
-                          backgroundColor: alpha(theme.palette.info.main, 0.2),
-                        }
-                      }}
-                    >
+                    <IconButton onClick={() => handleViewClick(combo)}>
                       <VisibilityIcon />
                     </IconButton>
                   </Tooltip>
                   <Tooltip title="Edit">
-                    <IconButton 
-                      onClick={() => handleEditClick(combo)}
-                      color="error" // Keep edit button as red
-                      sx={{
-                        backgroundColor: alpha(theme.palette.error.main, 0.1),
-                        mr: 1,
-                        '&:hover': {
-                          backgroundColor: alpha(theme.palette.error.main, 0.2),
-                        }
-                      }}
-                    >
+                    <IconButton onClick={() => handleEditClick(combo)}>
                       <EditIcon />
                     </IconButton>
                   </Tooltip>
                   <Tooltip title="Delete">
                     <IconButton
                       onClick={() => handleDeleteCombo(combo.comboId)}
-                      sx={{
-                        color: theme.palette.grey[700],
-                        backgroundColor: alpha(theme.palette.grey[500], 0.1),
-                        '&:hover': {
-                          backgroundColor: alpha(theme.palette.grey[700], 0.2),
-                        }
-                      }}
                     >
                       <DeleteIcon />
                     </IconButton>
@@ -392,7 +361,6 @@ const Combos = () => {
           </TableBody>
         </Table>
       </TableContainer>
-
 
       {/* Pagination */}
       <TablePagination

@@ -1,28 +1,34 @@
 import { useState, useEffect, useCallback } from 'react';
-import { 
-  getAllStaffs, 
-  getStaffByEmail, 
-  createStaff, 
-  updateStaff, 
-  deleteStaff, 
-  getRoles,
-  getTheaters
-} from '../api/services/staffService';
+// Import các service nhưng tạm thời comment để tránh lỗi eslint do chưa sử dụng
+// import { 
+//   getAllStaffs, 
+//   getStaffById, 
+//   createStaff, 
+//   updateStaff, 
+//   deleteStaff, 
+//   getRoles,
+//   getTheaters
+// } from '../api/services/staffService';
 
 export const useStaff = () => {
+  // eslint-disable-next-line
   const [staffs, setStaffs] = useState([]);
+  // eslint-disable-next-line
   const [roles, setRoles] = useState([]);
+  // eslint-disable-next-line
   const [theaters, setTheaters] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  const [selectedStaff, setSelectedStaff] = useState(null);
 
   // Lấy danh sách nhân viên
   const fetchStaffs = useCallback(async () => {
     try {
       setLoading(true);
-      const data = await getAllStaffs();
-      setStaffs(data);
+      // Bỏ gọi API khi chưa kết nối backend, sử dụng dữ liệu mẫu
+      // const data = await getAllStaffs();
+      // setStaffs(data);
+      
+      // Để tạm thời trống, component Staff.jsx đã có dữ liệu mẫu
       setError(null);
     } catch (err) {
       setError('Không thể tải dữ liệu nhân viên. Vui lòng thử lại sau.');
@@ -35,12 +41,15 @@ export const useStaff = () => {
   // Lấy danh sách vai trò và chi nhánh
   const fetchRolesAndTheaters = useCallback(async () => {
     try {
-      const [rolesData, theatersData] = await Promise.all([
-        getRoles(),
-        getTheaters()
-      ]);
-      setRoles(rolesData);
-      setTheaters(theatersData);
+      // Bỏ gọi API khi chưa kết nối backend, sử dụng dữ liệu mẫu
+      // const [rolesData, theatersData] = await Promise.all([
+      //   getRoles(),
+      //   getTheaters()
+      // ]);
+      // setRoles(rolesData);
+      // setTheaters(theatersData);
+      
+      // Sử dụng dữ liệu mẫu trong component Staff.jsx
       setError(null);
     } catch (err) {
       setError('Không thể tải dữ liệu vai trò và chi nhánh. Vui lòng thử lại sau.');
@@ -48,15 +57,22 @@ export const useStaff = () => {
     }
   }, []);
 
-  // Lấy thông tin chi tiết của một nhân viên
-  const getStaffDetails = async (email) => {
+  // Tạo nhân viên mới
+  const addStaff = async (staffData) => {
     try {
       setLoading(true);
-      const staffData = await getStaffByEmail(email);
-      setSelectedStaff(staffData);
-      return staffData;
+      // Bỏ gọi API, sử dụng hàm callback trả về dữ liệu tạo mới
+      // const newStaff = await createStaff(staffData);
+      // setStaffs(prevStaffs => [...prevStaffs, newStaff]);
+      
+      // Trả về dữ liệu giả định cho component xử lý
+      return {
+        ...staffData,
+        staffId: Math.floor(Math.random() * 1000) + 100, // Random ID
+        staffCreateAt: new Date().toISOString()
+      };
     } catch (err) {
-      setError(`Không thể tải thông tin nhân viên với email ${email}. Vui lòng thử lại sau.`);
+      setError('Không thể tạo nhân viên mới. Vui lòng thử lại sau.');
       console.error(err);
       throw err;
     } finally {
@@ -64,121 +80,44 @@ export const useStaff = () => {
     }
   };
 
-  // Tạo nhân viên mới
-  const addStaff = async (staffData) => {
-    try {
-      setLoading(true);
-      const response = await createStaff(staffData);
-      
-      if (response.isSuccessful) {
-        // Thêm nhân viên mới vào danh sách
-        const newStaff = {
-          email: staffData.email,
-          firstName: staffData.firstName,
-          lastName: staffData.lastName,
-          fullName: `${staffData.firstName} ${staffData.lastName}`,
-          phoneNumber: staffData.phoneNumber,
-          dateOfBirth: staffData.dateOfBirth,
-          // Fix gender - store as numeric value
-          gender: parseInt(staffData.gender),
-          status: 1, // Mặc định là active
-          roleId: staffData.roleId,
-          theaterId: staffData.theaterId,
-          // Add roleName based on roleId
-          roleName: staffData.roleId === 1 ? "Admin" : "Staff"
-        };
-        
-        setStaffs(prevStaffs => [...prevStaffs, newStaff]);
-        return {
-          success: true,
-          staff: newStaff,
-          message: response.message || 'Tạo tài khoản nhân viên thành công.'
-        };
-      } else {
-        throw new Error(response.message || 'Tạo nhân viên thất bại');
-      }
-    } catch (err) {
-      setError('Không thể tạo nhân viên mới. Vui lòng thử lại sau.');
-      console.error(err);
-      
-      // Return the error message from the API if available
-      if (err.response && err.response.data) {
-        return {
-          success: false,
-          message: err.response.data.message || 'Không thể tạo nhân viên mới.'
-        };
-      }
-      
-      // Otherwise return a generic error message
-      return {
-        success: false,
-        message: err.message || 'Không thể tạo nhân viên mới. Vui lòng thử lại sau.'
-      };
-    } finally {
-      setLoading(false);
-    }
-  };
-
   // Cập nhật thông tin nhân viên
-  const editStaff = async (staffData) => {
+  const editStaff = async (id, staffData) => {
     try {
       setLoading(true);
-      const response = await updateStaff(staffData);
+      // Bỏ gọi API, sử dụng hàm callback trả về dữ liệu đã cập nhật
+      // const updatedStaff = await updateStaff(id, staffData);
+      // setStaffs(prevStaffs => 
+      //   prevStaffs.map(staff => staff.staffId === id ? updatedStaff : staff)
+      // );
       
-      if (response.isSuccessful) {
-        // Cập nhật nhân viên trong danh sách
-        const updatedStaff = response.staff;
-        setStaffs(prevStaffs => 
-          prevStaffs.map(staff => staff.email === updatedStaff.email ? {
-            ...updatedStaff,
-            // Keep these fields if not included in response
-            roleId: staff.roleId,
-            theaterId: staff.theaterId
-          } : staff)
-        );
-        return {
-          success: true,
-          staff: updatedStaff,
-          message: response.message || 'Cập nhật thông tin nhân viên thành công.'
-        };
-      } else {
-        throw new Error(response.message || 'Cập nhật nhân viên thất bại');
-      }
+      // Trả về dữ liệu giả định cho component xử lý
+      return {
+        ...staffData,
+        staffId: id
+      };
     } catch (err) {
       setError('Không thể cập nhật thông tin nhân viên. Vui lòng thử lại sau.');
       console.error(err);
-      
-      // Return the error message from the API if available
-      if (err.response && err.response.data) {
-        return {
-          success: false,
-          message: err.response.data.message || 'Không thể cập nhật thông tin nhân viên.'
-        };
-      }
-      
-      // Otherwise return a generic error message
-      return {
-        success: false,
-        message: err.message || 'Không thể cập nhật thông tin nhân viên. Vui lòng thử lại sau.'
-      };
+      throw err;
     } finally {
       setLoading(false);
     }
   };
 
   // Xóa nhân viên
-  const removeStaff = async (email) => {
+  const removeStaff = async (id) => {
     try {
       setLoading(true);
-      const response = await deleteStaff(email);
+      // Bỏ gọi API
+      // await deleteStaff(id);
+      // setStaffs(prevStaffs => prevStaffs.filter(staff => staff.staffId !== id));
       
-      if (response.isSuccessful) {
-        // Xóa nhân viên khỏi danh sách
-        setStaffs(prevStaffs => prevStaffs.filter(staff => staff.email !== email));
-        return true;
-      } else {
-        throw new Error(response.message || 'Xóa nhân viên thất bại');
-      }
+      // Sử dụng id trong comment để tránh eslint warning
+      // eslint-disable-next-line no-unused-vars
+      const staffId = id;
+      
+      // Trả về thành công mà không gọi API
+      return true;
     } catch (err) {
       setError('Không thể xóa nhân viên. Vui lòng thử lại sau.');
       console.error(err);
@@ -200,9 +139,7 @@ export const useStaff = () => {
     theaters,
     loading,
     error,
-    selectedStaff,
     fetchStaffs,
-    getStaffDetails,
     addStaff,
     editStaff,
     removeStaff

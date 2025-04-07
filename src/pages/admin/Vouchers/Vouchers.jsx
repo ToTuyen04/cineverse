@@ -3,8 +3,7 @@ import {
   Box, Typography, Button, Paper, Table, TableBody, TableCell, TableContainer, 
   TableHead, TableRow, Chip, IconButton, TextField, InputAdornment,
   useTheme, alpha, CircularProgress, Alert, Pagination, PaginationItem,
-  Select, MenuItem, FormControl, Snackbar, Dialog, DialogTitle, DialogContent,
-  DialogActions, Grid, Divider
+  Select, MenuItem, FormControl, Snackbar
 } from '@mui/material';
 import { styled } from '@mui/material/styles';
 import EditIcon from '@mui/icons-material/Edit';
@@ -19,7 +18,6 @@ import dayjs from 'dayjs';
 import 'dayjs/locale/vi';
 import utc from 'dayjs/plugin/utc';
 import timezone from 'dayjs/plugin/timezone';
-import { Refresh, Visibility } from '@mui/icons-material';
 
 // Initialize dayjs plugins
 dayjs.extend(utc);
@@ -108,10 +106,6 @@ const Vouchers = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [searchDebounce, setSearchDebounce] = useState('');
   
-  // Add sorting states
-  const [orderBy, setOrderBy] = useState('voucherId');
-  const [order, setOrder] = useState('asc');
-  
   // State for voucher form
   const [openVoucherForm, setOpenVoucherForm] = useState(false);
   const [selectedVoucher, setSelectedVoucher] = useState(null);
@@ -123,10 +117,6 @@ const Vouchers = () => {
     message: '',
     severity: 'success'
   });
-  
-  // Add state for view dialog
-  const [openViewDialog, setOpenViewDialog] = useState(false);
-  const [viewVoucher, setViewVoucher] = useState(null);
   
   // Use the custom hook to fetch vouchers
   const { 
@@ -166,73 +156,6 @@ const Vouchers = () => {
     }
   }, [searchDebounce, page, rowsPerPage, searchVouchers, refreshVouchers]);
   
-  // Handle sorting
-  const handleRequestSort = (property) => {
-    const isAsc = orderBy === property && order === 'asc';
-    setOrder(isAsc ? 'desc' : 'asc');
-    setOrderBy(property);
-  };
-
-  // Sort function for vouchers
-  const getSortedData = (data, order, orderBy) => {
-    return [...data].sort((a, b) => {
-      // Handle date fields
-      if (orderBy === 'voucherStartAt' || orderBy === 'voucherEndAt') {
-        const dateA = a[orderBy] ? new Date(a[orderBy]) : new Date(0);
-        const dateB = b[orderBy] ? new Date(b[orderBy]) : new Date(0);
-        return order === 'asc' 
-          ? dateA - dateB 
-          : dateB - dateA;
-      }
-      
-      // Handle numeric fields
-      if (orderBy === 'voucherId' || orderBy === 'voucherDiscount' || orderBy === 'voucherMaxValue') {
-        return order === 'asc'
-          ? a[orderBy] - b[orderBy]
-          : b[orderBy] - a[orderBy];
-      }
-      
-      // Handle boolean fields
-      if (orderBy === 'voucherAvailable') {
-        return order === 'asc'
-          ? (a[orderBy] === b[orderBy] ? 0 : a[orderBy] ? -1 : 1)
-          : (a[orderBy] === b[orderBy] ? 0 : a[orderBy] ? 1 : -1);
-      }
-      
-      // For other fields (strings)
-      if (a[orderBy] === undefined || a[orderBy] === null) return order === 'asc' ? -1 : 1;
-      if (b[orderBy] === undefined || b[orderBy] === null) return order === 'asc' ? 1 : -1;
-      
-      return order === 'asc'
-        ? a[orderBy].toString().localeCompare(b[orderBy].toString())
-        : b[orderBy].toString().localeCompare(a[orderBy].toString());
-    });
-  };
-  
-  // Apply sorting to vouchers
-  const sortedVouchers = getSortedData(vouchers, order, orderBy);
-  
-  // Add a component for sortable column headers
-  const SortableTableCell = ({ id, label, align }) => {
-    return (
-      <StyledTableCell 
-        align={align || 'left'}
-        sortDirection={orderBy === id ? order : false}
-        sx={{ cursor: 'pointer' }}
-        onClick={() => handleRequestSort(id)}
-      >
-        <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: align === 'center' ? 'center' : 'flex-start' }}>
-          {label}
-          <Box component="span" sx={{ ml: 0.5 }}>
-            {orderBy === id ? (
-              order === 'asc' ? '↑' : '↓'
-            ) : ''}
-          </Box>
-        </Box>
-      </StyledTableCell>
-    );
-  };
-  
   // Handle page change
   const handleChangePage = (event, newPage) => {
     setPage(newPage);
@@ -255,16 +178,6 @@ const Vouchers = () => {
     }
   };
   
-  // Add reset function to clear search and reset ordering
-  const handleReset = () => {
-    setSearchTerm('');
-    setSearchDebounce('');
-    setOrderBy('voucherId');
-    setOrder('asc');
-    setPage(1);
-    refreshVouchers(1, rowsPerPage);
-  };
-
   // Handle add voucher button click
   const handleAddVoucherClick = () => {
     setIsEditMode(false);
@@ -352,18 +265,6 @@ const Vouchers = () => {
     }
   };
   
-  // Handle view voucher
-  const handleViewVoucher = (voucher) => {
-    setViewVoucher(voucher);
-    setOpenViewDialog(true);
-  };
-
-  // Handle view dialog close
-  const handleCloseViewDialog = () => {
-    setOpenViewDialog(false);
-    setViewVoucher(null);
-  };
-
   // Helper function to show snackbar
   const showSnackbar = (message, severity = 'success') => {
     setSnackbar({
@@ -413,16 +314,16 @@ const Vouchers = () => {
             py: 1
           }}
         >
-          Tạo voucher mới
+          Add New Voucher
         </Button>
       </Box>
       
-      {/* Enhanced search box with reset button */}
-      <Box sx={{ mb: 3, display: 'flex', gap: 2 }}>
+      {/* Enhanced search box */}
+      <Box sx={{ mb: 3 }}>
         <TextField
           fullWidth
           variant="outlined"
-          placeholder="Tìm kiếm theo tên hoặc mã voucher..."
+          placeholder="Search for vouchers..."
           value={searchTerm}
           onChange={(e) => setSearchTerm(e.target.value)}
           InputProps={{
@@ -442,25 +343,6 @@ const Vouchers = () => {
             }
           }}
         />
-        <Button
-          variant="outlined"
-          color="primary"
-          onClick={handleReset}
-          startIcon={<Refresh />}
-          sx={{ 
-            minWidth: '120px',
-            backgroundColor: theme.palette.background.paper,
-            borderColor: theme.palette.mode === 'light' 
-              ? 'rgba(0, 0, 0, 0.15)' 
-              : 'rgba(255, 255, 255, 0.15)',
-            '&:hover': {
-              backgroundColor: alpha(theme.palette.primary.main, 0.05),
-              borderColor: theme.palette.primary.main
-            }
-          }}
-        >
-          Reset
-        </Button>
       </Box>
       
       {/* Display loading indicator */}
@@ -498,30 +380,23 @@ const Vouchers = () => {
                     ? alpha(theme.palette.primary.main, 0.05)
                     : alpha(theme.palette.common.white, 0.05) 
                 }}>
-                  <SortableTableCell id="voucherId" label="ID" />
-                  <SortableTableCell id="voucherName" label="Tên" />
-                  <SortableTableCell id="voucherCode" label="Mã voucher" />
-                  <SortableTableCell id="voucherStartAt" label="Bắt đầu" />
-                  <SortableTableCell id="voucherEndAt" label="Kết thúc" />
-                  <SortableTableCell id="voucherDiscount" label="Giảm giá" />
-                  <SortableTableCell id="voucherAvailable" label="Trạng thái" />
+                  <StyledTableCell>ID</StyledTableCell>
+                  <StyledTableCell>Tên</StyledTableCell>
+                  <StyledTableCell>Mã voucher</StyledTableCell>
+                  <StyledTableCell>Thời gian</StyledTableCell>
+                  <StyledTableCell>Giảm giá</StyledTableCell>
+                  <StyledTableCell>Trạng thái</StyledTableCell>
                   <StyledTableCell align="center">Chức năng</StyledTableCell>
                 </TableRow>
               </TableHead>
               <TableBody>
-                {sortedVouchers.map((voucher) => (
-                  <StyledTableRow 
-                    key={voucher.voucherId}
-                    onClick={() => handleViewVoucher(voucher)}
-                  >
+                {vouchers.map((voucher) => (
+                  <StyledTableRow key={voucher.voucherId}>
                     <StyledTableCell>{voucher.voucherId}</StyledTableCell>
                     <StyledTableCell>{voucher.voucherName}</StyledTableCell>
                     <StyledTableCell>{voucher.voucherCode}</StyledTableCell>
                     <StyledTableCell>
-                      {formatDateTime(voucher.voucherStartAt)}
-                    </StyledTableCell>
-                    <StyledTableCell>
-                      {formatDateTime(voucher.voucherEndAt)}
+                      {formatDateTime(voucher.voucherStartAt)} - {formatDateTime(voucher.voucherEndAt)}
                     </StyledTableCell>
                     <StyledTableCell>
                       {voucher.voucherDiscount}% (Max: {voucher.voucherMaxValue.toLocaleString()} VND)
@@ -532,21 +407,7 @@ const Vouchers = () => {
                         endDate={voucher.voucherEndAt}
                       />
                     </StyledTableCell>
-                    <StyledTableCell align="center" onClick={(e) => e.stopPropagation()}>
-                      <IconButton 
-                        size="small" 
-                        color="info"
-                        onClick={() => handleViewVoucher(voucher)}
-                        sx={{ 
-                          backgroundColor: alpha(theme.palette.info.main, 0.1),
-                          marginRight: 1,
-                          '&:hover': {
-                            backgroundColor: alpha(theme.palette.info.main, 0.2),
-                          }
-                        }}
-                      >
-                        <Visibility fontSize="small" />
-                      </IconButton>
+                    <StyledTableCell align="center">
                       <IconButton 
                         size="small" 
                         color="primary"
@@ -586,7 +447,7 @@ const Vouchers = () => {
                 {/* Show message when no vouchers are found */}
                 {vouchers.length === 0 && (
                   <TableRow>
-                    <TableCell colSpan={8} align="center" sx={{ py: 3 }}>
+                    <TableCell colSpan={7} align="center" sx={{ py: 3 }}>
                       <Typography variant="body1">
                         No vouchers found
                       </Typography>
@@ -682,116 +543,6 @@ const Vouchers = () => {
         onSubmit={handleSubmitVoucher}
         isEdit={isEditMode}
       />
-      
-      {/* View Voucher Dialog */}
-      <Dialog
-        open={openViewDialog}
-        onClose={handleCloseViewDialog}
-        maxWidth="md"
-        fullWidth
-        PaperProps={{
-          sx: {
-            backgroundColor: theme.palette.background.paper,
-            boxShadow: theme.shadows[5],
-            borderRadius: 1
-          }
-        }}
-      >
-        <DialogTitle sx={{ 
-          borderBottom: `1px solid ${theme.palette.divider}`, 
-          px: 3, 
-          py: 2,
-          display: 'flex',
-          justifyContent: 'space-between',
-          alignItems: 'center'
-        }}>
-          <Typography variant="h6" component="div" sx={{ fontWeight: 600 }}>
-            Chi tiết voucher
-          </Typography>
-          {viewVoucher && (
-            <StatusChip 
-              active={viewVoucher.voucherAvailable} 
-              endDate={viewVoucher.voucherEndAt}
-            />
-          )}
-        </DialogTitle>
-        
-        <DialogContent sx={{ p: 3 }}>
-          {viewVoucher && (
-            <Grid container spacing={3}>
-              <Grid item xs={12}>
-                <Box sx={{ 
-                  display: 'flex', 
-                  flexDirection: 'column', 
-                  alignItems: 'center',
-                  mb: 2,
-                  p: 2,
-                  backgroundColor: alpha(theme.palette.primary.main, 0.05),
-                  borderRadius: 1
-                }}>
-                  <Typography variant="h5" sx={{ fontWeight: 600, color: theme.palette.primary.main }}>
-                    {viewVoucher.voucherName}
-                  </Typography>
-                  <Typography variant="h6" color="text.secondary">
-                    {viewVoucher.voucherCode}
-                  </Typography>
-                </Box>
-              </Grid>
-              
-              <Grid item xs={12} md={6}>
-                <Typography variant="subtitle2" color="text.secondary">ID</Typography>
-                <Typography variant="body1" gutterBottom>{viewVoucher.voucherId}</Typography>
-              </Grid>
-              
-              <Grid item xs={12} md={6}>
-                <Typography variant="subtitle2" color="text.secondary">Giảm giá</Typography>
-                <Typography variant="body1" gutterBottom>
-                  {viewVoucher.voucherDiscount}% (Tối đa: {viewVoucher.voucherMaxValue.toLocaleString()} VND)
-                </Typography>
-              </Grid>
-              
-              <Grid item xs={12} md={6}>
-                <Typography variant="subtitle2" color="text.secondary">Thời gian bắt đầu</Typography>
-                <Typography variant="body1" gutterBottom>{formatDateTime(viewVoucher.voucherStartAt)}</Typography>
-              </Grid>
-              
-              <Grid item xs={12} md={6}>
-                <Typography variant="subtitle2" color="text.secondary">Thời gian kết thúc</Typography>
-                <Typography variant="body1" gutterBottom>{formatDateTime(viewVoucher.voucherEndAt)}</Typography>
-              </Grid>
-              
-              <Grid item xs={12}>
-                <Divider sx={{ my: 1 }} />
-                <Typography variant="subtitle2" color="text.secondary">Mô tả</Typography>
-                <Typography variant="body1">
-                  {viewVoucher.voucherDescription || "Không có mô tả"}
-                </Typography>
-              </Grid>
-            </Grid>
-          )}
-        </DialogContent>
-        
-        <DialogActions sx={{ px: 3, py: 2, borderTop: `1px solid ${theme.palette.divider}` }}>
-          <Button 
-            onClick={handleCloseViewDialog} 
-            color="inherit"
-          >
-            Đóng
-          </Button>
-          {viewVoucher && (
-            <Button 
-              onClick={() => {
-                handleCloseViewDialog();
-                handleEditClick(viewVoucher.voucherId);
-              }}
-              color="primary"
-              startIcon={<EditIcon />}
-            >
-              Chỉnh sửa
-            </Button>
-          )}
-        </DialogActions>
-      </Dialog>
       
       {/* Feedback Snackbar */}
       <Snackbar

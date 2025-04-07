@@ -118,23 +118,27 @@ const Profile = () => {
         const response = await getStaffByEmail(user.email);
         console.log("Thông tin profile nhận được:", response);
         
-        // Check if response has data - API returns the staff object directly now
-        if (response) {
-          setProfile(response);
+        if (response.isSuccessful) {
+          setProfile(response.staff);
+          
+          // Tách họ và tên từ fullName
+          const nameParts = response.staff.fullName.split(' ');
+          const lastName = nameParts.pop() || '';
+          const firstName = nameParts.join(' ') || '';
           
           // Khởi tạo dữ liệu cho form chỉnh sửa
           setEditedProfile({
-            email: response.email,
-            firstName: response.firstName || '',
-            lastName: response.lastName || '',
-            phoneNumber: response.phoneNumber || '',
-            avatar: response.avatar || '',
-            dateOfBirth: response.dateOfBirth || null,
-            gender: response.gender || 0,
-            status: response.status || 1
+            email: response.staff.email,
+            firstName: firstName,
+            lastName: lastName,
+            phoneNumber: response.staff.phoneNumber || '',
+            avatar: response.staff.avatar || '',
+            dateOfBirth: response.staff.dateOfBirth || null,
+            gender: response.staff.gender || 0,
+            status: response.staff.status || 1
           });
         } else {
-          setError('Không thể lấy thông tin nhân viên');
+          setError(response.message || 'Không thể lấy thông tin nhân viên');
         }
       } catch (err) {
         setError(err.message || 'Đã xảy ra lỗi khi lấy dữ liệu');
