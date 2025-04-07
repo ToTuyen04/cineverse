@@ -13,6 +13,7 @@ import { getTheaters } from '../api/services/theaterService';
 import { getShowtimesByMovieAndTheater } from '../api/services/showtimeService';
 
 // Styled components
+// Cập nhật PageContainer để hiển thị tốt hơn trên thiết bị di động
 const PageContainer = styled.div`
   max-width: 80%;
   margin: 0 auto;
@@ -21,6 +22,15 @@ const PageContainer = styled.div`
   position: relative;
   overflow-y: visible;
   box-sizing: border-box;
+  
+  @media (max-width: 1024px) {
+    max-width: 90%;
+  }
+  
+  @media (max-width: 768px) {
+    max-width: 95%;
+    padding-bottom: calc(9rem + 100px); // Tăng padding-bottom để tránh bị che bởi SummarySection
+  }
 `;
 
 // Thêm background với chấm màu tím và xanh loang
@@ -123,11 +133,25 @@ const MovieInfo = styled.div`
   align-items: start;
 `;
 
+// Cập nhật MovieTitle để tránh tràn trên màn hình nhỏ
 const MovieTitle = styled.h1`
   font-size: 3rem;
   font-weight: bold;
   color:rgb(230, 255, 6);
   margin-bottom: 1rem;
+  
+  @media (max-width: 1200px) {
+    font-size: 2.5rem;
+  }
+  
+  @media (max-width: 768px) {
+    font-size: 2rem;
+    text-align: center;
+  }
+  
+  @media (max-width: 576px) {
+    font-size: 1.5rem;
+  }
 `;
 
 const MovieMeta = styled.div`
@@ -167,10 +191,19 @@ const StepContent = styled.div`
   border-radius: 8px;
 `;
 
+// Cập nhật TheatersList để hiển thị tốt hơn trên thiết bị di động
 const TheatersList = styled.div`
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
   gap: 1.5rem;
+  
+  @media (max-width: 768px) {
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  }
+  
+  @media (max-width: 576px) {
+    grid-template-columns: 1fr;
+  }
 `;
 
 const TheaterCard = styled.div`
@@ -216,6 +249,7 @@ const TheaterAddress = styled.p`
   }
 `;
 
+// Cập nhật DateSelector để hiển thị tốt hơn trên thiết bị di động
 const DateSelector = styled.div`
   display: flex;
   gap: 1rem;
@@ -236,8 +270,13 @@ const DateSelector = styled.div`
     background: #3f3f5a;
     border-radius: 5px;
   }
+  
+  @media (max-width: 576px) {
+    gap: 0.5rem;
+  }
 `;
 
+// Cập nhật DateCard để hiển thị tốt hơn trên thiết bị di động
 const DateCard = styled.div`
   min-width: 100px;
   padding: 1rem;
@@ -263,14 +302,38 @@ const DateCard = styled.div`
   &:hover {
     background-color: rgba(231, 26, 15, 0.1);
   }
+  
+  @media (max-width: 576px) {
+    min-width: 80px;
+    padding: 0.75rem;
+    
+    .date {
+      font-size: 0.95rem;
+    }
+  }
 `;
 
+// Cập nhật ShowtimesList để hiển thị tốt hơn trên thiết bị di động
 const ShowtimesList = styled.div`
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
   gap: 1rem;
+  
+  @media (max-width: 768px) {
+    grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+  }
+  
+  @media (max-width: 576px) {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 0.75rem;
+  }
+  
+  @media (max-width: 400px) {
+    grid-template-columns: 1fr;
+  }
 `;
 
+// Cập nhật ShowtimeCard để hiển thị tốt hơn trên thiết bị di động
 const ShowtimeCard = styled.div`
   background-color: ${props => props.$selected ? 'rgba(231, 26, 15, 0.1)' : '#2c2c44'};
   border: 1px solid ${props => props.$selected ? '#e71a0f' : 'transparent'};
@@ -300,9 +363,23 @@ const ShowtimeCard = styled.div`
     flex-direction: column;
     gap: 0.3rem;
   }
+  
+  @media (max-width: 576px) {
+    padding: 0.75rem;
+    
+    .time {
+      font-size: 1rem;
+      gap: 0.3rem;
+    }
+    
+    .info {
+      font-size: 0.8rem;
+    }
+  }
 `;
 
 // Thay thế component ScreenIndicator hiện tại
+// Cập nhật ScreenIndicator để hiển thị tốt hơn trên thiết bị di động
 const ScreenIndicator = styled.div`
   width: 90%;
   height: 70px;
@@ -312,6 +389,18 @@ const ScreenIndicator = styled.div`
   position: relative;
   transform: perspective(500px) rotateX(75deg); /* Tăng góc rotateX để tạo hiệu ứng cong hơn */
   box-shadow: 0 0 40px rgba(10, 132, 255, 0.8);
+  
+  @media (max-width: 768px) {
+    width: 95%;
+    height: 60px;
+    margin: 0 auto 5rem;
+  }
+  
+  @media (max-width: 576px) {
+    width: 100%;
+    height: 40px;
+    margin: 0 auto 3rem;
+  }
   
   &:before {
     content: ""; /* Đã bỏ chữ "MÀN HÌNH" */
@@ -371,6 +460,7 @@ const LegendItem = styled.div`
 
 
 // Thay thế SummarySection
+// Cập nhật SummarySection để hiển thị tốt hơn trên thiết bị di động
 const SummarySection = styled.div`
   max-width: 100%;
   box-sizing: border-box;
@@ -395,6 +485,12 @@ const SummarySection = styled.div`
     align-items: flex-start;
     gap: 1rem;
     padding: 1rem;
+    min-height: 120px;
+  }
+  
+  @media (max-width: 576px) {
+    padding: 0.75rem;
+    min-height: 140px;
   }
 `;
 
@@ -443,6 +539,7 @@ const Button = styled.button`
   }
 `;
 
+// Cập nhật SeatName để hiển thị tốt hơn trên thiết bị di động
 const SeatName = styled.div`
   position: absolute;
   top: 0;
@@ -458,6 +555,25 @@ const SeatName = styled.div`
   z-index: 2;
   pointer-events: none; /* Đảm bảo click vào SeatWrapper không bị SeatName chặn */
   text-shadow: ${props => props.$selected ? '0 0 3px rgba(0, 0, 0, 0.5)' : 'none'};
+  
+  @media (max-width: 768px) {
+    font-size: 0.7rem;
+  }
+  
+  @media (max-width: 576px) {
+    font-size: 0.65rem;
+  }
+  
+  @media (max-width: 400px) {
+    font-size: 0.6rem;
+  }
+  
+  &.booked {
+  color: ${props => props.$selected ? '#fff' : '#fff'}; /* Luôn màu trắng để dễ đọc */
+  z-index: 2;
+  text-shadow: 0 0 2px rgba(0, 0, 0, 0.8); /* Thêm đổ bóng để dễ đọc */
+  user-select: none; /* Ngăn người dùng bôi đen text */
+  pointer-events: none; /* Đảm bảo click events vẫn đi qua tên ghế và tác động lên ghế */
 `;
 
 
@@ -473,6 +589,77 @@ const DiscountBadge = styled.div`
   border-radius: 4px;
   box-shadow: 0 2px 4px rgba(0,0,0,0.2);
   display: ${props => (props.$show ? 'block' : 'none')};
+`;
+
+// Styled Components cho view sơ đồ ghế - cập nhật theo RoomSeatsManagement
+const ScreenArea = styled.div`
+  height: 10px;
+  background: linear-gradient(to right, #6a11cb, #2575fc, #6a11cb);
+  border-radius: 50%;
+  margin: 0 auto 50px;
+  width: 70%;
+  position: relative;
+  box-shadow: 0 0 20px rgba(106, 17, 203, 0.5);
+  
+  &:after {
+    content: 'MÀN HÌNH';
+    position: absolute;
+    top: -25px;
+    left: 50%;
+    transform: translateX(-50%);
+    font-size: 0.8rem;
+    color: #f3f4f6;
+    white-space: nowrap;
+  }
+  
+  @media (max-width: 768px) {
+    width: 90%;
+    margin: 0 auto 40px;
+  }
+  
+  @media (max-width: 576px) {
+    width: 95%;
+    height: 8px;
+    margin: 0 auto 35px;
+    
+    &:after {
+      font-size: 0.7rem;
+      top: -20px;
+    }
+  }
+`;
+
+const SeatsGrid = styled.div`
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(40px, 1fr)); /* Đặt số lượng cột cố định là 10 */
+  gap: 10px; /* Khoảng cách giữa các ghế */
+  width: 50%; /* Đảm bảo chiếm toàn bộ chiều rộng */
+  justify-content: center; /* Căn giữa các ghế trong container */
+  align-items: center; /* Căn giữa theo chiều dọc */
+
+  @media (max-width: 768px) {
+    gap: 8px; /* Giảm khoảng cách trên màn hình nhỏ */
+  }
+
+  @media (max-width: 576px) {
+    gap: 6px; /* Giảm khoảng cách hơn nữa trên màn hình rất nhỏ */
+  }
+`;
+
+const SeatRow = styled.div`
+  display: flex;
+  justify-content: center; /* Căn giữa hàng ghế */
+  align-items: center;
+  width: 100%;
+  margin-bottom: 10px;
+
+  .row-label {
+    width: 30px;
+    text-align: center;
+    font-weight: bold;
+    color: #b8c2cc;
+    margin-right: 10px;
+  }
 `;
 
 function BookingPage() {
@@ -561,13 +748,13 @@ function BookingPage() {
         totalPrice = item.comboDetails.reduce((sum, detail) => {
           return sum + (detail.fnbPrice * detail.quantity);
         }, 0);
-
+    
         // Áp dụng giảm giá nếu có
         if (item.comboDiscount > 0) {
-          totalPrice = totalPrice * (1 - item.comboDiscount);
+          totalPrice = totalPrice * (1 - item.comboDiscount / 100); // Chia comboDiscount cho 100
         }
       }
-
+    
       // Tạo mô tả từ comboDetails
       let description = item.comboDescription;
       if (!description && item.comboDetails && item.comboDetails.length > 0) {
@@ -575,7 +762,7 @@ function BookingPage() {
           .map(detail => `${detail.quantity} ${detail.fnbName}`)
           .join(' + ');
       }
-
+    
       return {
         id: item.comboId,
         name: item.comboName,
@@ -778,27 +965,6 @@ function BookingPage() {
     return total;
   };
 
-  // Handle booking submission
-  const handleBooking = async () => {
-    try {
-      const bookingData = {
-        movieId: id,
-        showtimeId: selectedShowtime.id,
-        seats: selectedSeats,
-        totalPrice: calculateTotal()
-      };
-
-      const result = await bookTickets(bookingData);
-      if (result.success) {
-        // Navigate to success page or show success message
-        alert(`Đặt vé thành công! Mã đặt vé của bạn là: ${result.bookingId}`);
-        navigate('/');
-      }
-    } catch (error) {
-      console.error('Error booking tickets:', error);
-      alert('Có lỗi xảy ra khi đặt vé. Vui lòng thử lại sau.');
-    }
-  };
 
   // Generate seats array for display
   const generateSeatsArray = () => {
@@ -813,30 +979,8 @@ function BookingPage() {
     return { rows, cols };
   };
 
-  // Di chuyển hàm này vào trong component
-  const handlePayment = () => {
-    navigate(`/payment`, {
-      state: {
-        movieId: id,
-        movie: movie,
-        theaterId: selectedTheater.id,
-        theater: selectedTheater,
-        showtimeId: selectedShowtime.id,
-        showtime: selectedShowtime,
-        showDate: selectedDate,
-        seats: selectedSeats,
-        seatsConfig: seatsConfig,
-        concessions: selectedConcessions.map(item => ({
-          id: item.id,
-          name: item.name,
-          quantity: item.quantity,
-          price: item.price,
-          type: item.type || 'combo'
-        })),
-        totalPrice: calculateTotal()
-      }
-    });
-  };
+  
+  
 
   // Hàm mapping loại ghế từ tên
   const getSeatTypeFromName = (chairTypeName) => {
@@ -948,52 +1092,6 @@ function BookingPage() {
 
   // Trong BookingPage.jsx - Thêm useEffect để xử lý preselection
   useEffect(() => {
-    // Kiểm tra nếu được điều hướng từ Đặt Vé Nhanh
-    if (location.state?.preselected) {
-      const { theaterId, theaterObject, dateObject, showtimeObject } = location.state;
-
-      // Tự động chọn rạp
-      if (theaterId && theaterObject) {
-        // Tìm rạp trong danh sách rạp
-        const theater = theatersList.find(t => t.theaterId === parseInt(theaterId) || t.id === parseInt(theaterId));
-        if (theater) {
-          handleTheaterSelect(theater);
-
-          // Sau khi chọn rạp và load dữ liệu, tự động chọn ngày và suất chiếu
-          const setupDateAndShowtime = async () => {
-            // Chờ một chút để đảm bảo dữ liệu rạp đã được load
-            await new Promise(resolve => setTimeout(resolve, 300));
-
-            // Tự động chọn ngày
-            if (dateObject && showDates.length > 0) {
-              const matchedDate = showDates.find(d => d.date === dateObject.value);
-              if (matchedDate) {
-                handleDateSelect(matchedDate);
-
-                // Chờ để dữ liệu ngày được load
-                await new Promise(resolve => setTimeout(resolve, 300));
-
-                // Tự động chọn suất chiếu
-                if (showtimeObject && matchedDate.times.length > 0) {
-                  const matchedShowtime = matchedDate.times.find(
-                    t => t.id === showtimeObject.showtimeId || t.id === parseInt(showtimeObject.value)
-                  );
-                  if (matchedShowtime) {
-                    handleShowtimeSelect(matchedShowtime);
-                  }
-                }
-              }
-            }
-          };
-
-          setupDateAndShowtime();
-        }
-      }
-    }
-  }, [location.state, theatersList]);
-
-  // useEffect xử lý preselection - thêm trong file BookingPage.jsx
-  useEffect(() => {
     
 
     // Chọn rạp
@@ -1012,6 +1110,8 @@ function BookingPage() {
     }
   }, [location.state, theatersList, loading]); // Thêm loading là dependency quan trọng
 
+ 
+  
   if (loading) {
     return (
       <PageContainer>
@@ -1040,47 +1140,50 @@ function BookingPage() {
     }
 
     const rows = Object.keys(seatsConfig.groupedSeats).sort(); // Sắp xếp hàng theo thứ tự A, B, C, ...
-    const lastRow = rows[rows.length - 1]; // Hàng cuối cùng (hiển thị ghế đôi nếu có)
 
     return (
       <SeatsContainer>
-        <ScreenIndicator />
+        <ScreenArea />
 
-        <SeatTable>
-          <tbody>
-            {rows.map(row => {
-              const seats = seatsConfig.groupedSeats[row];
-              return (
-                <tr key={row}>
-                  <SeatNameRow>{row}</SeatNameRow>
-                  {seats.map(seat => {
-                    const isReserved = !seat.available;
-                    const isSelected = selectedSeats.includes(seat.chairName);
-                    const isDoubleSeat = seat.chairTypeName === 'Ghế đôi';
+        {rows.map(row => {
+          const seats = seatsConfig.groupedSeats[row];
+          return (
+            <SeatRow key={row}>
+              <div className="row-label">{row}</div>
+              <SeatsGrid>
+                {seats.map(seat => {
+                  const isReserved = !seat.available;
+                  const isSelected = selectedSeats.includes(seat.chairName);
+                  const isDoubleSeat = seat.chairTypeName === 'Ghế đôi';
 
-                    return (
-                      <SeatTd key={seat.chairId} colSpan={isDoubleSeat ? 2 : 1}>
-                        <SeatWrapper
-                          className={`seat-wr ${isReserved ? 'booked' : ''}`}
-                          onClick={() => !isReserved && handleSeatSelect(seat.chairName)}
-                        >
-                          <SeatImage
-                            $reserved={isReserved}
-                            $selected={isSelected}
-                            $type={seat.chairTypeName}
-                          />
-                          <SeatName $selected={isSelected} $reserved={isReserved}>
-                            {seat.chairName}
-                          </SeatName>
-                        </SeatWrapper>
-                      </SeatTd>
-                    );
-                  })}
-                </tr>
-              );
-            })}
-          </tbody>
-        </SeatTable>
+                  return (
+                    <SeatWrapper
+                      key={seat.chairId}
+                      className={`seat-wr ${isReserved ? 'booked' : ''}`}
+                      onClick={() => !isReserved && handleSeatSelect(seat.chairName)}
+                    >
+                      <SeatImage
+                        className="seat-image"
+                        $reserved={isReserved}
+                        $selected={isSelected}
+                        $type={seat.chairTypeName}
+                        style={{
+                          gridColumn: isDoubleSeat ? 'span 2' : 'span 1', // Ghế đôi chiếm 2 cột
+                        }}
+                      />
+                      <SeatName
+                        $selected={isSelected}
+                        $reserved={isReserved}
+                      >
+                        {seat.chairName}
+                      </SeatName>
+                    </SeatWrapper>
+                  );
+                })}
+              </SeatsGrid>
+            </SeatRow>
+          );
+        })}
 
         <SeatLegend>
           <LegendItem $color="#2c2c44">
@@ -1209,7 +1312,7 @@ function BookingPage() {
 
       {/* Kiểm tra điều kiện hiển thị ghế */}
       {selectedShowtime && seatsConfig && seatsConfig.groupedSeats ? (
-        <StepContent style={{ marginBottom: '2rem' }}>
+        <StepContent style={{ marginBottom: '2rem' }} id="seats-section">
           <h2 style={{ color: '#f3f4f6', marginBottom: '1.5rem' }}>
             Chọn ghế <span style={{ color: '#b8c2cc', fontSize: '0.9rem' }}>
             </span>
@@ -1440,16 +1543,28 @@ const ConcessionsCategory = styled.div`
   }
 `;
 
+// Cập nhật ConcessionsGrid để hiển thị tốt hơn trên thiết bị di động
 const ConcessionsGrid = styled.div`
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
   gap: 1.5rem;
   
-  @media (max-width: 640px) {
+  @media (max-width: 992px) {
+    grid-template-columns: repeat(auto-fill, minmax(230px, 1fr));
+  }
+  
+  @media (max-width: 768px) {
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    gap: 1rem;
+  }
+  
+  @media (max-width: 576px) {
     grid-template-columns: 1fr;
+    gap: 1rem;
   }
 `;
 
+// Cập nhật ConcessionCard để hiển thị tốt hơn trên thiết bị di động
 const ConcessionCard = styled.div`
   display: flex;
   flex-direction: column;
@@ -1462,8 +1577,23 @@ const ConcessionCard = styled.div`
     transform: translateY(-5px);
     box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
   }
+  
+  @media (max-width: 768px) {
+    &:hover {
+      transform: translateY(-3px);
+    }
+  }
+  
+  @media (max-width: 576px) {
+    flex-direction: row;
+    
+    &:hover {
+      transform: none;
+    }
+  }
 `;
 
+// Cập nhật ConcessionImage để hiển thị tốt hơn trên thiết bị di động
 const ConcessionImage = styled.div`
   height: 150px; /* Chiều cao cố định */
   overflow: hidden;
@@ -1477,8 +1607,19 @@ const ConcessionImage = styled.div`
     object-fit: contain; /* Hiển thị đầy đủ ảnh */
     transition: transform 0.3s;
   }
+  
+  @media (max-width: 768px) {
+    height: 130px;
+  }
+  
+  @media (max-width: 576px) {
+    width: 100px;
+    height: 100px;
+    min-width: 100px;
+  }
 `;
 
+// Cập nhật ConcessionInfo để hiển thị tốt hơn trên thiết bị di động
 const ConcessionInfo = styled.div`
   padding: 1rem;
   flex-grow: 1;
@@ -1502,8 +1643,44 @@ const ConcessionInfo = styled.div`
     font-size: 1.1rem;
     margin-top: 0.5rem;
   }
+  
+  @media (max-width: 768px) {
+    padding: 0.75rem;
+    
+    h4 {
+      font-size: 1rem;
+    }
+    
+    p {
+      font-size: 0.85rem;
+    }
+    
+    .price {
+      font-size: 1rem;
+    }
+  }
+  
+  @media (max-width: 576px) {
+    padding: 0.5rem;
+    
+    h4 {
+      font-size: 0.95rem;
+      margin-bottom: 0.3rem;
+    }
+    
+    p {
+      font-size: 0.8rem;
+      margin-bottom: 0.3rem;
+    }
+    
+    .price {
+      font-size: 0.95rem;
+      margin-top: 0.3rem;
+    }
+  }
 `;
 
+// Cập nhật ConcessionActions để hiển thị tốt hơn trên thiết bị di động
 const ConcessionActions = styled.div`
   display: flex;
   align-items: center;
@@ -1551,36 +1728,54 @@ const ConcessionActions = styled.div`
     min-width: 40px;
     text-align: center;
   }
-`;
-
-// Thêm style cho tổng tiền để nổi bật hơn
-
-const SummaryInnerContainer = styled.div`
-  max-width: 1200px;
-  width: 100%;
-  display: flex; 
-  justify-content: space-between; /* Đảm bảo info ở trái và actions ở phải */
-  align-items: center; /* Căn giữa theo chiều dọc */
-  gap: 2rem;
-  min-height: 80px; /* Đảm bảo chiều cao cố định */
-
+  
   @media (max-width: 768px) {
-    flex-direction: column;
-    align-items: flex-start;
-    gap: 1rem;
+    padding: 0.4rem 0.75rem 0.75rem;
+    
+    button {
+      width: 32px;
+      height: 32px;
+    }
+    
+    .quantity {
+      font-size: 1rem;
+      min-width: 30px;
+    }
+  }
+  
+  @media (max-width: 576px) {
+    padding: 0.3rem 0.5rem 0.5rem;
+    
+    button {
+      width: 28px;
+      height: 28px;
+    }
+    
+    .quantity {
+      font-size: 0.9rem;
+      min-width: 25px;
+    }
   }
 `;
 
 // Thêm styles mới cho bố cục ghế kiểu table
+// Cập nhật SeatTable để hiển thị tốt hơn trên thiết bị di động
 const SeatTable = styled.table`
   width: 100%;
   border-collapse: separate;
-  border-spacing: 3px 10px;
-  
+  border-spacing: 4px 10px; /* Giảm khoảng cách giữa các ghế đơn */
+
   &.couple-seats {
-    border-spacing: 8px 10px;
-    /* Bỏ margin: 0 auto và width: auto */
+    border-spacing: 8px 10px; /* Khoảng cách cho ghế đôi */
     width: 100%;
+  }
+
+  @media (max-width: 768px) {
+    border-spacing: 3px 8px; /* Giảm khoảng cách trên màn hình nhỏ */
+  }
+
+  @media (max-width: 576px) {
+    border-spacing: 2px 6px; /* Giảm khoảng cách hơn nữa trên màn hình rất nhỏ */
   }
 `;
 
@@ -1594,19 +1789,22 @@ const SeatNameRow = styled.td`
   vertical-align: middle;
 `;
 
+// Cập nhật SeatTd để hiển thị tốt hơn trên thiết bị di động
 const SeatTd = styled.td`
   padding: 0;
+  width: 40px; /* Đảm bảo chiều rộng */
+  height: 40px; /* Đảm bảo chiều cao bằng chiều rộng */
+  position: relative;
   text-align: center;
-  width: 35px;
-  height: 35px;
-  vertical-align: middle;
   
-  &.seat-vip {
-    background-color: transparent;
+  @media (max-width: 768px) {
+    width: 35px;
+    height: 35px;
   }
   
-  &.seat-couple {
-    width: 70px; /* Chính xác bằng 2 ghế đơn */
+  @media (max-width: 576px) {
+    width: 30px;
+    height: 30px;
   }
 `;
 
@@ -1632,11 +1830,12 @@ const SeatWrapper = styled.div`
 `;
 
 const SeatImage = styled.div`
-  width: 100%;
-  height: 100%;
+  width: ${props => props.$type === 'Ghế đôi' ? '80px' : '40px'}; /* Ghế đôi rộng gấp đôi */
+  height: 40px; /* Chiều cao giữ nguyên */
+  border-radius: 8px;
   position: relative;
-  cursor: ${props => props.$reserved || props.$disabled ? 'not-allowed' : 'pointer'};
-  
+  transition: all 0.2s ease;
+
   &:before {
     content: '';
     position: absolute;
@@ -1644,27 +1843,24 @@ const SeatImage = styled.div`
     left: 0;
     right: 0;
     bottom: 0;
-    border-radius: 4px;
+    border-radius: 8px;
     background-color: ${props => {
-    if (props.$reserved) return '#333';
-    if (props.$disabled) return '#444';
-    if (props.$selected) return '#800080'; // Màu ghế đang chọn đổi thành tím
-    if (props.$type === SEAT_TYPES.VIP) return '#f39c12';
-    if (props.$type === SEAT_TYPES.COUPLE) return '#9b59b6';
-    return '#2c2c44';
-  }};
-    transition: all 0.2s;
+      if (props.$reserved) return '#333';
+      if (props.$selected) return '#800080';
+      if (props.$type === 'Ghế VIP') return '#f39c12';
+      if (props.$type === 'Ghế đôi') return '#9b59b6';
+      return '#2c2c44';
+    }};
   }
   
-  /* Bỏ hoàn toàn hiệu ứng hover */
-  &:hover:before {
-    transform: none;
-    box-shadow: none;
+  &:hover {
+    box-shadow: ${props => props.$reserved ? 'none' : '0 0 15px rgba(255, 255, 255, 0.2)'};
   }
 `;
 
 
 
+// Cập nhật SummaryActions để hiển thị tốt hơn trên thiết bị di động
 const SummaryActions = styled.div`
   display: flex;
   flex-direction: column;
@@ -1674,11 +1870,11 @@ const SummaryActions = styled.div`
   .price {
     font-size: 1.4rem;
     font-weight: bold;
-    color: #e71a0f;
+    color:rgb(255, 255, 255);
   }
 
   button {
-    background-color: #e71a0f;
+    background-color: #6a1b9a;
     color: white;
     border: none;
     padding: 0.75rem 1.5rem;
@@ -1697,12 +1893,31 @@ const SummaryActions = styled.div`
     align-items: stretch;
     width: 100%;
 
+    .price {
+      font-size: 1.3rem;
+      text-align: center;
+    }
+
     button {
       width: 100%;
+      font-size: 0.95rem;
+      padding: 0.7rem 1.25rem;
+    }
+  }
+  
+  @media (max-width: 576px) {
+    .price {
+      font-size: 1.2rem;
+    }
+    
+    button {
+      font-size: 0.9rem;
+      padding: 0.6rem 1rem;
     }
   }
 `;
 
+// Cập nhật SummaryInfo để hiển thị tốt hơn trên thiết bị di động
 const SummaryInfo = styled.div`
   flex: 1;
   text-align: left; /* Đảm bảo nội dung trong SummaryInfo được căn trái */
@@ -1719,6 +1934,44 @@ const SummaryInfo = styled.div`
     font-size: 0.9rem;
     margin-bottom: 0.25rem;
     text-align: left;
+  }
+  
+  @media (max-width: 768px) {
+    width: 100%;
+    
+    h3 {
+      font-size: 1.1rem;
+    }
+    
+    p {
+      font-size: 0.85rem;
+    }
+  }
+  
+  @media (max-width: 576px) {
+    h3 {
+      font-size: 1rem;
+    }
+    
+    p {
+      font-size: 0.8rem;
+    }
+  }
+`;
+
+const SummaryInnerContainer = styled.div`
+  max-width: 1200px;
+  width: 100%;
+  display: flex; 
+  justify-content: space-between; /* Đảm bảo info ở trái và actions ở phải */
+  align-items: center; /* Căn giữa theo chiều dọc */
+  gap: 2rem;
+  min-height: 80px; /* Đảm bảo chiều cao cố định */
+
+  @media (max-width: 768px) {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 1rem;
   }
 `;
 

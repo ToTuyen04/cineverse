@@ -24,6 +24,7 @@ import {
   MenuItem,
   useTheme,
   alpha,
+  TableSortLabel,
 } from "@mui/material";
 import { styled } from "@mui/material/styles";
 import EditIcon from "@mui/icons-material/Edit";
@@ -47,6 +48,7 @@ const StyledTableCell = styled(TableCell)(({ theme }) => ({
   color: theme.palette.text.primary,
   padding: "16px",
   fontWeight: theme.palette.mode === "light" ? 500 : 400,
+  cursor: "pointer", // Add cursor pointer for sorting
 }));
 
 // Add this after your existing styled components
@@ -70,8 +72,7 @@ const StyledTableRow = styled(TableRow)(({ theme }) => ({
       theme.palette.mode === "light"
         ? "rgba(0, 0, 0, 0.15)"
         : "rgba(255, 255, 255, 0.15)"
-    }`,
-  },
+  }`, },
   "&:hover": {
     backgroundColor: alpha(theme.palette.primary.main, 0.08) + " !important",
     cursor: "pointer",
@@ -127,6 +128,12 @@ const Fnbs = () => {
   const [rowsPerPage, setRowsPerPage] = useState(5);
   const [searchTerm, setSearchTerm] = useState("");
   const [searchDebounce, setSearchDebounce] = useState("");
+  
+  // Add sorting state
+  const [sortField, setSortField] = useState("fnbId");
+  const [sortDirection, setSortDirection] = useState("asc");
+  // Add client-side sorted data state as a fallback
+  const [sortedFnbs, setSortedFnbs] = useState([]);
 
   // State for fnb form
   const [openFnbForm, setOpenFnbForm] = useState(false);
@@ -134,7 +141,7 @@ const Fnbs = () => {
   const [isEditMode, setIsEditMode] = useState(false);
   const [isViewOnly, setIsViewOnly] = useState(false);
 
-  // Use the fnbs hook
+  // Use the fnbs hook with sorting parameters - try different parameter names
   const {
     fnbs,
     loading,
@@ -149,6 +156,11 @@ const Fnbs = () => {
     page: page + 1,
     limit: rowsPerPage,
     search: searchDebounce,
+    sortBy: sortField, // Try alternate parameter name
+    sortOrder: sortDirection, // Try alternate parameter name
+    // Also keep original parameter names as fallback
+    sort: sortField,
+    order: sortDirection,
   });
 
   // Handle search with debounce
@@ -159,6 +171,52 @@ const Fnbs = () => {
 
     return () => clearTimeout(handler);
   }, [searchTerm]);
+
+  // Client-side sorting as fallback
+  useEffect(() => {
+    if (fnbs && fnbs.length > 0) {
+      console.log("Sorting data:", { sortField, sortDirection });
+      let sorted = [...fnbs];
+      sorted.sort((a, b) => {
+        let aValue = a[sortField];
+        let bValue = b[sortField];
+        
+        // Handle special cases
+        if (sortField === "fnbListPrice") {
+          aValue = Number(aValue);
+          bValue = Number(bValue);
+        }
+        
+        if (aValue === bValue) return 0;
+        
+        // Determine sort direction
+        const direction = sortDirection === "asc" ? 1 : -1;
+        
+        // Compare values
+        if (aValue < bValue) return -1 * direction;
+        return 1 * direction;
+      });
+      
+      setSortedFnbs(sorted);
+    } else {
+      setSortedFnbs([]);
+    }
+  }, [fnbs, sortField, sortDirection]);
+
+  // Force refresh when sort parameters change
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        console.log("Refreshing with sort params:", { sortField, sortDirection });
+        await refreshFnbs();
+      } catch (error) {
+        console.error("Error refreshing data:", error);
+        showSnackbar("Failed to refresh data with new sorting", "error");
+      }
+    };
+    
+    fetchData();
+  }, [sortField, sortDirection]);
 
   // Handle add fnb button click
   const handleAddFnbClick = () => {
@@ -254,6 +312,34 @@ const Fnbs = () => {
     setSnackbar((prev) => ({ ...prev, open: false }));
   };
 
+  // Handle row click for viewing
+  const handleRowClick = async (fnbId) => {
+    try {
+      setIsEditMode(false);
+      setIsViewOnly(true);
+      const fnbData = await getFnb(fnbId);
+      setSelectedFnb(fnbData);
+      setOpenFnbForm(true);
+    } catch (err) {
+      showSnackbar(err.message, "error");
+    }
+  };
+
+  // Handle sort request with more logging
+  const handleRequestSort = (field) => {
+    console.log("Sort requested:", field);
+    const isAsc = sortField === field && sortDirection === "asc";
+    const newDirection = isAsc ? "desc" : "asc";
+    
+    // Update state
+    setSortDirection(newDirection);
+    setSortField(field);
+    setPage(0); // Reset to first page when sorting changes
+    
+    // Show feedback
+    showSnackbar(`Sorting by ${field} (${newDirection})`, "info");
+  };
+
   return (
     <Box>
       {/* Page header */}
@@ -325,18 +411,62 @@ const Fnbs = () => {
             <Table>
               <TableHead>
                 <TableRow>
-                  <StyledTableCell>ID</StyledTableCell>
-                  <StyledTableCell>Ảnh</StyledTableCell> {/* Add this line */}
-                  <StyledTableCell>Tên</StyledTableCell>
-                  <StyledTableCell>Loại</StyledTableCell>
-                  <StyledTableCell align="right">Thành tiền</StyledTableCell>
-                  <StyledTableCell>Trạng thái</StyledTableCell>
+                  <StyledTableCell>
+                    <TableSortLabel
+                      active={sortField === "fnbId"}
+                      direction={sortField === "fnbId" ? sortDirection : "asc"}
+                      onClick={() => handleRequestSort("fnbId")}
+                    >
+                      ID
+                    </TableSortLabel>
+                  </StyledTableCell>
+                  <StyledTableCell>Ảnh</StyledTableCell>
+                  <StyledTableCell>
+                    <TableSortLabel
+                      active={sortField === "fnbName"}
+                      direction={sortField === "fnbName" ? sortDirection : "asc"}
+                      onClick={() => handleRequestSort("fnbName")}
+                    >
+                      Tên
+                    </TableSortLabel>
+                  </StyledTableCell>
+                  <StyledTableCell>
+                    <TableSortLabel
+                      active={sortField === "fnbType"}
+                      direction={sortField === "fnbType" ? sortDirection : "asc"}
+                      onClick={() => handleRequestSort("fnbType")}
+                    >
+                      Loại
+                    </TableSortLabel>
+                  </StyledTableCell>
+                  <StyledTableCell align="right">
+                    <TableSortLabel
+                      active={sortField === "fnbListPrice"}
+                      direction={sortField === "fnbListPrice" ? sortDirection : "asc"}
+                      onClick={() => handleRequestSort("fnbListPrice")}
+                    >
+                      Thành tiền
+                    </TableSortLabel>
+                  </StyledTableCell>
+                  <StyledTableCell>
+                    <TableSortLabel
+                      active={sortField === "fnbAvailable"}
+                      direction={sortField === "fnbAvailable" ? sortDirection : "asc"}
+                      onClick={() => handleRequestSort("fnbAvailable")}
+                    >
+                      Trạng thái
+                    </TableSortLabel>
+                  </StyledTableCell>
                   <StyledTableCell align="center">Chức năng</StyledTableCell>
                 </TableRow>
               </TableHead>
               <TableBody>
-                {fnbs.map((fnb) => (
-                  <StyledTableRow key={fnb.fnbId}>
+                {/* Use sortedFnbs as a fallback for server-side sorting */}
+                {(sortedFnbs.length > 0 ? sortedFnbs : fnbs).map((fnb) => (
+                  <StyledTableRow 
+                    key={fnb.fnbId}
+                    onClick={() => handleRowClick(fnb.fnbId)} // Add click handler for the entire row
+                  >
                     <StyledTableCell>{fnb.fnbId}</StyledTableCell>
                     <StyledTableCell>
                       <FnbPosterImage
@@ -362,25 +492,34 @@ const Fnbs = () => {
                     <StyledTableCell>
                       <StatusChip available={fnb.fnbAvailable} />
                     </StyledTableCell>
-                    <StyledTableCell align="center">
+                    <StyledTableCell align="center" onClick={(e) => e.stopPropagation()}>
                       <IconButton
                         size="small"
                         color="info"
-                        onClick={() => handleViewClick(fnb.fnbId)}
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          handleViewClick(fnb.fnbId);
+                        }}
                       >
                         <VisibilityIcon fontSize="small" />
                       </IconButton>
                       <IconButton
                         size="small"
                         color="primary"
-                        onClick={() => handleEditClick(fnb.fnbId)}
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          handleEditClick(fnb.fnbId);
+                        }}
                       >
                         <EditIcon fontSize="small" />
                       </IconButton>
                       <IconButton
                         size="small"
                         color="error"
-                        onClick={() => handleDeleteFnb(fnb.fnbId)}
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          handleDeleteFnb(fnb.fnbId);
+                        }}
                       >
                         <DeleteIcon fontSize="small" />
                       </IconButton>
@@ -391,6 +530,13 @@ const Fnbs = () => {
             </Table>
           </TableContainer>
 
+          {/* Add sort indicator */}
+          <Box sx={{ mt: 2, display: 'flex', alignItems: 'center' }}>
+            <Typography variant="body2" sx={{ fontStyle: 'italic', color: 'text.secondary' }}>
+              Sorted by: {sortField} ({sortDirection})
+            </Typography>
+          </Box>
+          
           {/* Pagination */}
           <Box
             sx={{

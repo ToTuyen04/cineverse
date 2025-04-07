@@ -38,6 +38,8 @@ import { useNavigate, useLocation } from "react-router-dom";
 import { ColorModeContext } from "../../../context/ThemeContext";
 import { useAuth } from "../../../contexts/AuthContext";
 import { AdminPanelSettings, AdminPanelSettingsOutlined, AdminPanelSettingsRounded, AdminPanelSettingsSharp, AdminPanelSettingsTwoTone, Security, SecurityOutlined } from "@mui/icons-material";
+import FileDownloadIcon from '@mui/icons-material/FileDownload';
+import EventSeatIcon from '@mui/icons-material/EventSeat';
 
 const drawerWidth = 240;
 
@@ -125,6 +127,7 @@ const menuItems = [
   { text: "Dashboard", icon: <DashboardIcon />, path: "/admin/dashboard" },
   { text: "Bộ Phim", icon: <MovieIcon />, path: "/admin/movies" },
   { text: "Chi nhánh rạp", icon: <TheatersIcon />, path: "/admin/theaters" },
+  { text: 'Quản lý ghế', icon: <EventSeatIcon />, path: '/admin/seats' },
   { text: "Suất chiếu", icon: <DateRangeIcon />, path: "/admin/showtimes" },
   { text: "Đơn hàng", icon: <ShoppingCartIcon />, path: "/admin/orders" },
   { text: "Thức ăn và đồ uống", icon: <FastfoodIcon />, path: "/admin/fnbs" },
@@ -133,6 +136,7 @@ const menuItems = [
   { text: "Khách hàng", icon: <PeopleIcon />, path: "/admin/users" },
   { text: "Nhân viên & Quản trị", icon: <Security />, path: "/admin/staffs" },
   { text: "Cấu hình", icon: <SettingsIcon />, path: "/admin/configs" },
+  { text: "Excel", icon: <FileDownloadIcon />, path: "/admin/excels" },
 ];
 
 export default function AdminLayout({ children }) {

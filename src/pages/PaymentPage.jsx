@@ -14,13 +14,12 @@ function PaymentPage() {
   const [voucherCode, setVoucherCode] = useState('');
   const [appliedVoucher, setAppliedVoucher] = useState(null);
   const [voucherError, setVoucherError] = useState('');
-  const [voucherSuccess, setVoucherSuccess] = useState(''); // Thêm state này
+  const [voucherSuccess, setVoucherSuccess] = useState('');
   const [isCheckingVoucher, setIsCheckingVoucher] = useState(false);
   const [paymentData, setPaymentData] = useState(null);
-  const [selectedPaymentMethod, setSelectedPaymentMethod] = useState('creditCard');
+  const [selectedPaymentMethod, setSelectedPaymentMethod] = useState('vnpay');
   const [isProcessing, setIsProcessing] = useState(false);
-  const [bookingResult, setBookingResult] = useState(null);
-  const [currentStep, setCurrentStep] = useState(1); // Quản lý bước hiện tại
+  const [currentStep, setCurrentStep] = useState(1);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [user, setUser] = useState(null);
   const [userInfo, setUserInfo] = useState({
@@ -42,6 +41,8 @@ function PaymentPage() {
           orderEmail: userProfile.email,
           orderPhoneNumber: userProfile.phoneNumber
         });
+        console.log('User profile:', userProfile);
+        console.log('User info:', userInfo);
         setCurrentStep(2); // Skip bước 1 nếu đã đăng nhập
       }
     };
@@ -49,6 +50,7 @@ function PaymentPage() {
     loadUserData();
   }, []);
 
+  // Kiểm tra dữ liệu từ location
   useEffect(() => {
     if (!location.state) {
       navigate('/');
@@ -57,56 +59,52 @@ function PaymentPage() {
     setPaymentData(location.state);
   }, [location, navigate]);
 
-  useEffect(() => {
-    if (isAuthenticated && user) {
-      setUserInfo({
-        orderName: `${user.firstName || ''} ${user.lastName || ''}`.trim(),
-        orderEmail: user.email || '',
-        orderPhoneNumber: user.phoneNumber || ''
-      });
-      setCurrentStep(2); // Skip bước 1 nếu đã đăng nhập
-    }
-  }, [isAuthenticated, user]);
-
-
+  // Lấy thông tin người dùng
   const fetchUserProfile = async () => {
     const token = localStorage.getItem('token');
-    const userFullName = localStorage.getItem('userFullName');
-    const userEmail = localStorage.getItem('userEmail');
-
-    if (token && userFullName && userEmail) {
-      // Lấy thông tin từ localStorage
+    const userProfile = JSON.parse(localStorage.getItem('userProfile')); // Parse JSON từ localStorage
+  
+    if (token && userProfile) {
       return {
-        fullName: userFullName,
-        email: userEmail,
-        phoneNumber: localStorage.getItem('userPhoneNumber') || '033333333'
+        fullName: `${userProfile.firstName} ${userProfile.lastName}`.trim(),
+        email: userProfile.email,
+        phoneNumber: userProfile.phoneNumber || '' // Lấy phoneNumber từ userProfile
       };
     } else if (token) {
-      // Nếu không có trong localStorage, gọi API getUserProfile
       try {
         const userProfile = await getUserProfile();
         return {
-          fullName: userProfile.fullName,
+          fullName: `${userProfile.firstName} ${userProfile.lastName}`.trim(),
           email: userProfile.email,
-          phoneNumber: userProfile.phoneNumber || ''
+          phoneNumber: userProfile.phoneNumber || '' // Lấy phoneNumber từ API nếu không có trong localStorage
         };
       } catch (error) {
         console.error('Failed to fetch user profile:', error);
         return null;
       }
     }
-
-    return null; // Không có token hoặc thông tin người dùng
+  
+    return null;
   };
 
+  // Xử lý thay đổi thông tin người dùng
   const handleUserInfoChange = (e) => {
     const { name, value } = e.target;
     setUserInfo((prev) => ({
       ...prev,
       [name]: value
     }));
+    
+    // Xóa lỗi khi người dùng chỉnh sửa trường
+    if (formErrors[name]) {
+      setFormErrors(prev => ({
+        ...prev,
+        [name]: ''
+      }));
+    }
   };
 
+  // Validate thông tin người dùng
   const validateUserInfo = () => {
     const errors = {};
     if (!userInfo.orderName.trim()) errors.orderName = 'Vui lòng nhập tên';
@@ -118,6 +116,7 @@ function PaymentPage() {
     return Object.keys(errors).length === 0;
   };
 
+  // Chuyển bước tiếp theo
   const handleNextStep = () => {
     if (currentStep === 1 && !validateUserInfo()) {
       return;
@@ -125,6 +124,7 @@ function PaymentPage() {
     setCurrentStep((prev) => prev + 1);
   };
 
+  // Xử lý thanh toán
   const handlePayment = async () => {
     const { showtime, seats, combo } = location.state || {};
 
@@ -154,15 +154,16 @@ function PaymentPage() {
             guestPhoneNumber: user.phoneNumber || ''
           },
         voucherId: appliedVoucher ? appliedVoucher.id : null,
-        selectedCombos: combo.map(item => ({
+        selectedCombos: (combo || []).map(item => ({
           comboId: item.id,
           quantity: item.quantity,
           price: item.price
         }))
       };
+      
       // Gọi API tạo đơn hàng
       const orderResponse = await createOrder(orderPayload);
-      console.log('Order response:', orderResponse);
+      console.log('Order payload:', orderPayload);
       if (!orderResponse.success) {
         throw new Error(orderResponse.message || 'Tạo đơn hàng thất bại.');
       }
@@ -177,18 +178,38 @@ function PaymentPage() {
 
       // Điều hướng đến link thanh toán VNPay
       window.location.href = paymentResponse.paymentUrl;
-      console.log('Payment URL:', paymentResponse.paymentUrl);
     } catch (error) {
-      console.error('Payment failed:', error);
-      alert('Có lỗi xảy ra khi thanh toán. Vui lòng thử lại.');
+      const errorMessage =
+        error.response?.data?.message || error.message || 'Có lỗi xảy ra khi thanh toán. Vui lòng thử lại.';
+
+      // Hiển thị alert với message từ API
+      alert(errorMessage);
+      navigate(`/movie/${location.state.movie.movieId}/booking`, {
+        state: {
+          preselected: true,
+          theaterId: location.state.theater.theaterId,
+          theaterObject: location.state.theater,
+          dateObject: {
+            value: location.state.showDate.date
+          },
+          showtimeObject: {
+            showtimeId: location.state.showtime.id,
+            value: location.state.showtime.id.toString()
+          },
+          error: errorMessage,
+          scrollToSeats: true
+        }
+      });
     } finally {
       setIsProcessing(false);
     }
   };
 
+  // Xử lý thay đổi mã giảm giá
   const handleVoucherCodeChange = (e) => {
     setVoucherCode(e.target.value);
     setVoucherError('');
+    setVoucherSuccess('');
   };
 
   // Hàm áp dụng voucher
@@ -200,9 +221,10 @@ function PaymentPage() {
   
     setIsCheckingVoucher(true);
     setVoucherError('');
+    setVoucherSuccess('');
   
     try {
-      const totalAmount = calculateSubtotal(); // Tính tổng tiền ban đầu
+      const totalAmount = calculateSubtotal();
       const response = await checkVoucher(voucherCode, totalAmount);
   
       if (response.valid) {
@@ -216,8 +238,7 @@ function PaymentPage() {
           maxValue: response.maxValue,
           actualDiscount: response.actualDiscount
         });
-        setVoucherSuccess(response.message);
-        setVoucherError('');
+        setVoucherSuccess(response.message || 'Áp dụng mã giảm giá thành công');
       } else {
         setVoucherError(response.message || 'Mã giảm giá không hợp lệ');
         setAppliedVoucher(null);
@@ -240,7 +261,6 @@ function PaymentPage() {
   // Hàm tính số tiền giảm giá
   const calculateDiscountAmount = () => {
     if (!appliedVoucher) return 0;
-    
     return appliedVoucher.actualDiscount || 0;
   };
   
@@ -248,19 +268,26 @@ function PaymentPage() {
   const calculateFinalAmount = () => {
     const subtotal = calculateSubtotal();
     const discountAmount = calculateDiscountAmount();
-    
-    // Đảm bảo không giảm vượt quá tổng tiền
     return Math.max(subtotal - discountAmount, 0);
   };
 
+  // Hủy voucher đã áp dụng
   const removeVoucher = () => {
     setAppliedVoucher(null);
     setVoucherCode('');
     setVoucherError('');
+    setVoucherSuccess('');
   };
 
   if (!paymentData) {
-    return <div>Loading...</div>;
+    return (
+      <PageContainer>
+        <LoadingContainer>
+          <div className="spinner"></div>
+          <p>Đang tải thông tin thanh toán...</p>
+        </LoadingContainer>
+      </PageContainer>
+    );
   }
 
   return (
@@ -354,6 +381,7 @@ function PaymentPage() {
                 </VoucherInput>
 
                 {voucherError && <VoucherError>{voucherError}</VoucherError>}
+                {voucherSuccess && <AppliedVoucher><FaCheck /> {voucherSuccess}</AppliedVoucher>}
 
                 {appliedVoucher && (
                   <AppliedVoucher>
@@ -377,7 +405,7 @@ function PaymentPage() {
                 </PaymentMethodCard>
                 <PaymentMethodCard
                   $selected={selectedPaymentMethod === 'creditCard'}
-                  style={{ opacity: 0.5, pointerEvents: 'none' }} // Vô hiệu hóa
+                  style={{ opacity: 0.5, pointerEvents: 'none' }}
                 >
                   <div className="icon">
                     <FaCreditCard />
@@ -389,7 +417,7 @@ function PaymentPage() {
                 </PaymentMethodCard>
                 <PaymentMethodCard
                   $selected={selectedPaymentMethod === 'bankTransfer'}
-                  style={{ opacity: 0.5, pointerEvents: 'none' }} // Vô hiệu hóa
+                  style={{ opacity: 0.5, pointerEvents: 'none' }}
                 >
                   <div className="icon">
                     <FaMoneyBill />
@@ -413,7 +441,7 @@ function PaymentPage() {
         <RightColumn>
           <OrderSummary>
             <h2>Thông tin vé</h2>
-            <div className="movie-title">{paymentData.movie.title}</div>
+            <div className="movie-title">{paymentData.movie.movieName}</div>
             <div className="theater">
               <div className="name">{paymentData.theater.name}</div>
               <div className="address">{paymentData.theater.address}</div>
@@ -444,7 +472,7 @@ function PaymentPage() {
             )}
             <div className="price-detail">
               <div className="price-row">
-                <span>Tổng tiền :</span>
+                <span>Tổng tiền:</span>
                 <span>{formatCurrency(paymentData.totalPrice)}</span>
               </div>
 
@@ -456,7 +484,7 @@ function PaymentPage() {
               )}
 
               <div className="price-row total">
-                <span>Số tiền cần thanh toán :</span>
+                <span>Số tiền cần thanh toán:</span>
                 <span>{formatCurrency(calculateFinalAmount())}</span>
               </div>
             </div>
@@ -467,18 +495,117 @@ function PaymentPage() {
   );
 }
 
+// Thêm component loading
+const LoadingContainer = styled.div`
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 300px;
+  
+  .spinner {
+    width: 40px;
+    height: 40px;
+    border: 3px solid rgba(255, 255, 255, 0.3);
+    border-radius: 50%;
+    border-top-color: #e71a0f;
+    animation: spin 1s ease-in-out infinite;
+    margin-bottom: 1rem;
+  }
+  
+  @keyframes spin {
+    to { transform: rotate(360deg); }
+  }
+  
+  p {
+    color: #b8c2cc;
+    font-size: 1rem;
+  }
+  
+  @media (max-width: 768px) {
+    min-height: 250px;
+    
+    .spinner {
+      width: 35px;
+      height: 35px;
+      margin-bottom: 0.8rem;
+    }
+    
+    p {
+      font-size: 0.95rem;
+    }
+  }
+  
+  @media (max-width: 576px) {
+    min-height: 200px;
+    
+    .spinner {
+      width: 30px;
+      height: 30px;
+      margin-bottom: 0.6rem;
+    }
+    
+    p {
+      font-size: 0.9rem;
+    }
+  }
+`;
+
 // Styled components
 const PageContainer = styled.div`
   max-width: 1200px;
   margin: 0 auto;
   padding: 2rem 1rem;
   color: #f3f4f6;
+  
+  h1 {
+    font-size: 2.2rem;
+    margin-bottom: 1.5rem;
+    color: #f3f4f6;
+  }
+  
+  @media (max-width: 992px) {
+    padding: 1.75rem 1rem;
+    
+    h1 {
+      font-size: 2rem;
+      margin-bottom: 1.25rem;
+    }
+  }
+  
+  @media (max-width: 768px) {
+    padding: 1.5rem 0.75rem;
+    
+    h1 {
+      font-size: 1.8rem;
+      margin-bottom: 1rem;
+    }
+  }
+  
+  @media (max-width: 576px) {
+    padding: 1.25rem 0.5rem;
+    
+    h1 {
+      font-size: 1.6rem;
+      margin-bottom: 0.75rem;
+    }
+  }
 `;
 
 const StepsContainer = styled.div`
   display: flex;
   justify-content: space-between;
   margin-bottom: 2rem;
+  
+  @media (max-width: 768px) {
+    margin-bottom: 1.5rem;
+  }
+  
+  @media (max-width: 576px) {
+    margin-bottom: 1.25rem;
+    flex-direction: column;
+    gap: 0.5rem;
+  }
 `;
 
 const Step = styled.div`
@@ -488,6 +615,22 @@ const Step = styled.div`
   color: ${(props) => (props.$active ? '#e71a0f' : '#9ca3af')};
   border-bottom: ${(props) => (props.$active ? '2px solid #e71a0f' : '2px solid transparent')};
   padding-bottom: 0.5rem;
+  
+  @media (max-width: 768px) {
+    font-size: 0.95rem;
+    padding-bottom: 0.4rem;
+  }
+  
+  @media (max-width: 576px) {
+    font-size: 0.9rem;
+    padding: 0.5rem 0;
+    border-bottom: none;
+    border-left: ${(props) => (props.$active ? '4px solid #e71a0f' : '4px solid transparent')};
+    padding-left: 0.5rem;
+    text-align: left;
+    background-color: ${(props) => (props.$active ? 'rgba(231, 26, 15, 0.1)' : 'transparent')};
+    border-radius: 4px;
+  }
 `;
 
 // Các styled components khác giữ nguyên
@@ -496,6 +639,14 @@ const PaymentMethodsList = styled.div`
   display: flex;
   flex-direction: column;
   gap: 1rem;
+  
+  @media (max-width: 768px) {
+    gap: 0.75rem;
+  }
+  
+  @media (max-width: 576px) {
+    gap: 0.6rem;
+  }
 `;
 
 const PaymentMethods = styled.div`
@@ -509,6 +660,34 @@ const PaymentMethods = styled.div`
     font-size: 1.4rem;
     border-bottom: 1px solid #374151;
     padding-bottom: 0.5rem;
+  }
+  
+  @media (max-width: 992px) {
+    padding: 1.25rem;
+    
+    h2 {
+      font-size: 1.3rem;
+      margin-bottom: 1.25rem;
+    }
+  }
+  
+  @media (max-width: 768px) {
+    padding: 1rem;
+    
+    h2 {
+      font-size: 1.2rem;
+      margin-bottom: 1rem;
+    }
+  }
+  
+  @media (max-width: 576px) {
+    padding: 0.9rem;
+    border-radius: 6px;
+    
+    h2 {
+      font-size: 1.1rem;
+      margin-bottom: 0.9rem;
+    }
   }
 `;
 const PaymentMethodCard = styled.div`
@@ -540,6 +719,64 @@ const PaymentMethodCard = styled.div`
     p {
       color: #b8c2cc;
       font-size: 0.9rem;
+    }
+  }
+  
+  @media (max-width: 992px) {
+    padding: 1rem;
+    
+    .icon {
+      font-size: 1.6rem;
+    }
+    
+    .info {
+      h3 {
+        margin-bottom: 0.4rem;
+        font-size: 1rem;
+      }
+      
+      p {
+        font-size: 0.85rem;
+      }
+    }
+  }
+  
+  @media (max-width: 768px) {
+    padding: 0.9rem;
+    
+    .icon {
+      font-size: 1.5rem;
+    }
+    
+    .info {
+      h3 {
+        margin-bottom: 0.3rem;
+        font-size: 0.95rem;
+      }
+      
+      p {
+        font-size: 0.8rem;
+      }
+    }
+  }
+  
+  @media (max-width: 576px) {
+    padding: 0.8rem;
+    gap: 0.75rem;
+    
+    .icon {
+      font-size: 1.4rem;
+    }
+    
+    .info {
+      h3 {
+        margin-bottom: 0.2rem;
+        font-size: 0.9rem;
+      }
+      
+      p {
+        font-size: 0.75rem;
+      }
     }
   }
 `;
@@ -585,6 +822,34 @@ const UserInfoSection = styled.div`
     border-bottom: 1px solid #374151;
     padding-bottom: 0.5rem;
   }
+  
+  @media (max-width: 992px) {
+    padding: 1.25rem;
+    
+    h2 {
+      font-size: 1.3rem;
+      margin-bottom: 1.25rem;
+    }
+  }
+  
+  @media (max-width: 768px) {
+    padding: 1rem;
+    
+    h2 {
+      font-size: 1.2rem;
+      margin-bottom: 1rem;
+    }
+  }
+  
+  @media (max-width: 576px) {
+    padding: 0.9rem;
+    border-radius: 6px;
+    
+    h2 {
+      font-size: 1.1rem;
+      margin-bottom: 0.9rem;
+    }
+  }
 `;
 
 const UserInfoForm = styled.div`
@@ -629,6 +894,48 @@ const UserInfoForm = styled.div`
       margin-top: 0.5rem;
     }
   }
+  
+  @media (max-width: 768px) {
+    gap: 1rem;
+    
+    .form-group {
+      label {
+        margin-bottom: 0.4rem;
+        font-size: 0.9rem;
+      }
+      
+      input {
+        padding: 0.7rem;
+        font-size: 0.9rem;
+      }
+      
+      .error-text {
+        font-size: 0.8rem;
+        margin-top: 0.4rem;
+      }
+    }
+  }
+  
+  @media (max-width: 576px) {
+    gap: 0.9rem;
+    
+    .form-group {
+      label {
+        margin-bottom: 0.3rem;
+        font-size: 0.85rem;
+      }
+      
+      input {
+        padding: 0.65rem;
+        font-size: 0.85rem;
+      }
+      
+      .error-text {
+        font-size: 0.75rem;
+        margin-top: 0.3rem;
+      }
+    }
+  }
 `;
 
 const Button = styled.button`
@@ -668,6 +975,15 @@ const Button = styled.button`
   
   @media (max-width: 768px) {
     width: 100%;
+    padding: 0.75rem 1.25rem;
+    font-size: 0.95rem;
+    gap: 0.4rem;
+  }
+  
+  @media (max-width: 576px) {
+    padding: 0.7rem 1rem;
+    font-size: 0.9rem;
+    gap: 0.3rem;
   }
 `;
 
@@ -678,8 +994,19 @@ const PaymentLayout = styled.div`
   gap: 2rem;
   margin-top: 2rem;
 
+  @media (max-width: 992px) {
+    gap: 1.5rem;
+  }
+
   @media (max-width: 768px) {
     grid-template-columns: 1fr; /* Chuyển thành 1 cột trên màn hình nhỏ */
+    gap: 1.25rem;
+    margin-top: 1.5rem;
+  }
+  
+  @media (max-width: 576px) {
+    gap: 1rem;
+    margin-top: 1rem;
   }
 `;
 
@@ -687,6 +1014,14 @@ const LeftColumn = styled.div`
   display: flex;
   flex-direction: column;
   gap: 1.5rem;
+  
+  @media (max-width: 768px) {
+    gap: 1.25rem;
+  }
+  
+  @media (max-width: 576px) {
+    gap: 1rem;
+  }
 `;
 
 const RightColumn = styled.div`
@@ -694,6 +1029,25 @@ const RightColumn = styled.div`
   border-radius: 8px;
   padding: 1.5rem;
   color: #f3f4f6;
+  height: fit-content;
+  position: sticky;
+  top: 20px;
+  
+  @media (max-width: 992px) {
+    padding: 1.25rem;
+  }
+  
+  @media (max-width: 768px) {
+    position: relative;
+    top: 0;
+    order: -1; /* Di chuyển lên trên trong chế độ mobile */
+    padding: 1rem;
+  }
+  
+  @media (max-width: 576px) {
+    padding: 0.9rem;
+    border-radius: 6px;
+  }
 `;
 
 const OrderSummary = styled.div`
@@ -741,32 +1095,6 @@ const OrderSummary = styled.div`
       font-size: 1rem;
       display: block;
     }
-
-    &.total {
-      margin-top: 1.5rem;
-      padding-top: 1rem;
-      border-top: 1px solid #374151;
-      font-weight: bold;
-
-      span:last-child {
-        color: #e71a0f;
-        font-size: 1.2rem;
-      }
-    }
-  }
-  
-  .concessions-list {
-    display: flex;
-    flex-direction: column;
-    align-items: flex-start; /* Căn trái */
-    margin-bottom: 1rem;
-    
-    .concession-item {
-      margin-bottom: 0.5rem;
-      display: flex;
-      justify-content: space-between;
-      width: 100%;
-    }
   }
   
   .price-detail {
@@ -797,6 +1125,168 @@ const OrderSummary = styled.div`
       }
     }
   }
+  
+  @media (max-width: 992px) {
+    h2 {
+      font-size: 1.3rem;
+      margin-bottom: 1.25rem;
+    }
+    
+    .movie-title {
+      font-size: 1.2rem;
+      margin-bottom: 0.9rem;
+    }
+    
+    .theater {
+      margin-bottom: 1rem;
+      
+      .name {
+        font-size: 1rem;
+      }
+      
+      .address {
+        font-size: 0.8rem;
+      }
+    }
+    
+    .summary-item {
+      margin-bottom: 0.8rem;
+      font-size: 0.95rem;
+      
+      &.section-title {
+        margin-top: 1.25rem;
+        margin-bottom: 0.4rem;
+        font-size: 0.95rem;
+      }
+    }
+    
+    .price-detail {
+      margin-top: 1.25rem;
+      padding-top: 0.9rem;
+      
+      .price-row {
+        margin-bottom: 0.6rem;
+        
+        &.total {
+          margin-top: 0.9rem;
+          padding-top: 0.6rem;
+          font-size: 1.05rem;
+          
+          span:last-child {
+            font-size: 1.15rem;
+          }
+        }
+      }
+    }
+  }
+  
+  @media (max-width: 768px) {
+    h2 {
+      font-size: 1.2rem;
+      margin-bottom: 1rem;
+    }
+    
+    .movie-title {
+      font-size: 1.1rem;
+      margin-bottom: 0.8rem;
+    }
+    
+    .theater {
+      margin-bottom: 0.9rem;
+      
+      .name {
+        font-size: 0.95rem;
+      }
+      
+      .address {
+        font-size: 0.75rem;
+      }
+    }
+    
+    .summary-item {
+      margin-bottom: 0.7rem;
+      font-size: 0.9rem;
+      
+      &.section-title {
+        margin-top: 1rem;
+        margin-bottom: 0.3rem;
+        font-size: 0.9rem;
+      }
+    }
+    
+    .price-detail {
+      margin-top: 1rem;
+      padding-top: 0.8rem;
+      
+      .price-row {
+        margin-bottom: 0.5rem;
+        
+        &.total {
+          margin-top: 0.8rem;
+          padding-top: 0.5rem;
+          font-size: 1rem;
+          
+          span:last-child {
+            font-size: 1.1rem;
+          }
+        }
+      }
+    }
+  }
+  
+  @media (max-width: 576px) {
+    h2 {
+      font-size: 1.1rem;
+      margin-bottom: 0.8rem;
+    }
+    
+    .movie-title {
+      font-size: 1rem;
+      margin-bottom: 0.7rem;
+    }
+    
+    .theater {
+      margin-bottom: 0.8rem;
+      
+      .name {
+        font-size: 0.9rem;
+      }
+      
+      .address {
+        font-size: 0.7rem;
+      }
+    }
+    
+    .summary-item {
+      margin-bottom: 0.6rem;
+      font-size: 0.85rem;
+      
+      &.section-title {
+        margin-top: 0.9rem;
+        margin-bottom: 0.25rem;
+        font-size: 0.85rem;
+      }
+    }
+    
+    .price-detail {
+      margin-top: 0.9rem;
+      padding-top: 0.7rem;
+      
+      .price-row {
+        margin-bottom: 0.45rem;
+        
+        &.total {
+          margin-top: 0.7rem;
+          padding-top: 0.45rem;
+          font-size: 0.95rem;
+          
+          span:last-child {
+            font-size: 1.05rem;
+          }
+        }
+      }
+    }
+  }
 `;
 
 const ButtonContainer = styled.div`
@@ -808,6 +1298,13 @@ const ButtonContainer = styled.div`
   @media (max-width: 768px) {
     flex-direction: column;
     justify-content: center;
+    margin-top: 1.25rem;
+    gap: 0.75rem;
+  }
+  
+  @media (max-width: 576px) {
+    margin-top: 1rem;
+    gap: 0.5rem;
   }
 `;
 
@@ -820,6 +1317,26 @@ const VoucherSection = styled.div`
     margin-bottom: 0.8rem;
     font-size: 1.1rem;
     color: #f3f4f6;
+  }
+  
+  @media (max-width: 768px) {
+    margin-bottom: 1.25rem;
+    padding-bottom: 1.25rem;
+    
+    h3 {
+      margin-bottom: 0.7rem;
+      font-size: 1rem;
+    }
+  }
+  
+  @media (max-width: 576px) {
+    margin-bottom: 1rem;
+    padding-bottom: 1rem;
+    
+    h3 {
+      margin-bottom: 0.6rem;
+      font-size: 0.95rem;
+    }
   }
 `;
 
@@ -856,6 +1373,8 @@ const VoucherInput = styled.div`
     cursor: pointer;
     font-weight: bold;
     transition: background-color 0.2s;
+    min-width: 90px;
+    text-align: center;
     
     &:hover {
       background-color: #c81a0f;
@@ -876,12 +1395,48 @@ const VoucherInput = styled.div`
       }
     }
   }
+  
+  @media (max-width: 768px) {
+    input {
+      padding: 0.7rem;
+      font-size: 0.9rem;
+    }
+    
+    button {
+      padding: 0.7rem 0.9rem;
+      font-size: 0.9rem;
+      min-width: 80px;
+    }
+  }
+  
+  @media (max-width: 576px) {
+    input {
+      padding: 0.65rem;
+      font-size: 0.85rem;
+    }
+    
+    button {
+      padding: 0.65rem 0.8rem;
+      font-size: 0.85rem;
+      min-width: 70px;
+    }
+  }
 `;
 
 const VoucherError = styled.div`
   color: #e71a0f;
   font-size: 0.85rem;
   margin-top: 0.5rem;
+  
+  @media (max-width: 768px) {
+    font-size: 0.8rem;
+    margin-top: 0.4rem;
+  }
+  
+  @media (max-width: 576px) {
+    font-size: 0.75rem;
+    margin-top: 0.3rem;
+  }
 `;
 
 const AppliedVoucher = styled.div`
@@ -894,6 +1449,24 @@ const AppliedVoucher = styled.div`
   
   svg {
     font-size: 1rem;
+  }
+  
+  @media (max-width: 768px) {
+    font-size: 0.9rem;
+    gap: 0.4rem;
+    
+    svg {
+      font-size: 0.95rem;
+    }
+  }
+  
+  @media (max-width: 576px) {
+    font-size: 0.85rem;
+    gap: 0.3rem;
+    
+    svg {
+      font-size: 0.9rem;
+    }
   }
 `;
 

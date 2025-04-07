@@ -6,21 +6,31 @@ import { FaLock, FaEye, FaEyeSlash, FaArrowLeft, FaCheck, FaTimesCircle, FaSpinn
 import { resetPassword } from '../api/services/authService';
 import Button from '../components/common/Button';
 
-// Sử dụng các styled components từ LoginPage và ForgotPasswordPage
+// Cập nhật PageContainer để responsive hơn
 const PageContainer = styled.div`
   min-height: 100vh;
   display: flex;
   flex-direction: column;
 `;
 
+// Cập nhật ContentContainer để responsive hơn
 const ContentContainer = styled.div`
   flex: 1;
   display: flex;
   align-items: center;
   justify-content: center;
   padding: 1rem 1rem 2rem;
+  
+  @media (max-width: 992px) {
+    padding: 1rem 0.75rem 1.5rem;
+  }
+  
+  @media (max-width: 576px) {
+    padding: 0.5rem 0.5rem 1rem;
+  }
 `;
 
+// Cập nhật ResetPasswordCard để responsive hơn
 const ResetPasswordCard = styled(Card)`
   background-color: #2a2d3e;
   border: none;
@@ -28,30 +38,83 @@ const ResetPasswordCard = styled(Card)`
   box-shadow: 0 8px 20px rgba(0, 0, 0, 0.4);
   max-width: 450px;
   width: 100%;
+  
+  @media (max-width: 768px) {
+    box-shadow: 0 6px 15px rgba(0, 0, 0, 0.35);
+    border-radius: 8px;
+  }
+  
+  @media (max-width: 576px) {
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+    border-radius: 6px;
+  }
 `;
 
+// Cập nhật CardHeader để responsive hơn
 const CardHeader = styled(Card.Header)`
   background: transparent;
   border-bottom: 1px solid #3f425a;
   padding: 1.5rem 1.5rem 1rem;
+  
+  @media (max-width: 768px) {
+    padding: 1.25rem 1.25rem 0.9rem;
+  }
+  
+  @media (max-width: 576px) {
+    padding: 1rem 1rem 0.8rem;
+    
+    .d-flex {
+      align-items: flex-start !important;
+    }
+  }
 `;
 
+// Cập nhật CardBody để responsive hơn
 const CardBody = styled(Card.Body)`
   padding: 1.5rem;
+  
+  @media (max-width: 768px) {
+    padding: 1.25rem;
+  }
+  
+  @media (max-width: 576px) {
+    padding: 1rem;
+  }
 `;
 
+// Cập nhật PageTitle để responsive hơn
 const PageTitle = styled.h1`
   color: #f3f4f6;
   font-size: 1.8rem;
   font-weight: 600;
   margin-bottom: 0.5rem;
+  
+  @media (max-width: 768px) {
+    font-size: 1.6rem;
+    margin-bottom: 0.4rem;
+  }
+  
+  @media (max-width: 576px) {
+    font-size: 1.4rem;
+    margin-bottom: 0.3rem;
+  }
 `;
 
+// Cập nhật PageSubtitle để responsive hơn
 const PageSubtitle = styled.p`
   color: #9ca3af;
   font-size: 0.9rem;
+  
+  @media (max-width: 768px) {
+    font-size: 0.85rem;
+  }
+  
+  @media (max-width: 576px) {
+    font-size: 0.8rem;
+  }
 `;
 
+// Cập nhật FormControl để responsive hơn
 const FormControl = styled(Form.Control)`
   background-color: #1e1e30;
   border: 1px solid #3f425a;
@@ -69,13 +132,33 @@ const FormControl = styled(Form.Control)`
   &::placeholder {
     color: #6c757d;
   }
+  
+  @media (max-width: 768px) {
+    padding: 0.7rem 1rem 0.7rem 2.3rem;
+    font-size: 0.85rem;
+  }
+  
+  @media (max-width: 576px) {
+    padding: 0.65rem 0.9rem 0.65rem 2.1rem;
+    font-size: 0.8rem;
+  }
 `;
 
+// Cập nhật InputGroup để responsive hơn
 const InputGroup = styled.div`
   position: relative;
   margin-bottom: 1.5rem;
+  
+  @media (max-width: 768px) {
+    margin-bottom: 1.3rem;
+  }
+  
+  @media (max-width: 576px) {
+    margin-bottom: 1.1rem;
+  }
 `;
 
+// Cập nhật InputIcon để responsive hơn
 const InputIcon = styled.div`
   position: absolute;
   left: 0.75rem;
@@ -83,8 +166,19 @@ const InputIcon = styled.div`
   transform: translateY(-50%);
   color: #F9376E;
   z-index: 2;
+  
+  @media (max-width: 768px) {
+    left: 0.7rem;
+    font-size: 0.9rem;
+  }
+  
+  @media (max-width: 576px) {
+    left: 0.65rem;
+    font-size: 0.85rem;
+  }
 `;
 
+// Cập nhật TogglePasswordIcon để responsive hơn
 const TogglePasswordIcon = styled.div`
   position: absolute;
   right: 0.75rem;
@@ -97,8 +191,19 @@ const TogglePasswordIcon = styled.div`
   &:hover {
     color: #F9376E;
   }
+  
+  @media (max-width: 768px) {
+    right: 0.7rem;
+    font-size: 0.9rem;
+  }
+  
+  @media (max-width: 576px) {
+    right: 0.65rem;
+    font-size: 0.85rem;
+  }
 `;
 
+// Cập nhật LoginLink để responsive hơn
 const LoginLink = styled.div`
   text-align: center;
   margin-top: 1.5rem;
@@ -114,8 +219,19 @@ const LoginLink = styled.div`
       text-decoration: underline;
     }
   }
+  
+  @media (max-width: 768px) {
+    margin-top: 1.25rem;
+    font-size: 0.85rem;
+  }
+  
+  @media (max-width: 576px) {
+    margin-top: 1rem;
+    font-size: 0.8rem;
+  }
 `;
 
+// Cập nhật BackButton để responsive hơn
 const BackButton = styled(Button)`
   color: #9ca3af;
   background: transparent;
@@ -137,13 +253,42 @@ const BackButton = styled(Button)`
   &:active {
     transform: scale(0.95);
   }
+  
+  @media (max-width: 768px) {
+    padding: 0.55rem;
+    margin-right: 0.8rem;
+    
+    svg {
+      font-size: 0.9rem;
+    }
+  }
+  
+  @media (max-width: 576px) {
+    padding: 0.5rem;
+    margin-right: 0.6rem;
+    align-self: flex-start;
+    
+    svg {
+      font-size: 0.85rem;
+    }
+  }
 `;
 
+// Cập nhật SuccessContainer để responsive hơn
 const SuccessContainer = styled.div`
   text-align: center;
   padding: 1rem 0;
+  
+  @media (max-width: 768px) {
+    padding: 0.8rem 0;
+  }
+  
+  @media (max-width: 576px) {
+    padding: 0.6rem 0;
+  }
 `;
 
+// Cập nhật SuccessIcon để responsive hơn
 const SuccessIcon = styled.div`
   width: 70px;
   height: 70px;
@@ -155,8 +300,23 @@ const SuccessIcon = styled.div`
   justify-content: center;
   margin: 0 auto 1.5rem;
   font-size: 2rem;
+  
+  @media (max-width: 768px) {
+    width: 60px;
+    height: 60px;
+    font-size: 1.8rem;
+    margin-bottom: 1.25rem;
+  }
+  
+  @media (max-width: 576px) {
+    width: 50px;
+    height: 50px;
+    font-size: 1.6rem;
+    margin-bottom: 1rem;
+  }
 `;
 
+// Cập nhật RequirementsList để responsive hơn
 const RequirementsList = styled.ul`
   list-style-type: none;
   padding-left: 0;
@@ -183,8 +343,27 @@ const RequirementsList = styled.ul`
       }
     }
   }
+  
+  @media (max-width: 768px) {
+    margin-bottom: 1.3rem;
+    font-size: 0.8rem;
+    
+    li {
+      padding: 0.18rem 0;
+    }
+  }
+  
+  @media (max-width: 576px) {
+    margin-bottom: 1.1rem;
+    font-size: 0.75rem;
+    
+    li {
+      padding: 0.15rem 0;
+    }
+  }
 `;
 
+// Cập nhật IconWrapper để responsive hơn
 const IconWrapper = styled.div`
   font-size: 5rem;
   margin-bottom: 1.5rem;
@@ -198,12 +377,33 @@ const IconWrapper = styled.div`
     0% { transform: rotate(0deg); }
     100% { transform: rotate(360deg); }
   }
+  
+  @media (max-width: 768px) {
+    font-size: 4.5rem;
+    margin-bottom: 1.25rem;
+  }
+  
+  @media (max-width: 576px) {
+    font-size: 4rem;
+    margin-bottom: 1rem;
+  }
 `;
 
+// Cập nhật CountdownText để responsive hơn
 const CountdownText = styled.div`
   margin-top: 1rem;
   font-size: 0.9rem;
   color: #6B7280;
+  
+  @media (max-width: 768px) {
+    margin-top: 0.9rem;
+    font-size: 0.85rem;
+  }
+  
+  @media (max-width: 576px) {
+    margin-top: 0.8rem;
+    font-size: 0.8rem;
+  }
 `;
 
 // Hàm giải mã token JWT để lấy payload
@@ -242,11 +442,7 @@ const ResetPasswordPage = () => {
   
   // Password requirements state
   const [passwordRequirements, setPasswordRequirements] = useState({
-    length: false,
-    lowercase: false,
-    uppercase: false,
-    number: false,
-    special: false
+    length: false
   });
   
   useEffect(() => {
@@ -268,7 +464,6 @@ const ResetPasswordPage = () => {
           setIsStaff(decodedToken.IsStaff === "True");
         }
         
-        // Email không còn cần thiết, nhưng vẫn giữ code để tương thích
         if (urlEmail) {
           setEmail(urlEmail);
         }
@@ -288,7 +483,7 @@ const ResetPasswordPage = () => {
   }, [newPassword]);
   
   const validateForm = () => {
-    // Kiểm tra độ dài mật khẩu
+    // Chỉ kiểm tra độ dài mật khẩu
     if (newPassword.length < 8) {
       setError('Mật khẩu phải có ít nhất 8 ký tự.');
       return false;
@@ -323,8 +518,7 @@ const ResetPasswordPage = () => {
         isStaff: isStaff
       };
       
-      
-      // Gọi API đặt lại mật khẩu với format mới
+      // Gọi API đặt lại mật khẩu
       await resetPassword(resetPasswordData);
       
       // Đặt lại mật khẩu thành công
@@ -347,10 +541,26 @@ const ResetPasswordPage = () => {
     } catch (error) {
       console.error('Reset password error:', error);
       setStatus('error');
-      setError(error.message || 'Có lỗi xảy ra khi đặt lại mật khẩu. Vui lòng thử lại.');
+      if (error.response && error.response.data && error.response.data.message) {
+        setError(error.response.data.message);
+      } else {
+        setError('Có lỗi xảy ra khi đặt lại mật khẩu. Vui lòng thử lại.');
+      }
     } finally {
       setIsSubmitting(false);
     }
+  };
+  
+  // Hàm kiểm tra password strength
+  const getPasswordStrengthText = () => {
+    const { length } = passwordRequirements;
+    const validCount = [length].filter(Boolean).length;
+    
+    if (validCount <= 1) return { text: "Rất yếu", color: "#EF4444" };
+    if (validCount === 2) return { text: "Yếu", color: "#F59E0B" };
+    if (validCount === 3) return { text: "Trung bình", color: "#F59E0B" };
+    if (validCount === 4) return { text: "Mạnh", color: "#10B981" };
+    return { text: "Rất mạnh", color: "#10B981" };
   };
   
   return (
@@ -377,7 +587,10 @@ const ResetPasswordPage = () => {
                 
                 <CardBody>
                   {error && (
-                    <Alert variant="danger" className="mb-3">
+                    <Alert variant="danger" className="mb-3" style={{
+                      fontSize: window.innerWidth <= 576 ? '0.85rem' : '0.9rem',
+                      padding: window.innerWidth <= 576 ? '0.65rem 0.75rem' : '0.75rem 1rem'
+                    }}>
                       {error}
                     </Alert>
                   )}
@@ -388,7 +601,10 @@ const ResetPasswordPage = () => {
                         <FaSpinner className="spinner" />
                       </IconWrapper>
                       <PageTitle>Đang xử lý...</PageTitle>
-                      <PageSubtitle style={{ fontSize: '1rem', color: '#f3f4f6' }}>
+                      <PageSubtitle style={{ 
+                        fontSize: window.innerWidth <= 576 ? '0.9rem' : '1rem', 
+                        color: '#f3f4f6' 
+                      }}>
                         Vui lòng đợi trong giây lát.
                       </PageSubtitle>
                     </SuccessContainer>
@@ -399,8 +615,12 @@ const ResetPasswordPage = () => {
                       <IconWrapper success>
                         <FaCheck />
                       </IconWrapper>
-                      <PageTitle success>Đặt lại mật khẩu thành công!</PageTitle>
-                      <PageSubtitle style={{ fontSize: '1rem', color: '#f3f4f6', marginBottom: '1.5rem' }}>
+                      <PageTitle>Đặt lại mật khẩu thành công!</PageTitle>
+                      <PageSubtitle style={{ 
+                        fontSize: window.innerWidth <= 576 ? '0.9rem' : '1rem', 
+                        color: '#f3f4f6', 
+                        marginBottom: window.innerWidth <= 576 ? '1.25rem' : '1.5rem' 
+                      }}>
                         Mật khẩu của bạn đã được cập nhật thành công.
                         <br />
                         Bạn có thể đăng nhập ngay bây giờ với mật khẩu mới.
@@ -408,7 +628,11 @@ const ResetPasswordPage = () => {
                       <Button
                         variant="primary"
                         onClick={() => navigate('/login')}
-                        style={{ width: '100%', padding: '0.75rem', fontWeight: '500' }}
+                        style={{ 
+                          width: '100%', 
+                          padding: window.innerWidth <= 576 ? '0.65rem' : '0.75rem', 
+                          fontWeight: '500' 
+                        }}
                       >
                         Đăng nhập ngay
                       </Button>
@@ -423,8 +647,12 @@ const ResetPasswordPage = () => {
                       <IconWrapper error>
                         <FaTimesCircle />
                       </IconWrapper>
-                      <PageTitle error>Liên kết không hợp lệ</PageTitle>
-                      <PageSubtitle style={{ fontSize: '1rem', color: '#f3f4f6', marginBottom: '1.5rem' }}>
+                      <PageTitle>Liên kết không hợp lệ</PageTitle>
+                      <PageSubtitle style={{ 
+                        fontSize: window.innerWidth <= 576 ? '0.9rem' : '1rem', 
+                        color: '#f3f4f6', 
+                        marginBottom: window.innerWidth <= 576 ? '1.25rem' : '1.5rem' 
+                      }}>
                         Liên kết đặt lại mật khẩu không hợp lệ hoặc đã hết hạn.
                         <br />
                         Vui lòng yêu cầu đặt lại mật khẩu mới.
@@ -432,7 +660,11 @@ const ResetPasswordPage = () => {
                       <Button
                         variant="primary"
                         onClick={() => navigate('/forgot-password')}
-                        style={{ width: '100%', padding: '0.75rem', fontWeight: '500' }}
+                        style={{ 
+                          width: '100%', 
+                          padding: window.innerWidth <= 576 ? '0.65rem' : '0.75rem', 
+                          fontWeight: '500' 
+                        }}
                       >
                         Yêu cầu đặt lại mật khẩu
                       </Button>
@@ -457,13 +689,12 @@ const ResetPasswordPage = () => {
                         </TogglePasswordIcon>
                       </InputGroup>
                       
-                      {/* Password requirements list */}
+                      {/* Enhanced Password requirements list */}
                       {newPassword && (
                         <RequirementsList>
                           <li className={passwordRequirements.length ? 'valid' : 'invalid'}>
                             Ít nhất 8 ký tự
                           </li>
-                          
                         </RequirementsList>
                       )}
                       
@@ -483,11 +714,41 @@ const ResetPasswordPage = () => {
                         </TogglePasswordIcon>
                       </InputGroup>
                       
+                      {/* Password match indicator */}
+                      {confirmPassword && (
+                        <div style={{ 
+                          marginTop: '-1rem', 
+                          marginBottom: '1rem', 
+                          fontSize: '0.85rem',
+                          color: newPassword === confirmPassword ? '#10B981' : '#EF4444' 
+                        }}>
+                          {newPassword === confirmPassword ? (
+                            <span><FaCheck style={{marginRight: '5px'}} /> Mật khẩu khớp</span>
+                          ) : (
+                            <span><FaTimesCircle style={{marginRight: '5px'}} /> Mật khẩu không khớp</span>
+                          )}
+                        </div>
+                      )}
+                      
                       <Button
                         type="submit"
                         variant="primary"
-                        disabled={isSubmitting}
-                        style={{ width: '100%', padding: '0.75rem', fontWeight: '500', marginTop: '1rem' }}
+                        disabled={isSubmitting || 
+                          !newPassword || 
+                          !confirmPassword || 
+                          newPassword !== confirmPassword || 
+                          newPassword.length < 8}
+                        style={{ 
+                          width: '100%', 
+                          padding: window.innerWidth <= 576 ? '0.65rem' : '0.75rem', 
+                          fontWeight: '500', 
+                          marginTop: '1rem',
+                          opacity: isSubmitting || 
+                            !newPassword || 
+                            !confirmPassword || 
+                            newPassword !== confirmPassword || 
+                            newPassword.length < 8 ? 0.7 : 1
+                        }}
                       >
                         {isSubmitting ? 'Đang xử lý...' : 'Đặt lại mật khẩu'}
                       </Button>

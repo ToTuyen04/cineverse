@@ -63,22 +63,56 @@ export const getCombosPaginated = async (
       );
     }
     
-    // Xử lý sắp xếp nếu có
+    // Xử lý sắp xếp nếu có - Improved to handle string field names
     if (sortBy !== null && sortBy !== undefined) {
+      console.log(`Sorting by field: ${sortBy} in order: ${sortOrder}`);
+      
       filteredData.sort((a, b) => {
         let compareResult = 0;
-        switch(Number(sortBy)) {
-          case 0: // Sort by CreateAt
-            compareResult = new Date(a.comboCreateAt || 0) - new Date(b.comboCreateAt || 0);
-            break;
-          case 1: // Sort by Name
-            compareResult = (a.comboName || '').localeCompare(b.comboName || '');
-            break;
-          default:
-            compareResult = 0;
+        
+        // Handle sorting based on field name string (not numeric codes)
+        if (typeof sortBy === 'string') {
+          // Get values to compare, handling property names with different case
+          const aValue = a[sortBy] ?? a[sortBy.charAt(0).toLowerCase() + sortBy.slice(1)];
+          const bValue = b[sortBy] ?? b[sortBy.charAt(0).toLowerCase() + sortBy.slice(1)];
+          
+          // Log the values for debugging
+          console.log(`Comparing: ${aValue} vs ${bValue} for field ${sortBy}`);
+          
+          if (aValue !== undefined && bValue !== undefined) {
+            // Handle different data types
+            if (typeof aValue === 'number' && typeof bValue === 'number') {
+              compareResult = aValue - bValue;
+            } else if (typeof aValue === 'string' && typeof bValue === 'string') {
+              compareResult = aValue.localeCompare(bValue);
+            } else if (typeof aValue === 'boolean' && typeof bValue === 'boolean') {
+              compareResult = aValue === bValue ? 0 : aValue ? 1 : -1;
+            } else if (aValue instanceof Date && bValue instanceof Date) {
+              compareResult = aValue - bValue;
+            } else {
+              // Convert to string as fallback
+              compareResult = String(aValue).localeCompare(String(bValue));
+            }
+          }
+        } else {
+          // Keep the original numeric code logic as fallback
+          switch(Number(sortBy)) {
+            case 0: // Sort by CreateAt
+              compareResult = new Date(a.comboCreateAt || 0) - new Date(b.comboCreateAt || 0);
+              break;
+            case 1: // Sort by Name
+              compareResult = (a.comboName || '').localeCompare(b.comboName || '');
+              break;
+            default:
+              compareResult = 0;
+          }
         }
-        return Number(sortOrder) === 1 ? -compareResult : compareResult; // 1 is descending
+        
+        // Determine sort direction (asc or desc)
+        return sortOrder === "desc" ? -compareResult : compareResult;
       });
+      
+      console.log("Sorted data result:", filteredData.map(item => item.comboName || item.comboId));
     }
     
     // Thực hiện phân trang tại client
@@ -117,21 +151,50 @@ export const getCombosPaginated = async (
         );
       }
       
-      // Xử lý sắp xếp
+      // Xử lý sắp xếp - Apply the same fix to the fallback code path
       if (sortBy !== null && sortBy !== undefined) {
+        console.log(`Fallback sorting by field: ${sortBy} in order: ${sortOrder}`);
+        
         filteredData.sort((a, b) => {
           let compareResult = 0;
-          switch(Number(sortBy)) {
-            case 0: // Sort by CreateAt
-              compareResult = new Date(a.comboCreateAt || 0) - new Date(b.comboCreateAt || 0);
-              break;
-            case 1: // Sort by Name
-              compareResult = (a.comboName || '').localeCompare(b.comboName || '');
-              break;
-            default:
-              compareResult = 0;
+          
+          // Handle sorting based on field name string
+          if (typeof sortBy === 'string') {
+            // Get values to compare, handling property names with different case
+            const aValue = a[sortBy] ?? a[sortBy.charAt(0).toLowerCase() + sortBy.slice(1)];
+            const bValue = b[sortBy] ?? b[sortBy.charAt(0).toLowerCase() + sortBy.slice(1)];
+            
+            if (aValue !== undefined && bValue !== undefined) {
+              // Handle different data types
+              if (typeof aValue === 'number' && typeof bValue === 'number') {
+                compareResult = aValue - bValue;
+              } else if (typeof aValue === 'string' && typeof bValue === 'string') {
+                compareResult = aValue.localeCompare(bValue);
+              } else if (typeof aValue === 'boolean' && typeof bValue === 'boolean') {
+                compareResult = aValue === bValue ? 0 : aValue ? 1 : -1;
+              } else if (aValue instanceof Date && bValue instanceof Date) {
+                compareResult = aValue - bValue;
+              } else {
+                // Convert to string as fallback
+                compareResult = String(aValue).localeCompare(String(bValue));
+              }
+            }
+          } else {
+            // Keep the original numeric code logic as fallback
+            switch(Number(sortBy)) {
+              case 0: // Sort by CreateAt
+                compareResult = new Date(a.comboCreateAt || 0) - new Date(b.comboCreateAt || 0);
+                break;
+              case 1: // Sort by Name
+                compareResult = (a.comboName || '').localeCompare(b.comboName || '');
+                break;
+              default:
+                compareResult = 0;
+            }
           }
-          return Number(sortOrder) === 1 ? -compareResult : compareResult; // 1 is descending
+          
+          // Determine sort direction
+          return sortOrder === "desc" ? -compareResult : compareResult;
         });
       }
       

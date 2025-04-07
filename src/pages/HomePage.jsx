@@ -8,12 +8,30 @@ import { getMovieScheduleByTheaterAndMovie } from '../api/services/showtimeServi
 import Button from "../components/common/Button";
 import { getTheaters, mapTheatersData } from '../api/services/theaterService';
 
+// Cập nhật PageContainer để responsive hơn
 const PageContainer = styled.div`
   max-width: 1400px;
   margin: 0 auto;
   padding: 30px 100px 0 100px;
+  
+  @media (max-width: 1200px) {
+    padding: 25px 70px 0 70px;
+  }
+  
+  @media (max-width: 992px) {
+    padding: 20px 50px 0 50px;
+  }
+  
+  @media (max-width: 768px) {
+    padding: 15px 30px 0 30px;
+  }
+  
+  @media (max-width: 576px) {
+    padding: 10px 15px 0 15px;
+  }
 `;
 
+// Cập nhật BannerContainer cho responsive
 const BannerContainer = styled.div`
   position: relative;
   width: 100%;
@@ -23,8 +41,23 @@ const BannerContainer = styled.div`
   overflow: hidden;
   border-radius: 8px;
   margin-top: 20px;
+  
+  @media (max-width: 992px) {
+    height: 320px;
+  }
+  
+  @media (max-width: 768px) {
+    height: 280px;
+    border-radius: 6px;
+  }
+  
+  @media (max-width: 576px) {
+    height: 240px;
+    margin-top: 10px;
+  }
 `;
 
+// Cập nhật BannerArrow để responsive, nhỏ lại trên mobile
 const BannerArrow = styled.div`
   position: absolute;
   top: 50%;
@@ -52,9 +85,37 @@ const BannerArrow = styled.div`
   &.right {
     right: 20px;
   }
+  
+  @media (max-width: 768px) {
+    width: 40px;
+    height: 40px;
+    
+    &.left {
+      left: 10px;
+    }
+    
+    &.right {
+      right: 10px;
+    }
+    
+    svg {
+      width: 18px;
+      height: 18px;
+    }
+  }
+  
+  @media (max-width: 576px) {
+    width: 30px;
+    height: 30px;
+    
+    svg {
+      width: 16px;
+      height: 16px;
+    }
+  }
 `;
 
-// Đơn giản hóa banner - không có animation
+// Cập nhật BannerPoster để responsive
 const BannerPoster = styled.div`
   position: absolute;
   width: 100%;
@@ -65,13 +126,65 @@ const BannerPoster = styled.div`
   align-items: center;
   justify-content: flex-start;
   padding: 0 5rem;
+  
+  @media (max-width: 992px) {
+    padding: 0 4rem;
+  }
+  
+  @media (max-width: 768px) {
+    padding: 0 3rem;
+  }
+  
+  @media (max-width: 576px) {
+    padding: 0 2rem;
+    
+    h1 {
+      font-size: 1.8rem !important;
+      margin-bottom: 0.75rem !important;
+    }
+    
+    p {
+      font-size: 0.9rem !important;
+      margin-bottom: 1.5rem !important;
+      display: -webkit-box;
+      -webkit-line-clamp: 3;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+    }
+  }
+  
+  @media (max-width: 480px) {
+    h1 {
+      font-size: 1.5rem !important;
+      margin-bottom: 0.5rem !important;
+    }
+    
+    p {
+      font-size: 0.85rem !important;
+      margin-bottom: 1rem !important;
+      -webkit-line-clamp: 2;
+    }
+  }
 `;
 
+// Cập nhật ButtonGroup cho responsive
 const ButtonGroup = styled.div`
   display: flex;
   gap: 10px;
+  
+  @media (max-width: 576px) {
+    gap: 8px;
+  }
+  
+  @media (max-width: 480px) {
+    flex-direction: column;
+    gap: 8px;
+    width: 100%;
+    max-width: 200px;
+  }
 `;
 
+// Cập nhật DetailButton cho responsive
 const DetailButton = styled.button`
   background-color: transparent;
   color: white;
@@ -86,8 +199,23 @@ const DetailButton = styled.button`
   &:hover {
     background-color: rgba(255, 255, 255, 0.2);
   }
+  
+  @media (max-width: 768px) {
+    padding: 0.6rem 1.5rem;
+    font-size: 0.9rem;
+  }
+  
+  @media (max-width: 576px) {
+    padding: 0.5rem 1.25rem;
+    font-size: 0.85rem;
+  }
+  
+  @media (max-width: 480px) {
+    width: 100%;
+  }
 `;
 
+// Cập nhật BookingButton cho responsive
 const BookingButton = styled.button`
   background-color: #6a1b9a; /* Màu tím */
   color: white;
@@ -107,15 +235,40 @@ const BookingButton = styled.button`
     background-color: #ccc;
     cursor: not-allowed;
   }
+  
+  @media (max-width: 768px) {
+    padding: 0.6rem 1.5rem;
+    font-size: 0.9rem;
+  }
+  
+  @media (max-width: 576px) {
+    padding: 0.5rem 1.25rem;
+    font-size: 0.85rem;
+  }
+  
+  @media (max-width: 480px) {
+    width: 100%;
+  }
 `;
 
+// Cập nhật SectionTitle cho responsive
 const SectionTitle = styled.h2`
   font-size: 1.5rem;
   font-weight: bold;
   color:rgb(255, 255, 255); /* Màu chữ chính */
   margin-bottom: 15px;
+  
+  @media (max-width: 768px) {
+    font-size: 1.4rem;
+  }
+  
+  @media (max-width: 576px) {
+    font-size: 1.3rem;
+    margin-bottom: 12px;
+  }
 `;
 
+// Cập nhật BannerDots cho responsive
 const BannerDots = styled.div`
   position: absolute;
   bottom: 15px;
@@ -125,8 +278,14 @@ const BannerDots = styled.div`
   justify-content: center;
   gap: 8px;
   z-index: 10;
+  
+  @media (max-width: 576px) {
+    bottom: 10px;
+    gap: 6px;
+  }
 `;
 
+// Cập nhật BannerDot cho responsive
 const BannerDot = styled.div`
   width: 10px;
   height: 10px;
@@ -138,9 +297,15 @@ const BannerDot = styled.div`
   &:hover {
     background-color: ${props => props.active ? '#e71a0f' : 'rgba(255, 255, 255, 0.8)'};
   }
+  
+  @media (max-width: 576px) {
+    width: 8px;
+    height: 8px;
+  }
 `;
 
 // Thêm styled component cho nút Xem thêm
+// Cập nhật ViewMoreButton cho responsive
 const ViewMoreButton = styled.button`
   background-color: transparent;
   border: 2px solid #8e24aa;
@@ -162,16 +327,43 @@ const ViewMoreButton = styled.button`
     transform: translateY(-2px);
     box-shadow: 0 4px 8px rgba(148, 15, 231, 0.2);
   }
+  
+  @media (max-width: 768px) {
+    padding: 0.6rem 1.75rem;
+    font-size: 1rem;
+    margin: 1.5rem auto;
+  }
+  
+  @media (max-width: 576px) {
+    padding: 0.5rem 1.5rem;
+    font-size: 0.9rem;
+    margin: 1.25rem auto;
+    gap: 8px;
+  }
 `;
 
 // Thêm styled component cho container section
+// Cập nhật SectionContainer cho responsive
 const SectionContainer = styled.div`
   margin: 20px 0 0 0;
   padding: 20px;
   border-radius: 8px;
   min-height: 200px; 
+  
+  @media (max-width: 768px) {
+    margin: 15px 0 0 0;
+    padding: 15px;
+    min-height: 180px;
+  }
+  
+  @media (max-width: 576px) {
+    margin: 10px 0 0 0;
+    padding: 10px;
+    min-height: 150px;
+  }
 `;
 
+// Cập nhật SelectionBar cho responsive - đổi sang flex-direction column trên màn hình nhỏ
 const SelectionBar = styled.div`
   display: flex;
   justify-content: center;
@@ -182,8 +374,26 @@ const SelectionBar = styled.div`
   border-radius: 8px;
   box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
   margin-bottom: 20px;
+  
+  @media (max-width: 992px) {
+    gap: 20px;
+    padding: 10px 15px;
+  }
+  
+  @media (max-width: 768px) {
+    flex-direction: column;
+    gap: 15px;
+    padding: 15px;
+  }
+  
+  @media (max-width: 576px) {
+    gap: 12px;
+    padding: 12px;
+    border-radius: 6px;
+  }
 `;
 
+// Cập nhật SelectWrapper cho responsive
 const SelectWrapper = styled.div`
   position: relative;
   display: flex;
@@ -192,6 +402,11 @@ const SelectWrapper = styled.div`
   font-weight: bold;
   color: #4a4a4a;
   width: 200px; /* Thêm chiều rộng cố định */
+  
+  @media (max-width: 768px) {
+    width: 100%;
+    max-width: 350px;
+  }
 `;
 
 const IconWrapper = styled.div`
@@ -204,6 +419,7 @@ const IconWrapper = styled.div`
   pointer-events: none;
 `;
 
+// Cập nhật StyledSelect cho responsive
 const StyledSelect = styled.select`
   padding: 10px 20px 10px 40px;
   border: 1px solid #ccc;
@@ -234,6 +450,17 @@ const StyledSelect = styled.select`
   &:disabled {
     color: #aaa;
     cursor: not-allowed;
+  }
+  
+  @media (max-width: 768px) {
+    width: 100%;
+    max-width: 100%;
+    font-size: 0.95rem;
+  }
+  
+  @media (max-width: 576px) {
+    font-size: 0.9rem;
+    padding: 8px 15px 8px 35px;
   }
 `;
 

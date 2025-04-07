@@ -31,10 +31,54 @@ const ArrowButton = styled.div`
   
   &.next-arrow {
     right: -60px; /* Đặt nút ra ngoài carousel */
+    
+    @media (max-width: 1200px) {
+      right: -30px;
+    }
+    
+    @media (max-width: 768px) {
+      right: -20px;
+      width: 40px;
+      height: 40px;
+    }
+    
+    @media (max-width: 576px) {
+      right: -10px;
+      width: 35px;
+      height: 35px;
+    }
   }
   
   &.prev-arrow {
     left: -60px; /* Đặt nút ra ngoài carousel */
+    
+    @media (max-width: 1200px) {
+      left: -30px;
+    }
+    
+    @media (max-width: 768px) {
+      left: -20px;
+      width: 40px;
+      height: 40px;
+    }
+    
+    @media (max-width: 576px) {
+      left: -10px;
+      width: 35px;
+      height: 35px;
+    }
+  }
+  
+  svg {
+    @media (max-width: 768px) {
+      width: 20px;
+      height: 20px;
+    }
+    
+    @media (max-width: 576px) {
+      width: 18px;
+      height: 18px;
+    }
   }
 `;
 
@@ -72,6 +116,37 @@ const CarouselContainer = styled.div`
   .slick-slider {
     padding: 0 20px;
   }
+  
+  @media (max-width: 768px) {
+    padding: 15px 25px;
+  }
+  
+  @media (max-width: 576px) {
+    padding: 10px 15px;
+    min-height: 250px;
+  }
+  
+  .slick-dots {
+    bottom: -30px;
+    
+    @media (max-width: 576px) {
+      bottom: -25px;
+    }
+    
+    li button:before {
+      color: #f3f4f6;
+      opacity: 0.5;
+      
+      @media (max-width: 576px) {
+        font-size: 8px;
+      }
+    }
+    
+    li.slick-active button:before {
+      color: #F9376E;
+      opacity: 1;
+    }
+  }
 `;
 
 const MovieCard = styled.div`
@@ -82,6 +157,7 @@ const MovieCard = styled.div`
   position: relative;
   overflow: hidden;
   border: 1px solid rgba(255, 253, 253, 0.1);
+  border-radius: 8px;
 
   a {
     display: block;
@@ -97,6 +173,14 @@ const MovieCard = styled.div`
     object-fit: cover;
     border-radius: 8px;
     transition: all 0.3s;
+    
+    @media (max-width: 768px) {
+      height: 280px;
+    }
+    
+    @media (max-width: 576px) {
+      height: 250px;
+    }
   }
   
   h3 {
@@ -117,6 +201,17 @@ const MovieCard = styled.div`
     -webkit-box-orient: vertical;
     border-bottom-left-radius: 8px;
     border-bottom-right-radius: 8px;
+    
+    @media (max-width: 768px) {
+      font-size: 0.95rem;
+      padding: 8px;
+    }
+    
+    @media (max-width: 576px) {
+      font-size: 0.85rem;
+      padding: 6px;
+      -webkit-line-clamp: 1;
+    }
   }
 
   .movie-info-overlay {
@@ -136,6 +231,14 @@ const MovieCard = styled.div`
   border-bottom-left-radius: 8px;
   border-bottom-right-radius: 8px;
   text-align: center;
+    
+    @media (max-width: 768px) {
+      padding: 8px;
+    }
+    
+    @media (max-width: 576px) {
+      padding: 6px 5px;
+    }
 }
 
 &:hover h3 {
@@ -152,6 +255,24 @@ opacity: 0;
     span {
       display: block;
       margin: 5px 0;
+      
+      @media (max-width: 768px) {
+        margin: 4px 0;
+        font-size: 0.85rem;
+      }
+      
+      @media (max-width: 576px) {
+        margin: 3px 0;
+        font-size: 0.75rem;
+      }
+    }
+    
+    @media (max-width: 768px) {
+      margin-bottom: 10px;
+    }
+    
+    @media (max-width: 576px) {
+      margin-bottom: 8px;
     }
   }
 
@@ -159,6 +280,10 @@ opacity: 0;
     display: flex;
     gap: 8px;  /* Giảm gap từ 10px xuống 8px */
     justify-content: center;
+    
+    @media (max-width: 576px) {
+      gap: 5px;
+    }
   }
 
   .detail-btn {
@@ -174,6 +299,16 @@ opacity: 0;
     
     &:hover {
       background-color: rgba(255, 255, 255, 0.2);
+    }
+    
+    @media (max-width: 768px) {
+      padding: 5px 10px;
+      font-size: 0.85rem;
+    }
+    
+    @media (max-width: 576px) {
+      padding: 4px 8px;
+      font-size: 0.75rem;
     }
   }
 
@@ -191,11 +326,58 @@ opacity: 0;
     &:hover {
       background-color: #8e24aa;
     }
+    
+    @media (max-width: 768px) {
+      padding: 5px 10px;
+      font-size: 0.85rem;
+    }
+    
+    @media (max-width: 576px) {
+      padding: 4px 8px;
+      font-size: 0.75rem;
+    }
+  }
+`;
+
+// Thêm styled component cho trường hợp không có phim
+const NoMoviesMessage = styled.p`
+  text-align: center;
+  color: #f3f4f6;
+  font-size: 1.1rem;
+  padding: 40px 0;
+  
+  @media (max-width: 768px) {
+    font-size: 1rem;
+    padding: 30px 0;
+  }
+  
+  @media (max-width: 576px) {
+    font-size: 0.9rem;
+    padding: 20px 0;
   }
 `;
 
 function MovieCarousel({ movies = [] }) {
+  // Hàm để xử lý hiển thị thể loại phim
+  const getGenres = (movie) => {
+    if (!movie.genres) return 'Chưa cập nhật';
 
+    // Trường hợp đã được format sẵn thành chuỗi
+    if (typeof movie.genres === 'string') return movie.genres;
+
+    // Trường hợp là mảng string
+    if (Array.isArray(movie.genres) && typeof movie.genres[0] === 'string') {
+      return movie.genres.join(', ');
+    }
+
+    // Trường hợp là mảng object
+    if (Array.isArray(movie.genres) && movie.genres[0]?.genresName) {
+      return movie.genres.map(g => g.genresName).join(', ');
+    }
+
+    // Trường hợp có genreNames đã được format
+    return movie.genreNames || 'Chưa cập nhật';
+  };
 
   const settings = {
     dots: true,
@@ -214,24 +396,28 @@ function MovieCarousel({ movies = [] }) {
         breakpoint: 1400,
         settings: {
           slidesToShow: 4,
+          slidesToScroll: 4
         }
       },
       {
         breakpoint: 1024,
         settings: {
           slidesToShow: 3,
+          slidesToScroll: 3
         }
       },
       {
         breakpoint: 768,
         settings: {
           slidesToShow: 2,
+          slidesToScroll: 2
         }
       },
       {
         breakpoint: 480,
         settings: {
           slidesToShow: 1,
+          slidesToScroll: 1
         }
       }
     ]
@@ -254,27 +440,7 @@ function MovieCarousel({ movies = [] }) {
                   <div className="movie-info-details">
                     <span><strong>{movie.title}</strong></span>
                     {/* TODO: Đảm bảo API trả về đầy đủ thông tin genres, duration, language, releaseDate */}
-                    <span>Thể loại: {
-                      (() => {
-                        if (!movie.genres) return 'Chưa cập nhật';
-
-                        // Trường hợp đã được format sẵn thành chuỗi
-                        if (typeof movie.genres === 'string') return movie.genres;
-
-                        // Trường hợp là mảng string
-                        if (Array.isArray(movie.genres) && typeof movie.genres[0] === 'string') {
-                          return movie.genres.join(', ');
-                        }
-
-                        // Trường hợp là mảng object
-                        if (Array.isArray(movie.genres) && movie.genres[0]?.genresName) {
-                          return movie.genres.map(g => g.genresName).join(', ');
-                        }
-
-                        // Trường hợp có genreNames đã được format
-                        return movie.genreNames || 'Chưa cập nhật';
-                      })()
-                    }</span>
+                    <span>Thể loại: {getGenres(movie)}</span>
                     <span>Thời lượng: {movie.duration || 0} phút</span>
                     <span>Ngôn ngữ: {movie.language || 'Chưa cập nhật'}</span>
                   </div>
@@ -294,7 +460,7 @@ function MovieCarousel({ movies = [] }) {
           ))}
         </Slider>
       ) : (
-        <p>Không có phim nào.</p>
+        <NoMoviesMessage>Không có phim nào.</NoMoviesMessage>
       )}
     </CarouselContainer>
   );

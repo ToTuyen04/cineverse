@@ -24,6 +24,10 @@ import {
   formatDashboardError
 } from '../../../api/services/dashboardService';
 
+// Thêm đoạn code này vào đầu file
+import { Chart, registerables } from 'chart.js';
+Chart.register(...registerables);
+
 const StyledCard = styled(Card)(({ theme, bgColor }) => ({
   backgroundColor: bgColor ? bgColor : theme.palette.mode === 'light'
     ? alpha(theme.palette.primary.main, 0.05) // Light soft background

@@ -22,6 +22,10 @@ const MovieCard = styled(Link)`
       opacity: 0;
     }
   }
+  
+  @media (max-width: 576px) {
+    border-radius: 6px;
+  }
 `;
 
 const IconWrapper = styled.div`
@@ -32,6 +36,11 @@ const IconWrapper = styled.div`
   color: #F9376E;
   z-index: 1;
   font-size: 0.85rem;
+  
+  @media (max-width: 576px) {
+    font-size: 0.8rem;
+    left: 7px;
+  }
 `;
 
 // Thêm animation cho spinner
@@ -57,16 +66,50 @@ const PageContainer = styled.div`
   margin: 0 auto;
   padding: 7rem 1rem 2rem;
   min-height: 150vh;
+  
+  @media (max-width: 992px) {
+    padding: 6rem 1rem 1.5rem;
+  }
+  
+  @media (max-width: 768px) {
+    padding: 5rem 0.75rem 1.5rem;
+  }
+  
+  @media (max-width: 576px) {
+    padding: 4.5rem 0.5rem 1rem;
+  }
 `;
 
 const PageHeader = styled.div`
   margin-bottom: 2rem;
+  
+  @media (max-width: 768px) {
+    margin-bottom: 1.5rem;
+  }
+  
+  @media (max-width: 576px) {
+    margin-bottom: 1.25rem;
+  }
 `;
 
 const PageTitle = styled.h1`
   font-size: 2.5rem;
   color: #f3f4f6;
   margin-bottom: 1rem;
+  
+  @media (max-width: 992px) {
+    font-size: 2.2rem;
+  }
+  
+  @media (max-width: 768px) {
+    font-size: 1.8rem;
+    margin-bottom: 0.75rem;
+  }
+  
+  @media (max-width: 576px) {
+    font-size: 1.5rem;
+    margin-bottom: 0.5rem;
+  }
 `;
 
 const TabContainer = styled.div`
@@ -74,6 +117,16 @@ const TabContainer = styled.div`
   gap: 1rem;
   margin-bottom: 2rem;
   border-bottom: 1px solid #3f425a;
+  
+  @media (max-width: 768px) {
+    margin-bottom: 1.5rem;
+    gap: 0.75rem;
+  }
+  
+  @media (max-width: 576px) {
+    margin-bottom: 1.25rem;
+    gap: 0.5rem;
+  }
 `;
 
 // Cách 2: Đổi tên prop để tránh xung đột với HTML attributes
@@ -102,6 +155,16 @@ const TabButton = styled.button`
   &:hover {
     color: #e71a0f;
   }
+  
+  @media (max-width: 768px) {
+    font-size: 1.1rem;
+    padding: 0.4rem 0.75rem;
+  }
+  
+  @media (max-width: 576px) {
+    font-size: 1rem;
+    padding: 0.3rem 0.5rem;
+  }
 `;
 
 const FiltersContainer = styled.div`
@@ -115,6 +178,13 @@ const FiltersContainer = styled.div`
   @media (max-width: 768px) {
     flex-direction: column;
     align-items: flex-start;
+    gap: 0.75rem;
+    margin-bottom: 1.5rem;
+  }
+  
+  @media (max-width: 576px) {
+    gap: 0.5rem;
+    margin-bottom: 1.25rem;
   }
 `;
 
@@ -142,6 +212,16 @@ const SearchInput = styled.input`
     outline: none;
     border-color: #e71a0f;
   }
+  
+  @media (max-width: 768px) {
+    padding: 0.65rem 1rem 0.65rem 2.3rem;
+    font-size: 0.85rem;
+  }
+  
+  @media (max-width: 576px) {
+    padding: 0.6rem 0.9rem 0.6rem 2.1rem;
+    font-size: 0.8rem;
+  }
 `;
 
 const SearchIcon = styled.div`
@@ -150,11 +230,20 @@ const SearchIcon = styled.div`
   top: 50%;
   transform: translateY(-50%);
   color: #6c757d;
+  
+  @media (max-width: 576px) {
+    left: 0.8rem;
+    font-size: 0.9rem;
+  }
 `;
 
 // Thêm container cho filter dropdown
 const FilterContainer = styled.div`
   position: relative;
+  
+  @media (max-width: 768px) {
+    width: 100%;
+  }
 `;
 
 // Cập nhật GenreFilter để có padding bên trái cho icon
@@ -175,6 +264,17 @@ const GenreFilter = styled.select`
     outline: none;
     border-color: #e71a0f;
   }
+  
+  @media (max-width: 768px) {
+    width: 100%;
+    padding: 0.65rem 1rem 0.65rem 1.4rem;
+    font-size: 0.9rem;
+  }
+  
+  @media (max-width: 576px) {
+    padding: 0.6rem 0.9rem 0.6rem 1.3rem;
+    font-size: 0.85rem;
+  }
 `;
 
 const MovieGrid = styled.div`
@@ -182,9 +282,24 @@ const MovieGrid = styled.div`
   grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
   gap: 1.5rem;
   
+  @media (max-width: 992px) {
+    grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+    gap: 1.25rem;
+  }
+  
   @media (max-width: 768px) {
     grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
     gap: 1rem;
+  }
+  
+  @media (max-width: 576px) {
+    grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
+    gap: 0.75rem;
+  }
+  
+  @media (max-width: 360px) {
+    grid-template-columns: repeat(auto-fill, minmax(110px, 1fr));
+    gap: 0.5rem;
   }
 `;
 
@@ -199,6 +314,24 @@ const LoadingIndicator = styled.div`
     margin-top: 1rem;
     color: #b8c2cc;
   }
+  
+  @media (max-width: 768px) {
+    min-height: 250px;
+    
+    p {
+      margin-top: 0.75rem;
+      font-size: 0.95rem;
+    }
+  }
+  
+  @media (max-width: 576px) {
+    min-height: 200px;
+    
+    p {
+      margin-top: 0.5rem;
+      font-size: 0.9rem;
+    }
+  }
 `;
 
 const NoResults = styled.div`
@@ -212,6 +345,32 @@ const NoResults = styled.div`
   
   p {
     color: #b8c2cc;
+  }
+  
+  @media (max-width: 768px) {
+    padding: 2.5rem;
+    
+    h3 {
+      font-size: 1.2rem;
+      margin-bottom: 0.75rem;
+    }
+    
+    p {
+      font-size: 0.95rem;
+    }
+  }
+  
+  @media (max-width: 576px) {
+    padding: 2rem;
+    
+    h3 {
+      font-size: 1.1rem;
+      margin-bottom: 0.5rem;
+    }
+    
+    p {
+      font-size: 0.9rem;
+    }
   }
 `;
 
@@ -266,6 +425,14 @@ const MovieReleaseStatus = styled.div`
 
 const MovieInfo = styled.div`
   padding: 0.75rem;
+  
+  @media (max-width: 768px) {
+    padding: 0.65rem;
+  }
+  
+  @media (max-width: 576px) {
+    padding: 0.5rem;
+  }
 `;
 
 const MovieTitle = styled.h3`
@@ -275,6 +442,16 @@ const MovieTitle = styled.h3`
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
+  
+  @media (max-width: 768px) {
+    font-size: 0.95rem;
+    margin-bottom: 0.4rem;
+  }
+  
+  @media (max-width: 576px) {
+    font-size: 0.9rem;
+    margin-bottom: 0.3rem;
+  }
 `;
 
 const MovieGenres = styled.div`
@@ -292,6 +469,17 @@ const ReleaseDate = styled.div`
   align-items: center;
   gap: 5px;
   margin-top: 0.5rem;
+  
+  @media (max-width: 768px) {
+    font-size: 0.75rem;
+    margin-top: 0.4rem;
+  }
+  
+  @media (max-width: 576px) {
+    font-size: 0.7rem;
+    margin-top: 0.3rem;
+    gap: 3px;
+  }
 `;
 
 // MovieInfo overlay khi hover
@@ -314,6 +502,18 @@ const MovieOverlay = styled.div`
   
   ${MovieCard}:hover & {
     opacity: 1;
+  }
+  
+  @media (max-width: 768px) {
+    padding: 12px;
+  }
+  
+  @media (max-width: 576px) {
+    padding: 10px;
+  }
+  
+  @media (max-width: 360px) {
+    padding: 8px;
   }
 `;
 
@@ -338,6 +538,50 @@ const MovieInfoDetails = styled.div`
     font-size: 0.9rem;
     text-align: left; /* Căn trái */
   }
+  
+  @media (max-width: 768px) {
+    margin-bottom: 12px;
+    margin-top: 12px;
+    margin-left: 3px;
+    
+    h3 {
+      font-size: 1rem;
+      margin-bottom: 8px;
+    }
+    
+    span {
+      font-size: 0.85rem;
+      margin: 4px 0;
+    }
+  }
+  
+  @media (max-width: 576px) {
+    margin-bottom: 10px;
+    margin-top: 10px;
+    margin-left: 2px;
+    
+    h3 {
+      font-size: 0.9rem;
+      margin-bottom: 6px;
+    }
+    
+    span {
+      font-size: 0.8rem;
+      margin: 3px 0;
+    }
+  }
+  
+  @media (max-width: 360px) {
+    h3 {
+      font-size: 0.85rem;
+      margin-bottom: 5px;
+    }
+    
+    span {
+      font-size: 0.75rem;
+      margin: 2px 0;
+    }
+  }
 `;
 
 // Cập nhật ButtonGroup
@@ -346,6 +590,19 @@ const ButtonGroup = styled.div`
   gap: 8px;
   justify-content: center;
   width: 100%; /* Chiếm toàn bộ chiều rộng */
+  
+  @media (max-width: 768px) {
+    gap: 6px;
+  }
+  
+  @media (max-width: 576px) {
+    gap: 5px;
+  }
+  
+  @media (max-width: 360px) {
+    gap: 4px;
+    flex-direction: column;
+  }
 `;
 
 // Cập nhật nút chi tiết
@@ -363,6 +620,24 @@ const DetailButton = styled.button`
   &:hover {
     background-color: rgba(255, 255, 255, 0.2);
   }
+  
+  @media (max-width: 768px) {
+    padding: 5px 10px;
+    font-size: 0.85rem;
+  }
+  
+  @media (max-width: 576px) {
+    padding: 4px 8px;
+    font-size: 0.8rem;
+    border-radius: 4px;
+  }
+  
+  @media (max-width: 360px) {
+    padding: 4px 6px;
+    font-size: 0.75rem;
+    width: 100%;
+    margin-bottom: 4px;
+  }
 `;
 
 // Cập nhật nút đặt vé
@@ -379,6 +654,23 @@ const BookingButton = styled.button`
   
   &:hover {
     background-color: #8e24aa;
+  }
+  
+  @media (max-width: 768px) {
+    padding: 5px 10px;
+    font-size: 0.85rem;
+  }
+  
+  @media (max-width: 576px) {
+    padding: 4px 8px;
+    font-size: 0.8rem;
+    border-radius: 4px;
+  }
+  
+  @media (max-width: 360px) {
+    padding: 4px 6px;
+    font-size: 0.75rem;
+    width: 100%;
   }
 `;
 
@@ -486,32 +778,22 @@ const formatDate = (dateString) => {
 };
 
 function MoviesPage() {
-  // Thêm ref cho container chính
   const pageRef = useRef(null);
-
   const [movies, setMovies] = useState([]);
   const [filteredMovies, setFilteredMovies] = useState([]);
-  const [activeTab, setActiveTab] = useState('nowShowing'); // Mặc định hiển thị phim đang chiếu
+  const [activeTab, setActiveTab] = useState('nowShowing');
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedGenre, setSelectedGenre] = useState('Tất cả');
-  
-  // Thêm state mới cho genres
   const [genreOptions, setGenreOptions] = useState(["Tất cả"]);
-
   const location = useLocation();
 
-  // Thêm hàm scroll lên đầu
+  // Scroll lên đầu trang
   const scrollToTop = () => {
     window.scrollTo({
       top: 0,
       behavior: 'smooth'
     });
-
-    // Hoặc dùng ref nếu muốn scroll đến vị trí cụ thể
-    // if (pageRef.current) {
-    //   pageRef.current.scrollIntoView({ behavior: 'smooth' });
-    // }
   };
 
   // Tự động scroll khi component được mount
@@ -519,27 +801,22 @@ function MoviesPage() {
     scrollToTop();
   }, []);
 
-  // Thay đổi dependency để bắt mọi thay đổi khi điều hướng
+  // Kiểm tra chuyển hướng từ trang chủ và load phim
   useEffect(() => {
-    // Kiểm tra xem có được chuyển hướng từ trang chủ với category không
     if (location.state?.category) {
       setActiveTab(location.state.category);
     }
 
     loadMovies(location.state?.category || activeTab);
-
-    // Scroll to top khi thay đổi location
     scrollToTop();
+  }, [location.key]);
 
-  }, [location.key]); // Sử dụng location.key thay vì location.pathname
-
-  // Thêm useEffect để tải danh sách thể loại khi component mount
+  // Tải danh sách thể loại khi component mount
   useEffect(() => {
     const loadGenres = async () => {
       try {
         const genresList = await getAllGenres();
         if (genresList && Array.isArray(genresList) && genresList.length > 0) {
-          // Thêm option "Tất cả" vào đầu danh sách
           setGenreOptions(["Tất cả", ...genresList.map(genre => genre.genresName)]);
         }
       } catch (error) {
@@ -548,12 +825,12 @@ function MoviesPage() {
     };
 
     loadGenres();
-  }, []); // Chỉ chạy một lần khi component mount
+  }, []);
 
-  // Xử lý filter và search
+  // Xử lý filter genres
   useEffect(() => {
     if (movies.length > 0) {
-      let results = [...movies]; // Thêm dòng này để khởi tạo results
+      let results = [...movies];
 
       if (selectedGenre !== 'Tất cả') {
         results = results.filter(movie => {
@@ -573,17 +850,10 @@ function MoviesPage() {
         });
       }
 
-      // Search theo tên phim
-      // if (searchTerm) {
-      //   results = results.filter(movie =>
-      //     movie.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      //     (movie.originalTitle && movie.originalTitle.toLowerCase().includes(searchTerm.toLowerCase()))
-      //   );
-      // }
-
-      // setFilteredMovies(results);
+      // Loại bỏ phần tìm kiếm theo tên phim vì đã được comment out
+      setFilteredMovies(results);
     }
-  }, [movies, selectedGenre, searchTerm]);
+  }, [movies, selectedGenre]);
 
   // Hàm tải danh sách phim theo category
   const loadMovies = async (category) => {
@@ -598,7 +868,7 @@ function MoviesPage() {
       }
 
       setMovies(result);
-      setFilteredMovies(result); // Thêm dòng này để cập nhật filteredMovies khi load
+      setFilteredMovies(result);
     } catch (error) {
       console.error('Error loading movies:', error);
       setMovies([]);
@@ -611,10 +881,31 @@ function MoviesPage() {
   // Xử lý khi người dùng chuyển tab
   const handleTabChange = (tab) => {
     setActiveTab(tab);
-    setSearchTerm(''); // Reset search khi chuyển tab
-    setSelectedGenre('Tất cả'); // Reset filter khi chuyển tab
+    setSearchTerm('');
+    setSelectedGenre('Tất cả');
     loadMovies(tab);
-    scrollToTop(); // Thêm scroll to top khi chuyển tab
+    scrollToTop();
+  };
+
+  // Hàm hiển thị thể loại phim
+  const displayGenreList = (movie) => {
+    if (!movie.genres) return 'Chưa cập nhật';
+
+    // Trường hợp đã được format sẵn thành chuỗi
+    if (typeof movie.genres === 'string') return movie.genres;
+
+    // Trường hợp là mảng string
+    if (Array.isArray(movie.genres) && typeof movie.genres[0] === 'string') {
+      return movie.genres.join(', ');
+    }
+
+    // Trường hợp là mảng object
+    if (Array.isArray(movie.genres) && movie.genres[0]?.genresName) {
+      return movie.genres.map(g => g.genresName).join(', ');
+    }
+
+    // Trường hợp có genreNames đã được format
+    return movie.genreNames || 'Chưa cập nhật';
   };
 
   return (
@@ -639,18 +930,7 @@ function MoviesPage() {
       </TabContainer>
 
       <FiltersContainer>
-        <SearchBox>
-          {/* <SearchIcon>
-            <FaSearch />
-          </SearchIcon>
-          <SearchInput
-            type="text"
-            placeholder="Tìm kiếm phim..."
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-          /> */}
-        </SearchBox>
-
+        {/* Loại bỏ phần SearchBox vì đã được comment out trong code gốc */}
         <FilterContainer>
           <IconWrapper>
             <FaFilter />
@@ -681,7 +961,6 @@ function MoviesPage() {
                   alt={movie.title || 'Movie poster'}
                 />
 
-                {/* Thêm AgeRating vào cạnh BookmarkBadge */}
                 <div className="bookmark-badge" style={{
                   position: 'absolute',
                   top: 0,
@@ -695,48 +974,20 @@ function MoviesPage() {
                   />
                 </div>
 
-                {/* <MovieReleaseStatus $status={activeTab}>
-                  {activeTab === 'nowShowing' ? 'Đang chiếu' : 'Sắp chiếu'}
-                </MovieReleaseStatus> */}
-
-                {/* Phần còn lại không đổi */}
                 <MovieOverlay>
                   <MovieInfoDetails>
                     <h3>{movie.title}</h3>
                     {movie.duration && <span>Thời lượng: {movie.duration} phút</span>}
-                    {/* Sửa hiển thị genres */}
-                    <span>Thể loại: {
-                      (() => {
-                        if (!movie.genres) return 'Chưa cập nhật';
-
-                        // Trường hợp đã được format sẵn thành chuỗi
-                        if (typeof movie.genres === 'string') return movie.genres;
-
-                        // Trường hợp là mảng string
-                        if (Array.isArray(movie.genres) && typeof movie.genres[0] === 'string') {
-                          return movie.genres.join(', ');
-                        }
-
-                        // Trường hợp là mảng object
-                        if (Array.isArray(movie.genres) && movie.genres[0]?.genresName) {
-                          return movie.genres.map(g => g.genresName).join(', ');
-                        }
-
-                        // Trường hợp có genreNames đã được format
-                        return movie.genreNames || 'Chưa cập nhật';
-                      })()
-                    }</span>
-
+                    <span>Thể loại: {displayGenreList(movie)}</span>
                   </MovieInfoDetails>
 
-                 <ButtonGroup>
+                  <ButtonGroup>
                     <DetailButton>Chi tiết</DetailButton>
                     <BookingButton>Đặt vé</BookingButton>
-                 </ButtonGroup>
+                  </ButtonGroup>
                 </MovieOverlay>
               </MoviePoster>
 
-              {/* Thông tin phim ở dưới poster */}
               <MovieInfo>
                 <MovieTitle>{movie.title}</MovieTitle>
                 
@@ -753,7 +1004,7 @@ function MoviesPage() {
       ) : (
         <NoResults>
           <h3>Không tìm thấy kết quả</h3>
-          <p>Hãy thử tìm kiếm với từ khóa khác hoặc chọn thể loại khác.</p>
+          <p>Hãy thử chọn thể loại khác.</p>
         </NoResults>
       )}
     </PageContainer>

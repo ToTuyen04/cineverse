@@ -10,21 +10,31 @@ import 'react-datepicker/dist/react-datepicker.css';
 // Import service đăng ký
 import { register, checkIsLoggedIn } from '../api/services/authService';
 
-// Styled components - tái sử dụng từ LoginPage
+// Cập nhật PageContainer để responsive hơn
 const PageContainer = styled.div`
   min-height: 100vh;
   display: flex;
   flex-direction: column;
 `;
 
+// Cập nhật ContentContainer để responsive hơn
 const ContentContainer = styled.div`
   flex: 1;
   display: flex;
   align-items: center;
   justify-content: center;
   padding: 1rem 1rem 2rem;
+  
+  @media (max-width: 992px) {
+    padding: 1rem 0.5rem 1.5rem;
+  }
+  
+  @media (max-width: 576px) {
+    padding: 0.5rem 0.25rem 1rem;
+  }
 `;
 
+// Cập nhật RegisterCard để responsive hơn
 const RegisterCard = styled(Card)`
   background-color: #2a2d3e;
   border: none;
@@ -32,37 +42,84 @@ const RegisterCard = styled(Card)`
   box-shadow: 0 8px 20px rgba(0, 0, 0, 0.4);
   max-width: 550px;
   width: 100%;
+  
+  @media (max-width: 768px) {
+    border-radius: 8px;
+  }
+  
+  @media (max-width: 576px) {
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+  }
 `;
 
+// Cập nhật CardHeader để responsive hơn
 const CardHeader = styled(Card.Header)`
   background: transparent;
   border-bottom: 1px solid #3f425a;
   padding: 1.5rem 1.5rem 1rem;
+  
+  @media (max-width: 768px) {
+    padding: 1.25rem 1.25rem 0.9rem;
+  }
+  
+  @media (max-width: 576px) {
+    padding: 1rem 1rem 0.8rem;
+  }
 `;
 
+// Cập nhật CardBody để responsive hơn
 const CardBody = styled(Card.Body)`
   padding: 1.5rem;
+  
+  @media (max-width: 768px) {
+    padding: 1.25rem;
+  }
+  
+  @media (max-width: 576px) {
+    padding: 1rem;
+  }
 `;
 
+// Cập nhật PageTitle để responsive hơn
 const PageTitle = styled.h1`
   color: #f3f4f6;
   font-size: 1.8rem;
   font-weight: 600;
   margin-bottom: 0.5rem;
+  
+  @media (max-width: 768px) {
+    font-size: 1.6rem;
+    margin-bottom: 0.4rem;
+  }
+  
+  @media (max-width: 576px) {
+    font-size: 1.4rem;
+    margin-bottom: 0.3rem;
+  }
 `;
 
+// Cập nhật PageSubtitle để responsive hơn
 const PageSubtitle = styled.p`
   color: #9ca3af;
   font-size: 0.9rem;
+  
+  @media (max-width: 768px) {
+    font-size: 0.85rem;
+  }
+  
+  @media (max-width: 576px) {
+    font-size: 0.8rem;
+  }
 `;
 
+// Cập nhật FormControl để responsive hơn
 const FormControl = styled(Form.Control)`
   background-color: #1e1e30;
   border: 1px solid #3f425a;
   color: #f3f4f6;
   padding: 0.75rem 1rem 0.75rem 2.5rem;
   font-size: 0.9rem;
-  height: calc(1.5em + 1.5rem); // Đặt chiều cao cố định
+  height: calc(1.5em + 1.5rem);
   
   &:focus {
     background-color: #1e1e30;
@@ -74,25 +131,55 @@ const FormControl = styled(Form.Control)`
   &::placeholder {
     color: #6c757d;
   }
+  
+  @media (max-width: 768px) {
+    padding: 0.7rem 1rem 0.7rem 2.3rem;
+    font-size: 0.85rem;
+    height: calc(1.5em + 1.4rem);
+  }
+  
+  @media (max-width: 576px) {
+    padding: 0.65rem 0.9rem 0.65rem 2.1rem;
+    font-size: 0.8rem;
+    height: calc(1.5em + 1.3rem);
+  }
 `;
 
-// Cập nhật InputGroup và FieldFeedback để tránh icon bị lệch khi hiển thị lỗi
-
+// Cập nhật InputGroup để responsive hơn
 const InputGroup = styled.div`
   position: relative;
-  margin-bottom: 2.25rem; // Tăng margin-bottom để dành chỗ cho thông báo lỗi
+  margin-bottom: 2.25rem;
+  
+  @media (max-width: 768px) {
+    margin-bottom: 2rem;
+  }
+  
+  @media (max-width: 576px) {
+    margin-bottom: 1.75rem;
+  }
 `;
 
+// Cập nhật FieldFeedback để responsive hơn
 const FieldFeedback = styled.div`
   color: ${props => props.valid ? '#4caf50' : '#f44336'};
   font-size: 0.8rem;
-  position: absolute; // Đặt vị trí tuyệt đối
-  bottom: -1.5rem; // Đưa thông báo lỗi xuống dưới input
+  position: absolute;
+  bottom: -1.5rem;
   left: 0;
   width: 100%;
+  
+  @media (max-width: 768px) {
+    font-size: 0.75rem;
+    bottom: -1.4rem;
+  }
+  
+  @media (max-width: 576px) {
+    font-size: 0.7rem;
+    bottom: -1.3rem;
+  }
 `;
 
-// Cập nhật InputIcon để đảm bảo nó luôn căn giữa với input
+// Cập nhật InputIcon để responsive hơn
 const InputIcon = styled.div`
   position: absolute;
   left: 0.75rem;
@@ -100,12 +187,22 @@ const InputIcon = styled.div`
   transform: translateY(-50%);
   color: #F9376E;
   z-index: 2;
-  height: 16px; // Đặt chiều cao cố định
+  height: 16px;
   display: flex;
   align-items: center;
+  
+  @media (max-width: 768px) {
+    left: 0.7rem;
+    font-size: 0.9rem;
+  }
+  
+  @media (max-width: 576px) {
+    left: 0.65rem;
+    font-size: 0.85rem;
+  }
 `;
 
-// Cập nhật TogglePasswordIcon để đảm bảo nó luôn căn giữa với input
+// Cập nhật TogglePasswordIcon để responsive hơn
 const TogglePasswordIcon = styled.div`
   position: absolute;
   right: 0.75rem;
@@ -114,15 +211,26 @@ const TogglePasswordIcon = styled.div`
   color: #9ca3af;
   z-index: 2;
   cursor: pointer;
-  height: 16px; // Đặt chiều cao cố định
+  height: 16px;
   display: flex;
   align-items: center;
   
   &:hover {
     color: #f3f4f6;
   }
+  
+  @media (max-width: 768px) {
+    right: 0.7rem;
+    font-size: 0.9rem;
+  }
+  
+  @media (max-width: 576px) {
+    right: 0.65rem;
+    font-size: 0.85rem;
+  }
 `;
 
+// Cập nhật BackButton để responsive hơn
 const BackButton = styled(Button)`
   color: #9ca3af;
   background: transparent;
@@ -144,8 +252,27 @@ const BackButton = styled(Button)`
   &:active {
     transform: scale(0.95);
   }
+  
+  @media (max-width: 768px) {
+    padding: 0.55rem;
+    margin-right: 0.8rem;
+    
+    svg {
+      font-size: 0.9rem;
+    }
+  }
+  
+  @media (max-width: 576px) {
+    padding: 0.5rem;
+    margin-right: 0.6rem;
+    
+    svg {
+      font-size: 0.85rem;
+    }
+  }
 `;
 
+// Cập nhật LoginText để responsive hơn
 const LoginText = styled.div`
   text-align: center;
   margin-top: 1.5rem;
@@ -161,9 +288,19 @@ const LoginText = styled.div`
       text-decoration: underline;
     }
   }
+  
+  @media (max-width: 768px) {
+    margin-top: 1.25rem;
+    font-size: 0.85rem;
+  }
+  
+  @media (max-width: 576px) {
+    margin-top: 1rem;
+    font-size: 0.8rem;
+  }
 `;
 
-
+// Cập nhật RequirementsList để responsive hơn
 const RequirementsList = styled.ul`
   color: #9ca3af;
   font-size: 0.8rem;
@@ -180,6 +317,18 @@ const RequirementsList = styled.ul`
   
   .invalid {
     color: #9ca3af;
+  }
+  
+  @media (max-width: 768px) {
+    font-size: 0.75rem;
+    margin-top: 0.4rem;
+    padding-left: 1.25rem;
+  }
+  
+  @media (max-width: 576px) {
+    font-size: 0.7rem;
+    margin-top: 0.3rem;
+    padding-left: 1rem;
   }
 `;
 
@@ -203,6 +352,18 @@ const StyledDatePicker = styled(DatePicker)`
   
   &::placeholder {
     color: #6c757d;
+  }
+  
+  @media (max-width: 768px) {
+    padding: 0.7rem 1rem 0.7rem 2.3rem;
+    font-size: 0.85rem;
+    height: calc(1.5em + 1.4rem);
+  }
+  
+  @media (max-width: 576px) {
+    padding: 0.65rem 0.9rem 0.65rem 2.1rem;
+    font-size: 0.8rem;
+    height: calc(1.5em + 1.3rem);
   }
 `;
 
@@ -345,17 +506,49 @@ const PopupContent = styled.div`
   width: 90%;
   text-align: center;
   box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.3);
+  
+  @media (max-width: 768px) {
+    padding: 1.75rem;
+    border-radius: 6px;
+  }
+  
+  @media (max-width: 576px) {
+    padding: 1.5rem;
+    width: 95%;
+  }
 `;
 
 const PopupTitle = styled.h2`
   margin-bottom: 1rem;
   color: #F9376E;
+  
+  @media (max-width: 768px) {
+    font-size: 1.5rem;
+    margin-bottom: 0.8rem;
+  }
+  
+  @media (max-width: 576px) {
+    font-size: 1.3rem;
+    margin-bottom: 0.7rem;
+  }
 `;
 
 const PopupMessage = styled.p`
   margin-bottom: 1.5rem;
   line-height: 1.6;
   color: #f3f4f6;
+  
+  @media (max-width: 768px) {
+    margin-bottom: 1.25rem;
+    font-size: 0.95rem;
+    line-height: 1.5;
+  }
+  
+  @media (max-width: 576px) {
+    margin-bottom: 1rem;
+    font-size: 0.9rem;
+    line-height: 1.4;
+  }
 `;
 
 const PopupButton = styled.button`
@@ -372,11 +565,29 @@ const PopupButton = styled.button`
     background-color: #e71a5a;
     transform: translateY(-2px);
   }
+  
+  @media (max-width: 768px) {
+    padding: 0.7rem 1.25rem;
+    font-size: 0.95rem;
+  }
+  
+  @media (max-width: 576px) {
+    padding: 0.65rem 1rem;
+    font-size: 0.9rem;
+  }
 `;
 
 // Cập nhật style cho RadioGroup và RadioGroupLabel
 const RadioGroup = styled.div`
   margin-bottom: 2.25rem;
+  
+  @media (max-width: 768px) {
+    margin-bottom: 2rem;
+  }
+  
+  @media (max-width: 576px) {
+    margin-bottom: 1.75rem;
+  }
 `;
 
 const RadioLabel = styled.label`
@@ -386,6 +597,16 @@ const RadioLabel = styled.label`
   margin-right: 1.5rem;
   font-size: 0.9rem;
   cursor: pointer;
+  
+  @media (max-width: 768px) {
+    margin-right: 1.25rem;
+    font-size: 0.85rem;
+  }
+  
+  @media (max-width: 576px) {
+    margin-right: 1rem;
+    font-size: 0.8rem;
+  }
 `;
 
 const RadioInput = styled.input`
@@ -394,6 +615,18 @@ const RadioInput = styled.input`
   accent-color: #F9376E;
   width: 16px;
   height: 16px;
+  
+  @media (max-width: 768px) {
+    margin-right: 0.4rem;
+    width: 15px;
+    height: 15px;
+  }
+  
+  @media (max-width: 576px) {
+    margin-right: 0.3rem;
+    width: 14px;
+    height: 14px;
+  }
 `;
 
 // Cập nhật RadioGroupLabel để hiển thị inline với các radio buttons
@@ -403,6 +636,47 @@ const RadioGroupLabel = styled.div`
   margin-right: 1rem;
   display: flex;
   align-items: center;
+  
+  @media (max-width: 768px) {
+    font-size: 0.85rem;
+    margin-right: 0.8rem;
+  }
+  
+  @media (max-width: 576px) {
+    font-size: 0.8rem;
+    margin-right: 0.6rem;
+  }
+`;
+
+// Thêm MobileNavToggle để hiển thị/ẩn sidebar trên mobile
+const MobileNavToggle = styled.button`
+  display: none;
+  background-color: #374151;
+  border: none;
+  color: #f3f4f6;
+  padding: 0.6rem;
+  border-radius: 5px;
+  margin-bottom: 1rem;
+  font-weight: 500;
+  align-items: center;
+  gap: 0.5rem;
+  
+  svg {
+    font-size: 1.2rem;
+  }
+  
+  @media (max-width: 768px) {
+    display: flex;
+  }
+  
+  @media (max-width: 576px) {
+    padding: 0.5rem;
+    font-size: 0.9rem;
+    
+    svg {
+      font-size: 1.1rem;
+    }
+  }
 `;
 
 const RegisterPage = () => {
@@ -919,9 +1193,9 @@ const passwordRequirements = {
                       {/* Gender */}
                       <Col xs={12} md={6}>
                         <RadioGroup>
-                          <div className="d-flex align-items-center">
+                          <div className="d-flex align-items-center flex-wrap">
                             <RadioGroupLabel>Giới tính</RadioGroupLabel>
-                            <div className="d-flex">
+                            <div className="d-flex flex-wrap">
                               <RadioLabel>
                                 <RadioInput
                                   type="radio"

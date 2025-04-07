@@ -9,6 +9,14 @@ const FooterWrapper = styled.footer`
   color: #f3f4f6;
   padding: 3rem 0 2rem;
   position: relative;
+  
+  @media (max-width: 768px) {
+    padding: 2.5rem 0 1.5rem;
+  }
+  
+  @media (max-width: 576px) {
+    padding: 2rem 0 1rem;
+  }
 `;
 
 const Logo = styled.div`
@@ -16,11 +24,28 @@ const Logo = styled.div`
   font-weight: 700;
   color: #F9376E;
   margin-bottom: 1rem;
+  
+  @media (max-width: 768px) {
+    font-size: 1.75rem;
+  }
+  
+  @media (max-width: 576px) {
+    font-size: 1.5rem;
+    margin-bottom: 0.75rem;
+  }
 `;
 
 const FooterSection = styled.div`
   margin-bottom: 2rem;
   height: 100%;
+  
+  @media (max-width: 768px) {
+    margin-bottom: 1.5rem;
+  }
+  
+  @media (max-width: 576px) {
+    margin-bottom: 1.25rem;
+  }
 `;
 
 const FooterTitle = styled.h5`
@@ -39,6 +64,16 @@ const FooterTitle = styled.h5`
     bottom: 0;
     background: #F9376E;
   }
+  
+  @media (max-width: 768px) {
+    margin-bottom: 1.25rem;
+    font-size: 1.1rem;
+  }
+  
+  @media (max-width: 576px) {
+    margin-bottom: 1rem;
+    font-size: 1rem;
+  }
 `;
 
 const FooterLink = styled(Link)`
@@ -51,6 +86,11 @@ const FooterLink = styled(Link)`
   
   &:hover {
     color: #F9376E;
+  }
+  
+  @media (max-width: 576px) {
+    margin-bottom: 0.6rem;
+    font-size: 0.9rem;
   }
 `;
 
@@ -71,26 +111,50 @@ const SocialLink = styled.a`
     transform: translateY(-3px);
     color: #fff;
   }
+  
+  @media (max-width: 576px) {
+    width: 36px;
+    height: 36px;
+    margin-right: 0.75rem;
+    font-size: 0.9rem;
+  }
 `;
 
 const ContactItem = styled.div`
   display: flex;
   margin-bottom: 1rem;
+  
+  @media (max-width: 576px) {
+    margin-bottom: 0.75rem;
+  }
 `;
 
 const ContactIcon = styled.div`
   margin-right: 1rem;
   color: #F9376E;
   font-size: 1.2rem;
+  
+  @media (max-width: 576px) {
+    font-size: 1rem;
+    margin-right: 0.75rem;
+  }
 `;
 
 const ContactText = styled.div`
   color: #9ca3af;
   text-align: left; /* Đảm bảo căn lề trái */
+  
+  @media (max-width: 576px) {
+    font-size: 0.9rem;
+  }
 `;
 
 const NewsletterForm = styled(Form)`
   margin-top: 1.5rem;
+  
+  @media (max-width: 576px) {
+    margin-top: 1rem;
+  }
 `;
 
 const NewsletterInput = styled(Form.Control)`
@@ -110,6 +174,11 @@ const NewsletterInput = styled(Form.Control)`
     border-color: #F9376E;
     color: #f3f4f6;
   }
+  
+  @media (max-width: 576px) {
+    padding: 0.6rem;
+    font-size: 0.9rem;
+  }
 `;
 
 const SubmitButton = styled(Button)`
@@ -124,6 +193,11 @@ const SubmitButton = styled(Button)`
     transform: translateY(-2px);
     background: #e62e61;
   }
+  
+  @media (max-width: 576px) {
+    padding: 0.6rem;
+    font-size: 0.9rem;
+  }
 `;
 
 const Copyright = styled.div`
@@ -133,6 +207,38 @@ const Copyright = styled.div`
   border-top: 1px solid rgba(255, 255, 255, 0.05);
   color: #9ca3af;
   font-size: 0.9rem;
+  
+  @media (max-width: 768px) {
+    padding-top: 1.5rem;
+    margin-top: 1.5rem;
+  }
+  
+  @media (max-width: 576px) {
+    padding-top: 1rem;
+    margin-top: 1rem;
+    font-size: 0.8rem;
+  }
+`;
+
+// Thêm chỉnh sửa cho các container di động
+const MobileFooterContainer = styled(Container)`
+  @media (max-width: 576px) {
+    padding-left: 1rem;
+    padding-right: 1rem;
+  }
+`;
+
+// Điều chỉnh hiển thị trên thiết bị di động
+const SocialLinksContainer = styled.div`
+  @media (max-width: 576px) {
+    margin-top: 0.5rem;
+    display: flex;
+    flex-wrap: wrap;
+    
+    & > a {
+      margin-bottom: 0.5rem;
+    }
+  }
 `;
 
 const Footer = () => {
@@ -147,13 +253,13 @@ const Footer = () => {
   
   return (
     <FooterWrapper>
-      <Container>
+      <MobileFooterContainer>
         <Row className="gy-4">
-          <Col lg={3} md={6}>
+          <Col lg={3} md={6} sm={6}>
             <FooterSection>
               <Logo>CineVerse</Logo>
               <p className="mb-4">Trải nghiệm điện ảnh đỉnh cao với công nghệ hiện đại và dịch vụ chất lượng.</p>
-              <div className="social-links">
+              <SocialLinksContainer>
                 <SocialLink href="#" aria-label="Facebook">
                   <FaFacebookF />
                 </SocialLink>
@@ -166,10 +272,12 @@ const Footer = () => {
                 <SocialLink href="#" aria-label="YouTube">
                   <FaYoutube />
                 </SocialLink>
-              </div>
+              </SocialLinksContainer>
             </FooterSection>
           </Col>
-          <Col lg={3} md={6}>
+          
+          {/* Thay đổi thành Col sm={6} để hiển thị tốt hơn trên di động */}
+          <Col lg={3} md={6} sm={6}>
             <FooterSection>
               <FooterTitle>Links</FooterTitle>
               <div style={{ textAlign: 'left' }}>
@@ -181,7 +289,8 @@ const Footer = () => {
               </div>
             </FooterSection>
           </Col>
-          <Col lg={3} md={6}>
+          
+          <Col lg={3} md={6} sm={6}>
             <FooterSection>
               <FooterTitle>Contact</FooterTitle>
               <div style={{ textAlign: 'left' }}>
@@ -210,7 +319,8 @@ const Footer = () => {
               </div>
             </FooterSection>
           </Col>
-          <Col lg={3} md={6}>
+          
+          <Col lg={3} md={6} sm={6}>
             <FooterSection>
               <FooterTitle>Newsletter</FooterTitle>
               <p>Nhận thông tin về phim mới, sự kiện và ưu đãi đặc biệt từ CineVerse.</p>
@@ -235,7 +345,7 @@ const Footer = () => {
         <Copyright>
           © {new Date().getFullYear()} CineVerse. Tất cả các quyền được bảo lưu.
         </Copyright>
-      </Container>
+      </MobileFooterContainer>
     </FooterWrapper>
   );
 };

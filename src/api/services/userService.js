@@ -11,21 +11,21 @@ export const getUserProfile = async () => {
   try {
     // Lấy token từ localStorage
     const token = localStorage.getItem('token');
-    
+
     if (!token) {
       throw new Error('Không tìm thấy token xác thực');
     }
-    
+
     // Gọi API lấy thông tin người dùng với token trong header
     const response = await apiClient.get('/Auth/logged-profile', {
       headers: {
         'Authorization': `Bearer ${token}`
       }
     });
-    
+
     // Lấy dữ liệu từ response
     const userData = response.data;
-    
+
     // Map dữ liệu từ API vào định dạng cần thiết cho ứng dụng
     return {
       // Thông tin cơ bản từ API
@@ -39,7 +39,7 @@ export const getUserProfile = async () => {
       userRank: userData.userRank || 'Mầm',
       userPoint: userData.userPoint || 0,
       createdAt: userData.createdAt,
-      
+
       // Các trường bổ sung cho tương thích với code hiện tại
       user_search_name: `${userData.firstName || ''} ${userData.lastName || ''}`.trim(),
       user_avatar: userData.avatar,
@@ -51,14 +51,14 @@ export const getUserProfile = async () => {
     };
   } catch (error) {
     console.error('Error getting user profile:', error);
-    
+
     // Xử lý lỗi cụ thể
     if (error.response && error.response.status === 401) {
       // Token hết hạn hoặc không hợp lệ
       localStorage.removeItem('token'); // Xóa token không hợp lệ
       throw new Error('Phiên đăng nhập đã hết hạn, vui lòng đăng nhập lại');
     }
-    
+
     throw error;
   }
 };
@@ -72,16 +72,21 @@ export const updateUserProfile = async (userInfo) => {
   try {
     // Lấy token từ localStorage
     const token = localStorage.getItem('token');
-    
+
     if (!token) {
       throw new Error('Không tìm thấy token xác thực');
     }
 
     // Chuyển đổi giới tính từ chuỗi sang số
     const genderMapping = {
+      'm': 1,
+      'f': 2,
+      'o': 3,
       'nam': 1,
       'nữ': 2,
-      'khác': 3
+      'nu': 2,
+      'khác': 3,
+      'khac': 3
     };
 
     // Format ngày tháng năm sinh nếu có
@@ -97,14 +102,14 @@ export const updateUserProfile = async (userInfo) => {
       lastName: userInfo.lastName,
       phoneNumber: userInfo.phoneNumber,
       dateOfBirth: formattedDateOfBirth,
-      gender: typeof userInfo.gender === 'string' 
-        ? genderMapping[userInfo.gender.toLowerCase()] || 0 
+      gender: typeof userInfo.gender === 'string'
+        ? genderMapping[userInfo.gender.toLowerCase()] || 0
         : userInfo.gender,
       avatar: userInfo.avatar || null,
       status: 1 // Mặc định là active
-    };;
+    };
     // Gọi API cập nhật thông tin người dùng
-    const response = await apiClient.put('/User', payload, {
+    const response = await apiClient.put('/Users', payload, {
       headers: {
         'Authorization': `Bearer ${token}`,
         'Content-Type': 'application/json'
@@ -126,7 +131,7 @@ export const updateUserProfile = async (userInfo) => {
       userRank: updatedData.userRank || 'Mầm',
       userPoint: updatedData.userPoint || 0,
       status: 1,
-      
+
       // Các trường bổ sung cho tương thích với code hiện tại
       user_search_name: `${updatedData.firstName || ''} ${updatedData.lastName || ''}`.trim(),
       user_avatar: updatedData.avatar,
@@ -138,14 +143,14 @@ export const updateUserProfile = async (userInfo) => {
     };
   } catch (error) {
     console.error('Error updating user profile:', error);
-    
+
     // Xử lý lỗi cụ thể
     if (error.response && error.response.status === 401) {
       // Token hết hạn hoặc không hợp lệ
       localStorage.removeItem('token'); // Xóa token không hợp lệ
       throw new Error('Phiên đăng nhập đã hết hạn, vui lòng đăng nhập lại');
     }
-    
+
     // Các lỗi khác
     throw new Error(error.response?.data?.message || 'Có lỗi xảy ra khi cập nhật thông tin người dùng');
   }
@@ -159,14 +164,14 @@ export const updateUserProfile = async (userInfo) => {
 export const updateUserAvatar = async (avatarFile) => {
   // TODO: Thay thế bằng API thật khi có
   await new Promise(resolve => setTimeout(resolve, 1200));
-  
+
   // Tạo URL cho ảnh (giả lập upload)
   const avatarUrl = URL.createObjectURL(avatarFile);
-  
+
   // Cập nhật avatar trong thông tin người dùng
   const userData = JSON.parse(localStorage.getItem('userData') || '{}');
   const updatedUserData = { ...userData, user_avatar: avatarUrl };
-  
+
   localStorage.setItem('userData', JSON.stringify(updatedUserData));
   return avatarUrl;
 };
@@ -180,13 +185,13 @@ export const updateUserAvatar = async (avatarFile) => {
 export const changePassword = async (currentPassword, newPassword) => {
   // TODO: Thay thế bằng API thật khi có
   await new Promise(resolve => setTimeout(resolve, 1500));
-  
+
   // Giả lập kiểm tra mật khẩu hiện tại
   const mockCurrentPassword = 'Password123!';
   if (currentPassword !== mockCurrentPassword) {
     throw new Error('Mật khẩu hiện tại không đúng');
   }
-  
+
   // Đổi mật khẩu thành công
   return true;
 };
@@ -321,7 +326,7 @@ export const updateUserStatus = async (userData) => {
  * @returns {string} - Tên cấp bậc
  */
 export const getRankName = (rankId) => {
-  switch(rankId) {
+  switch (rankId) {
     case 1: return 'Thành viên mới';
     case 2: return 'Thành viên Bạc';
     case 3: return 'Thành viên Vàng';
@@ -337,7 +342,7 @@ export const getRankName = (rankId) => {
  * @returns {number} - Phần trăm hoàn thành
  */
 export const getNextRankProgress = (rankId, points) => {
-  switch(rankId) {
+  switch (rankId) {
     case 1: return Math.min(points / 1000 * 100, 100);
     case 2: return Math.min((points - 1000) / 1000 * 100, 100);
     case 3: return Math.min((points - 2000) / 3000 * 100, 100);
@@ -353,7 +358,7 @@ export const getNextRankProgress = (rankId, points) => {
  * @returns {number} - Số điểm cần thêm
  */
 export const getPointsToNextRank = (rankId, points) => {
-  switch(rankId) {
+  switch (rankId) {
     case 1: return 1000 - points;
     case 2: return 2000 - points;
     case 3: return 5000 - points;
@@ -369,7 +374,12 @@ export const getPointsToNextRank = (rankId, points) => {
  */
 const mapGenderToCode = (gender) => {
   if (!gender) return null;
-  
+
+  if (typeof gender === 'number') {
+    // Nếu đã là số, giữ nguyên
+    return gender >= 1 && gender <= 3 ? gender : null;
+  }
+
   switch (gender.toLowerCase()) {
     case 'nam':
       return 'M';
@@ -409,7 +419,7 @@ const mapGenderFromCode = (genderCode) => {
  */
 const mapRankToId = (rank) => {
   if (!rank) return 1;
-  
+
   switch (rank.toLowerCase()) {
     case 'mầm':
     case 'mam':

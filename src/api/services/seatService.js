@@ -1,3 +1,5 @@
+import apiClient from "./apiClient";
+
 // Mock data
 const mockSeats = {
   // Showtime ID 1
@@ -35,6 +37,34 @@ function generateTheaterSeats(showtimeId) {
   return seats;
 }
 
+// Reserve seats
+export const reserveSeats = async (showtimeId, seatIds) => {
+  // Simulate API delay
+  await new Promise(resolve => setTimeout(resolve, 800));
+  
+  // In a real app, this would send a request to the backend
+  return {
+    success: true,
+    message: 'Seats reserved successfully',
+    reservationId: 'RES-' + Math.floor(Math.random() * 1000000)
+  };
+};
+
+
+/**
+ * Lấy danh sách ghế theo phòng
+ * @param {number} roomId - ID của phòng
+ * @returns {Promise} - Promise chứa danh sách ghế
+ */
+export const getChairsByRoom = async (roomId) => {
+  try {
+    const response = await apiClient.get(`/Chair/room/${roomId}`);
+    return response.data;
+  } catch (error) {
+    console.error('Error fetching chairs by room:', error);
+    throw error;
+  }
+};
 // Get seats by showtime
 export const getSeatsByShowtime = async (showtimeId) => {
   // Simulate API delay
@@ -51,15 +81,105 @@ export const getSeatsByShowtime = async (showtimeId) => {
   return generatedSeats;
 };
 
-// Reserve seats
-export const reserveSeats = async (showtimeId, seatIds) => {
-  // Simulate API delay
-  await new Promise(resolve => setTimeout(resolve, 800));
-  
-  // In a real app, this would send a request to the backend
-  return {
-    success: true,
-    message: 'Seats reserved successfully',
-    reservationId: 'RES-' + Math.floor(Math.random() * 1000000)
-  };
+/**
+ * Tạo mới ghế cho phòng
+ * @param {number} roomId - ID của phòng
+ * @param {Array} chairs - Mảng các ghế cần tạo
+ * @returns {Promise} - Promise chứa kết quả tạo mới
+ */
+export const createChairs = async (roomId, chairs) => {
+  try {
+    // Format API yêu cầu:
+    // [
+    //   {
+    //     "chairTypeId": 0,
+    //     "chairName": "string",
+    //     "chairPosition": "string",
+    //     "chairStatus": true
+    //   }
+    // ]
+    const response = await apiClient.post(`/Chair/room/${roomId}`, chairs);
+    return response.data;
+  } catch (error) {
+    console.error('Error creating chairs:', error);
+    throw error;
+  }
+};
+
+/**
+ * Cập nhật ghế cho phòng
+ * @param {number} roomId - ID của phòng
+ * @param {Array} chairs - Mảng các ghế cần cập nhật
+ * @returns {Promise} - Promise chứa kết quả cập nhật
+ */
+export const updateChairs = async (roomId, chairs) => {
+  try {
+    // Format API yêu cầu:
+    // [
+    //   {
+    //     "chairId": 0,
+    //     "chairTypeId": 0,
+    //     "chairName": "string",
+    //     "chairPosition": "string",
+    //     "chairStatus": true
+    //   }
+    // ]
+    const response = await apiClient.put(`/Chair/room/${roomId}`, chairs);
+    return response.data;
+  } catch (error) {
+    console.error('Error updating chairs:', error);
+    throw error;
+  }
+};
+
+/**
+ * Xóa ghế theo danh sách ID
+ * @param {number} roomId - ID của phòng
+ * @param {Array<number>} chairIds - Mảng ID ghế cần xóa
+ * @returns {Promise} - Promise chứa kết quả xóa
+ */
+export const deleteChairs = async (roomId, chairIds) => {
+  try {
+    // Format API yêu cầu:
+    // [0, 1, 2] - mảng chairId
+    const response = await apiClient.delete(`/Chair/room/${roomId}`, {
+      data: chairIds
+    });
+    return response.data;
+  } catch (error) {
+    console.error('Error deleting chairs:', error);
+    throw error;
+  }
+};
+
+/**
+ * Cập nhật trạng thái ghế
+ * @param {number} chairId - ID của ghế
+ * @param {boolean} status - Trạng thái mới của ghế
+ * @returns {Promise} - Promise chứa kết quả cập nhật
+ */
+export const updateChairStatus = async (chairId, status) => {
+  try {
+    const response = await apiClient.put(`/Chair/${chairId}/status`, { status });
+    return response.data;
+  } catch (error) {
+    console.error('Error updating chair status:', error);
+    throw error;
+  }
+};
+
+/**
+ * Cập nhật loại ghế
+ * @param {number} chairId - ID của ghế
+ * @param {number} chairTypeId - ID loại ghế mới
+ * @returns {Promise} - Promise chứa kết quả cập nhật
+ */
+export const updateChairType = async (chairId, chairTypeId) => {
+  try {
+    const response = await apiClient.put(`/Chair/${chairId}/type`, { chairTypeId });
+    return response.data;
+  } catch (error) {
+    console.error('Error updating chair type:', error);
+    throw error;
+  }
 };

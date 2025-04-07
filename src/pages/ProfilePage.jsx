@@ -1,8 +1,8 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { Container, Row, Col, Nav, Tab, Card, Alert, Form, Spinner } from 'react-bootstrap';
 import { useNavigate } from 'react-router-dom';
 import styled from 'styled-components';
-import { 
+import {
   FaUser, FaHistory, FaLock, FaCamera, FaPen,
   FaUserCircle, FaCalendarAlt, FaPhone, FaEnvelope,
   FaTransgender, FaMedal, FaStar, FaClock, FaTicketAlt,
@@ -21,6 +21,18 @@ import { getTicketHistory, downloadTicketInvoice } from '../api/services/ticketS
 const PageContainer = styled.div`
   min-height: 100vh;
   padding: 7rem 0 2rem;
+  
+  @media (max-width: 992px) {
+    padding: 6rem 0 2rem;
+  }
+  
+  @media (max-width: 768px) {
+    padding: 5rem 0 1.5rem;
+  }
+  
+  @media (max-width: 576px) {
+    padding: 4.5rem 0 1rem;
+  }
 `;
 
 const ProfileCard = styled(Card)`
@@ -29,6 +41,11 @@ const ProfileCard = styled(Card)`
   border-radius: 10px;
   margin-bottom: 1.5rem;
   box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+  
+  @media (max-width: 768px) {
+    margin-bottom: 1rem;
+    border-radius: 8px;
+  }
 `;
 
 const ProfileHeader = styled.div`
@@ -36,6 +53,14 @@ const ProfileHeader = styled.div`
   border-bottom: 1px solid #3f425a;
   display: flex;
   align-items: center;
+  
+  @media (max-width: 768px) {
+    padding: 1.25rem;
+  }
+  
+  @media (max-width: 576px) {
+    padding: 1rem;
+  }
 `;
 
 const PageTitle = styled.h1`
@@ -43,6 +68,14 @@ const PageTitle = styled.h1`
   font-size: 1.5rem;
   font-weight: 600;
   margin-bottom: 0;
+  
+  @media (max-width: 768px) {
+    font-size: 1.3rem;
+  }
+  
+  @media (max-width: 576px) {
+    font-size: 1.2rem;
+  }
 `;
 
 const StyledNav = styled(Nav)`
@@ -65,10 +98,36 @@ const StyledNav = styled(Nav)`
       border-bottom: 2px solid #F9376E;
     }
   }
+  
+  @media (max-width: 768px) {
+    padding: 0 0.75rem;
+    
+    .nav-link {
+      padding: 0.75rem;
+      font-size: 0.9rem;
+    }
+  }
+  
+  @media (max-width: 576px) {
+    padding: 0 0.5rem;
+    
+    .nav-link {
+      padding: 0.6rem 0.5rem;
+      font-size: 0.85rem;
+    }
+  }
 `;
 
 const TabContent = styled(Tab.Content)`
   padding: 1.5rem;
+  
+  @media (max-width: 768px) {
+    padding: 1.25rem;
+  }
+  
+  @media (max-width: 576px) {
+    padding: 1rem;
+  }
 `;
 
 // Thêm các components mới vào trang ProfilePage.jsx
@@ -79,6 +138,18 @@ const AvatarContainer = styled.div`
   width: 120px;
   height: 120px;
   margin: 0 auto 1.5rem;
+  
+  @media (max-width: 768px) {
+    width: 100px;
+    height: 100px;
+    margin-bottom: 1.25rem;
+  }
+  
+  @media (max-width: 576px) {
+    width: 80px;
+    height: 80px;
+    margin-bottom: 1rem;
+  }
 `;
 
 const AvatarImage = styled.div`
@@ -103,6 +174,15 @@ const AvatarImage = styled.div`
     top: 0;
     left: 0;
   }
+  
+  @media (max-width: 768px) {
+    font-size: 2.5rem;
+    border-width: 2px;
+  }
+  
+  @media (max-width: 576px) {
+    font-size: 2rem;
+  }
 `;
 
 const UploadButton = styled.div`
@@ -124,6 +204,16 @@ const UploadButton = styled.div`
   &:hover {
     transform: scale(1.1);
   }
+  
+  @media (max-width: 768px) {
+    width: 32px;
+    height: 32px;
+  }
+  
+  @media (max-width: 576px) {
+    width: 28px;
+    height: 28px;
+  }
 `;
 
 const UserName = styled.h2`
@@ -132,6 +222,15 @@ const UserName = styled.h2`
   font-weight: 600;
   margin-bottom: 0.5rem;
   text-align: center;
+  
+  @media (max-width: 768px) {
+    font-size: 1.3rem;
+  }
+  
+  @media (max-width: 576px) {
+    font-size: 1.1rem;
+    margin-bottom: 0.4rem;
+  }
 `;
 
 const UserStatus = styled.div`
@@ -145,20 +244,38 @@ const UserStatus = styled.div`
     padding: 0.25rem 0.75rem;
     border-radius: 2rem;
     background-color: ${props => {
-      switch(props.status) {
-        case 'active': return 'rgba(46, 213, 115, 0.2)';
-        case 'suspended': return 'rgba(255, 71, 87, 0.2)';
-        default: return 'rgba(156, 163, 175, 0.2)';
-      }
-    }};
+    switch (props.status) {
+      case 'active': return 'rgba(46, 213, 115, 0.2)';
+      case 'suspended': return 'rgba(255, 71, 87, 0.2)';
+      default: return 'rgba(156, 163, 175, 0.2)';
+    }
+  }};
     color: ${props => {
-      switch(props.status) {
-        case 'active': return '#2ed573';
-        case 'suspended': return '#ff4757';
-        default: return '#9ca3af';
-      }
-    }};
+    switch (props.status) {
+      case 'active': return '#2ed573';
+      case 'suspended': return '#ff4757';
+      default: return '#9ca3af';
+    }
+  }};
     margin-left: 0.5rem;
+  }
+  
+  @media (max-width: 768px) {
+    font-size: 0.85rem;
+    margin-bottom: 1.25rem;
+    
+    .status-badge {
+      padding: 0.2rem 0.6rem;
+    }
+  }
+  
+  @media (max-width: 576px) {
+    font-size: 0.8rem;
+    margin-bottom: 1rem;
+    
+    .status-badge {
+      padding: 0.15rem 0.5rem;
+    }
   }
 `;
 
@@ -168,6 +285,14 @@ const InfoSection = styled.div`
   small {
     text-align: left;
     display: block;
+  }
+  
+  @media (max-width: 768px) {
+    margin-bottom: 1.5rem;
+  }
+  
+  @media (max-width: 576px) {
+    margin-bottom: 1.25rem;
   }
 `;
 
@@ -184,11 +309,29 @@ const SectionTitle = styled.h3`
     margin-right: 0.5rem;
     color: #F9376E;
   }
+  
+  @media (max-width: 768px) {
+    font-size: 1.1rem;
+    margin-bottom: 1.25rem;
+  }
+  
+  @media (max-width: 576px) {
+    font-size: 1rem;
+    margin-bottom: 1rem;
+  }
 `;
 
 const InfoGroup = styled.div`
   margin-bottom: 1.5rem;
   text-align: left;
+  
+  @media (max-width: 768px) {
+    margin-bottom: 1.25rem;
+  }
+  
+  @media (max-width: 576px) {
+    margin-bottom: 1rem;
+  }
 `;
 
 const InfoLabel = styled.p`
@@ -196,6 +339,16 @@ const InfoLabel = styled.p`
   font-size: 0.85rem;
   margin-bottom: 0.4rem;
   text-align: left;
+  
+  @media (max-width: 768px) {
+    font-size: 0.8rem;
+    margin-bottom: 0.3rem;
+  }
+  
+  @media (max-width: 576px) {
+    font-size: 0.75rem;
+    margin-bottom: 0.25rem;
+  }
 `;
 
 const InfoValue = styled.p`
@@ -209,6 +362,19 @@ const InfoValue = styled.p`
   svg {
     margin-right: 0.5rem;
     color: #F9376E;
+  }
+  
+  @media (max-width: 768px) {
+    font-size: 0.95rem;
+  }
+  
+  @media (max-width: 576px) {
+    font-size: 0.9rem;
+    
+    svg {
+      margin-right: 0.4rem;
+      font-size: 0.9em;
+    }
   }
 `;
 
@@ -225,6 +391,17 @@ const FormControl = styled.input`
     outline: none;
     border-color: #F9376E;
     box-shadow: 0 0 0 0.2rem rgba(249, 55, 110, 0.25);
+  }
+  
+  @media (max-width: 768px) {
+    padding: 0.45rem 0.7rem;
+    font-size: 0.95rem;
+  }
+  
+  @media (max-width: 576px) {
+    padding: 0.4rem 0.65rem;
+    font-size: 0.9rem;
+    border-radius: 0.2rem;
   }
 `;
 
@@ -252,11 +429,27 @@ const FormSelect = styled.select`
     text-align: left;
     padding: 8px;
   }
+  
+  @media (max-width: 768px) {
+    padding: 0.45rem 0.7rem;
+    font-size: 0.95rem;
+  }
+  
+  @media (max-width: 576px) {
+    padding: 0.4rem 0.65rem;
+    font-size: 0.9rem;
+    border-radius: 0.2rem;
+  }
 `;
 
 const ButtonGroup = styled.div`
   display: flex;
   gap: 0.5rem;
+  
+  @media (max-width: 576px) {
+    flex-direction: column;
+    gap: 0.4rem;
+  }
 `;
 
 const RankInfo = styled.div`
@@ -266,6 +459,15 @@ const RankInfo = styled.div`
   display: flex;
   flex-direction: column;
   align-items: center;
+  
+  @media (max-width: 768px) {
+    padding: 1.25rem;
+  }
+  
+  @media (max-width: 576px) {
+    padding: 1rem;
+    border-radius: 6px;
+  }
 `;
 
 const RankBadge = styled.div`
@@ -273,33 +475,55 @@ const RankBadge = styled.div`
   height: 80px;
   border-radius: 50%;
   background-color: ${props => {
-    switch(props.rank) {
-      case 1: return '#6c757d'; // New Member
-      case 2: return '#a0b2c6'; // Silver
-      case 3: return '#ffd700'; // Gold
-      case 4: return '#ff4757'; // VIP
-      default: return '#6c757d';
-    }
+    const points = props.points || 0;
+    if (points >= 15000) return '#e84118'; // Lá - Đỏ cam
+    if (points >= 10000) return '#fbc531'; // Chồi - Vàng
+    if (points >= 5000) return '#fbc531'; // Mầm - Xanh lá
+    return 'gray'; // chưa có hạng - màu xám
   }};
   display: flex;
   align-items: center;
   justify-content: center;
   margin-bottom: 1rem;
+  
+  @media (max-width: 768px) {
+    width: 70px;
+    height: 70px;
+    margin-bottom: 0.75rem;
+  }
+  
+  @media (max-width: 576px) {
+    width: 60px;
+    height: 60px;
+    margin-bottom: 0.6rem;
+    
+    svg {
+      font-size: 1.8rem !important;
+    }
+  }
 `;
 
 const RankName = styled.h4`
   color: ${props => {
-    switch(props.rank) {
-      case 1: return '#6c757d'; // New Member
-      case 2: return '#a0b2c6'; // Silver
-      case 3: return '#ffd700'; // Gold
-      case 4: return '#ff4757'; // VIP
-      default: return '#6c757d';
-    }
+    const points = props.points || 0;
+    if (points >= 15000) return '#e84118'; // Lá - Đỏ cam
+    if (points >= 10000) return '#fbc531'; // Chồi - Vàng
+    if (points >= 5000) return '#4cd137'; // Mầm - Xanh lá
+    return 'gray'; // Chưa có hạng - màu xám
   }};
   font-size: 1.1rem;
   font-weight: 600;
   margin-bottom: 0.5rem;
+  
+  @media (max-width: 768px) {
+    font-size: 1rem;
+    margin-bottom: 0.4rem;
+  }
+  
+  @media (max-width: 576px) {
+    font-size: 0.9rem;
+    margin-bottom: 0.3rem;
+  }
 `;
 
 const PointInfo = styled.div`
@@ -313,6 +537,16 @@ const PointValue = styled.div`
   font-size: 1.5rem;
   font-weight: 600;
   margin: 0.5rem 0;
+  
+  @media (max-width: 768px) {
+    font-size: 1.3rem;
+    margin: 0.4rem 0;
+  }
+  
+  @media (max-width: 576px) {
+    font-size: 1.1rem;
+    margin: 0.3rem 0;
+  }
 `;
 
 const ProgressBar = styled.div`
@@ -334,6 +568,16 @@ const ProgressBar = styled.div`
     background-color: #F9376E;
     border-radius: 4px;
   }
+  
+  @media (max-width: 768px) {
+    height: 6px;
+    margin: 0.4rem 0 0.8rem;
+  }
+  
+  @media (max-width: 576px) {
+    height: 5px;
+    margin: 0.3rem 0 0.6rem;
+  }
 `;
 
 // Thêm các styled components cho tab lịch sử mua vé
@@ -349,6 +593,15 @@ const TicketItem = styled.div`
     transform: translateY(-2px);
     box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
   }
+  
+  @media (max-width: 768px) {
+    margin-bottom: 0.75rem;
+    border-radius: 6px;
+  }
+  
+  @media (max-width: 576px) {
+    margin-bottom: 0.6rem;
+  }
 `;
 
 const TicketHeader = styled.div`
@@ -358,6 +611,14 @@ const TicketHeader = styled.div`
   padding: 0.75rem 1rem;
   background-color: rgba(249, 55, 110, 0.1);
   border-bottom: 1px solid #3f425a;
+  
+  @media (max-width: 768px) {
+    padding: 0.65rem 0.9rem;
+  }
+  
+  @media (max-width: 576px) {
+    padding: 0.6rem 0.8rem;
+  }
 `;
 
 const TicketTitle = styled.h5`
@@ -371,6 +632,22 @@ const TicketTitle = styled.h5`
     color: #F9376E;
     margin-right: 0.5rem;
   }
+  
+  @media (max-width: 768px) {
+    font-size: 0.95rem;
+    
+    svg {
+      margin-right: 0.4rem;
+    }
+  }
+  
+  @media (max-width: 576px) {
+    font-size: 0.9rem;
+    
+    svg {
+      margin-right: 0.3rem;
+    }
+  }
 `;
 
 const TicketStatus = styled.div`
@@ -379,7 +656,7 @@ const TicketStatus = styled.div`
   font-size: 0.75rem;
   font-weight: 500;
   background-color: ${props => {
-    switch(props.status) {
+    switch (props.status) {
       case 'completed': return 'rgba(46, 213, 115, 0.2)';
       case 'cancelled': return 'rgba(255, 71, 87, 0.2)';
       case 'pending': return 'rgba(254, 202, 87, 0.2)';
@@ -387,13 +664,23 @@ const TicketStatus = styled.div`
     }
   }};
   color: ${props => {
-    switch(props.status) {
+    switch (props.status) {
       case 'completed': return '#2ed573';
       case 'cancelled': return '#ff4757';
       case 'pending': return '#fedb5c';
       default: return '#9ca3af';
     }
   }};
+  
+  @media (max-width: 768px) {
+    padding: 0.15rem 0.65rem;
+    font-size: 0.7rem;
+  }
+  
+  @media (max-width: 576px) {
+    padding: 0.1rem 0.5rem;
+    font-size: 0.65rem;
+  }
 `;
 
 const TicketDate = styled.div`
@@ -405,10 +692,30 @@ const TicketDate = styled.div`
   svg {
     margin-right: 0.25rem;
   }
+  
+  @media (max-width: 768px) {
+    font-size: 0.75rem;
+  }
+  
+  @media (max-width: 576px) {
+    font-size: 0.7rem;
+    
+    svg {
+      margin-right: 0.2rem;
+    }
+  }
 `;
 
 const TicketBody = styled.div`
   padding: 1rem;
+  
+  @media (max-width: 768px) {
+    padding: 0.9rem;
+  }
+  
+  @media (max-width: 576px) {
+    padding: 0.8rem;
+  }
 `;
 
 const TicketInfo = styled.div`
@@ -416,6 +723,16 @@ const TicketInfo = styled.div`
   flex-direction: column;
   gap: 0.5rem;
   margin-bottom: 1rem;
+  
+  @media (max-width: 768px) {
+    gap: 0.4rem;
+    margin-bottom: 0.9rem;
+  }
+  
+  @media (max-width: 576px) {
+    gap: 0.35rem;
+    margin-bottom: 0.8rem;
+  }
 `;
 
 const TicketInfoItem = styled.div`
@@ -428,18 +745,53 @@ const TicketInfoItem = styled.div`
     min-width: 16px;
     margin-top: 3px;
   }
+  
+  @media (max-width: 768px) {
+    svg {
+      margin-right: 0.4rem;
+      min-width: 14px;
+      font-size: 0.9rem;
+    }
+  }
+  
+  @media (max-width: 576px) {
+    svg {
+      margin-right: 0.3rem;
+      min-width: 12px;
+      font-size: 0.8rem;
+      margin-top: 2px;
+    }
+  }
 `;
 
 const TicketLabel = styled.span`
   color: #9ca3af;
   font-size: 0.85rem;
   margin-right: 0.5rem;
+  
+  @media (max-width: 768px) {
+    font-size: 0.8rem;
+    margin-right: 0.4rem;
+  }
+  
+  @media (max-width: 576px) {
+    font-size: 0.75rem;
+    margin-right: 0.3rem;
+  }
 `;
 
 const TicketValue = styled.span`
   color: #f3f4f6;
   font-size: 0.85rem;
   font-weight: 500;
+  
+  @media (max-width: 768px) {
+    font-size: 0.8rem;
+  }
+  
+  @media (max-width: 576px) {
+    font-size: 0.75rem;
+  }
 `;
 
 const TicketFooter = styled.div`
@@ -449,6 +801,17 @@ const TicketFooter = styled.div`
   align-items: center;
   justify-content: space-between;
   border-top: 1px solid #3f425a;
+  
+  @media (max-width: 768px) {
+    padding: 0.65rem 0.9rem;
+  }
+  
+  @media (max-width: 576px) {
+    padding: 0.6rem 0.8rem;
+    flex-direction: column;
+    gap: 0.6rem;
+    align-items: flex-start;
+  }
 `;
 
 const TicketPrice = styled.div`
@@ -459,6 +822,15 @@ const TicketPrice = styled.div`
 const TicketActions = styled.div`
   display: flex;
   gap: 0.5rem;
+  
+  @media (max-width: 576px) {
+    width: 100%;
+    gap: 0.4rem;
+    
+    button {
+      flex: 1;
+    }
+  }
 `;
 
 const FilterBar = styled.div`
@@ -473,6 +845,13 @@ const FilterBar = styled.div`
   @media (max-width: 768px) {
     flex-direction: column;
     align-items: stretch;
+    gap: 0.75rem;
+    margin-bottom: 1.25rem;
+  }
+  
+  @media (max-width: 576px) {
+    gap: 0.6rem;
+    margin-bottom: 1rem;
   }
 `;
 
@@ -484,6 +863,15 @@ const FilterGroup = styled.div`
   
   @media (max-width: 768px) {
     flex-wrap: wrap;
+    gap: 0.4rem;
+  }
+  
+  @media (max-width: 576px) {
+    gap: 0.3rem;
+    
+    select {
+      flex: 1;
+    }
   }
 `;
 
@@ -504,6 +892,42 @@ const EmptyState = styled.div`
   
   p {
     color: #b8c2cc;
+  }
+  
+  @media (max-width: 768px) {
+    padding: 2.5rem 0;
+    
+    svg {
+      font-size: 2.5rem;
+      margin-bottom: 0.75rem;
+    }
+    
+    h4 {
+      font-size: 1.2rem;
+      margin-bottom: 0.4rem;
+    }
+    
+    p {
+      font-size: 0.9rem;
+    }
+  }
+  
+  @media (max-width: 576px) {
+    padding: 2rem 0;
+    
+    svg {
+      font-size: 2rem;
+      margin-bottom: 0.6rem;
+    }
+    
+    h4 {
+      font-size: 1.1rem;
+      margin-bottom: 0.3rem;
+    }
+    
+    p {
+      font-size: 0.85rem;
+    }
   }
 `;
 
@@ -537,6 +961,32 @@ const PaginationContainer = styled.div`
       }
     }
   }
+  
+  @media (max-width: 768px) {
+    margin-top: 1.25rem;
+    
+    .pagination {
+      .page-item {
+        .page-link {
+          padding: 0.4rem 0.75rem;
+          font-size: 0.9rem;
+        }
+      }
+    }
+  }
+  
+  @media (max-width: 576px) {
+    margin-top: 1rem;
+    
+    .pagination {
+      .page-item {
+        .page-link {
+          padding: 0.3rem 0.6rem;
+          font-size: 0.8rem;
+        }
+      }
+    }
+  }
 `;
 
 // Thêm các styled components cho tab Bảo mật
@@ -548,6 +998,18 @@ const SecuritySection = styled.div`
   padding: 1.5rem;
   margin-bottom: 1.5rem;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+  
+  @media (max-width: 768px) {
+    padding: 1.25rem;
+    border-radius: 8px;
+    margin-bottom: 1.25rem;
+  }
+  
+  @media (max-width: 576px) {
+    padding: 1rem;
+    border-radius: 6px;
+    margin-bottom: 1rem;
+  }
 `;
 
 const PasswordStrength = styled.div`
@@ -567,10 +1029,10 @@ const StrengthBar = styled.div`
     height: 100%;
     width: ${props => props.strength}%;
     background-color: ${props => {
-      if (props.strength < 40) return '#ff4757';
-      if (props.strength < 70) return '#feca57';
-      return '#2ed573';
-    }};
+    if (props.strength < 40) return '#ff4757';
+    if (props.strength < 70) return '#feca57';
+    return '#2ed573';
+  }};
     border-radius: 3px;
     transition: all 0.3s ease;
   }
@@ -598,6 +1060,33 @@ const PasswordRequirements = styled.ul`
     
     svg {
       margin-right: 0.5rem;
+    }
+  }
+  
+  @media (max-width: 768px) {
+    margin: 0.9rem 0;
+    
+    li {
+      font-size: 0.8rem;
+      margin-bottom: 0.2rem;
+      
+      svg {
+        margin-right: 0.4rem;
+      }
+    }
+  }
+  
+  @media (max-width: 576px) {
+    margin: 0.8rem 0;
+    
+    li {
+      font-size: 0.75rem;
+      margin-bottom: 0.15rem;
+      
+      svg {
+        margin-right: 0.3rem;
+        font-size: 0.9em;
+      }
     }
   }
 `;
@@ -718,20 +1207,19 @@ const OptDesc = styled.div`
 
 import { useAuth } from '../contexts/AuthContext';
 
-const ProfilePage = () => {
+function ProfilePage() {
   const { updateUserInfo } = useAuth();
-  
   const [userData, setUserData] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState(null);
   const navigate = useNavigate();
-  
+
   // Các state cho chỉnh sửa thông tin
   const [isEditing, setIsEditing] = useState(false);
   const [editData, setEditData] = useState({});
   const [avatarFile, setAvatarFile] = useState(null);
   const [avatarPreview, setAvatarPreview] = useState(null);
-  const fileInputRef = React.useRef(null);
+  const fileInputRef = useRef(null);
   const [successMessage, setSuccessMessage] = useState('');
 
   // State cho tab lịch sử mua vé
@@ -744,29 +1232,31 @@ const ProfilePage = () => {
   const [dateFilter, setDateFilter] = useState('all');
   const [searchQuery, setSearchQuery] = useState('');
 
-  const ticketsPerPage = 3; // Số lượng vé hiển thị trên mỗi trang
+  const ticketsPerPage = 3;
 
-  // Hàm để tải dữ liệu vé sử dụng service
-  const loadTickets = async () => {
-    try {
-      setIsLoadingTickets(true);
-      setTicketError(null);
-      
-      // Gọi service để lấy lịch sử mua vé
-      const ticketData = await getTicketHistory();
-      
-      setTickets(ticketData);
-      setFilteredTickets(ticketData);
-      setIsLoadingTickets(false);
-      
-    } catch (error) {
-      setTicketError('Không thể tải lịch sử mua vé. Vui lòng thử lại sau.');
-      setIsLoadingTickets(false);
-    }
-  };
+  // Kiểm tra đăng nhập và lấy thông tin người dùng
+  useEffect(() => {
+    const fetchUserData = async () => {
+      try {
+        setIsLoading(true);
+        setError(null);
+        const userData = await getUserProfile();
+        setUserData(userData);
+      } catch (err) {
+        console.error('Error fetching user profile:', err);
+        navigate('/login', {
+          state: {
+            from: '/profile',
+            message: 'Vui lòng đăng nhập để xem thông tin cá nhân.'
+          }
+        });
+      } finally {
+        setIsLoading(false);
+      }
+    };
 
-  // Các hàm lọc và tìm kiếm vé (giữ nguyên)
-  // ...
+    fetchUserData();
+  }, [navigate]);
 
   // Tải dữ liệu vé khi chọn tab lịch sử
   const handleTabSelect = (key) => {
@@ -775,16 +1265,179 @@ const ProfilePage = () => {
     }
   };
 
-  // Hàm xử lý khi người dùng muốn chỉnh sửa thông tin
+  // Hàm để tải dữ liệu vé
+  const loadTickets = async () => {
+    try {
+      setIsLoadingTickets(true);
+      setTicketError(null);
+      
+      const ticketData = await getTicketHistory();
+      
+      // Chuyển đổi dữ liệu từ API sang định dạng phù hợp với UI
+      const formattedTickets = ticketData.map(ticket => ({
+        id: ticket.orderId.toString(),
+        movieName: ticket.movieName,
+        theater: `${ticket.theaterName} - ${ticket.roomName}`,
+        date: ticket.showtimeStartAt,
+        time: new Date(ticket.showtimeStartAt).toLocaleTimeString('vi-VN', {
+          hour: '2-digit',
+          minute: '2-digit'
+        }),
+        seats: ticket.bookedChairs.map(chair => chair.chairName),
+        price: ticket.totalPrice,
+        status: 'completed', // API không trả về trạng thái
+        bookingDate: ticket.orderCreateAt,
+        paymentMethod: 'VNPay', // API không trả về phương thức thanh toán
+        combos: ticket.bookedCombos ? ticket.bookedCombos.map(combo => ({
+          name: combo.comboName,
+          quantity: combo.quantity,
+          price: combo.comboPrice
+        })) : []
+      }));
+      
+      // Sắp xếp vé mới nhất lên trên cùng
+      formattedTickets.sort((a, b) => new Date(b.bookingDate) - new Date(a.bookingDate));
+      
+      setTickets(formattedTickets);
+      setFilteredTickets(formattedTickets);
+    } catch (error) {
+      console.error('Error loading tickets:', error);
+      setTicketError('Không thể tải lịch sử mua vé. Vui lòng thử lại sau.');
+    } finally {
+      setIsLoadingTickets(false);
+    }
+  };
+
+  // Cải tiến hàm lọc vé để tối ưu hiệu suất
+  const filterTickets = useCallback((statusValue, dateValue, query) => {
+    if (!tickets || tickets.length === 0) return;
+    
+    let filtered = [...tickets];
+    
+    // Lọc theo trạng thái
+    if (statusValue !== 'all') {
+      filtered = filtered.filter(ticket => ticket.status === statusValue);
+    }
+    
+    // Lọc theo thời gian
+    if (dateValue !== 'all') {
+      const now = new Date();
+      let filterDate;
+      
+      switch (dateValue) {
+        case 'month':
+          filterDate = new Date(now);
+          filterDate.setMonth(now.getMonth() - 1);
+          break;
+        case 'three-months':
+          filterDate = new Date(now);
+          filterDate.setMonth(now.getMonth() - 3);
+          break;
+        case 'year':
+          filterDate = new Date(now);
+          filterDate.setFullYear(now.getFullYear() - 1);
+          break;
+        default:
+          filterDate = null;
+      }
+      
+      if (filterDate) {
+        filtered = filtered.filter(ticket => new Date(ticket.date) >= filterDate);
+      }
+    }
+    
+    // Tìm kiếm
+    if (query && query.trim() !== '') {
+      const normalizedQuery = query.toLowerCase().trim();
+      filtered = filtered.filter(ticket =>
+        ticket.movieName.toLowerCase().includes(normalizedQuery) ||
+        ticket.theater.toLowerCase().includes(normalizedQuery) ||
+        ticket.id.toLowerCase().includes(normalizedQuery)
+      );
+    }
+    
+    setFilteredTickets(filtered);
+    setCurrentPage(1); // Reset về trang đầu tiên
+  }, [tickets]);
+
+  // Kết hợp các state filter với useEffect để cải thiện hiệu suất
+  useEffect(() => {
+    filterTickets(statusFilter, dateFilter, searchQuery);
+  }, [statusFilter, dateFilter, searchQuery, filterTickets]);
+
+  // Các hàm xử lý thay đổi filter
+  const handleFilterChange = (type, value) => {
+    if (type === 'status') {
+      setStatusFilter(value);
+    } else if (type === 'date') {
+      setDateFilter(value);
+    }
+  };
+
+  const handleSearch = (e) => {
+    setSearchQuery(e.target.value);
+  };
+
+  // Xử lý phân trang
+  const paginate = (pageNumber) => setCurrentPage(pageNumber);
+
+  // Tính toán vé hiện tại để hiển thị
+  const indexOfLastTicket = currentPage * ticketsPerPage;
+  const indexOfFirstTicket = indexOfLastTicket - ticketsPerPage;
+  const currentTickets = filteredTickets.slice(indexOfFirstTicket, indexOfLastTicket);
+
+  // Cải tiến hàm xử lý chỉnh sửa thông tin
   const handleEditClick = () => {
     setEditData({
-      firstName: userData.firstName || userData.user_first_name,
-      lastName: userData.lastName || userData.user_last_name,
-      phoneNumber: userData.phoneNumber || userData.user_phone_number,
-      dateOfBirth: userData.user_date_of_birth,
-      gender: userData.user_gender
+      firstName: userData.firstName || userData.user_first_name || '',
+      lastName: userData.lastName || userData.user_last_name || '',
+      phoneNumber: userData.phoneNumber || userData.user_phone_number || '',
+      dateOfBirth: userData.user_date_of_birth || '',
+      gender: userData.user_gender || ''
     });
     setIsEditing(true);
+    
+    // Phân tách ngày sinh thành ngày, tháng, năm
+    if (userData.user_date_of_birth) {
+      const [year, month, day] = userData.user_date_of_birth.split('-');
+      setBirthDate({
+        day: parseInt(day, 10).toString(),
+        month: parseInt(month, 10).toString(),
+        year
+      });
+    } else {
+      setBirthDate({ day: '', month: '', year: '' });
+    }
+  };
+
+  // Hàm xử lý khi người dùng thay đổi thông tin
+  const handleInputChange = (e) => {
+    const { name, value } = e.target;
+    setEditData(prev => ({
+      ...prev,
+      [name]: value
+    }));
+  };
+
+  // Xử lý chức năng ngày sinh
+  const [birthDate, setBirthDate] = useState({ day: '', month: '', year: '' });
+
+  // Tối ưu hàm xử lý thay đổi ngày sinh
+  const handleBirthDateChange = (field, value) => {
+    const newBirthDate = { ...birthDate, [field]: value };
+    setBirthDate(newBirthDate);
+    
+    // Cập nhật giá trị dateOfBirth trong editData nếu đủ thông tin
+    if (newBirthDate.day && newBirthDate.month && newBirthDate.year) {
+      const formattedMonth = newBirthDate.month.padStart(2, '0');
+      const formattedDay = newBirthDate.day.padStart(2, '0');
+      const dateOfBirth = `${newBirthDate.year}-${formattedMonth}-${formattedDay}`;
+      
+      setEditData(prev => ({
+        ...prev,
+        dateOfBirth
+      }));
+    }
   };
 
   // Hàm xử lý khi người dùng hủy chỉnh sửa
@@ -794,37 +1447,30 @@ const ProfilePage = () => {
     setAvatarPreview(null);
   };
 
-  // Hàm xử lý khi người dùng thay đổi thông tin
-  const handleInputChange = (e) => {
-    const { name, value } = e.target;
-    setEditData({
-      ...editData,
-      [name]: value
-    });
-  };
-
   // Hàm xử lý khi người dùng chọn ảnh đại diện mới
-const handleAvatarChange = (e) => {
-  const fileInput = e.target;
-  if (fileInput && fileInput.files && fileInput.files[0]) {
+  const handleAvatarChange = (e) => {
+    const fileInput = e.target;
+    if (!fileInput || !fileInput.files || !fileInput.files[0]) return;
+    
     const file = fileInput.files[0];
     
     // Kiểm tra kích thước file (tối đa 5MB)
     if (file.size > 5 * 1024 * 1024) {
       setError('Kích thước ảnh quá lớn. Vui lòng chọn ảnh nhỏ hơn 5MB.');
-      fileInput.value = ''; // Reset input
+      fileInput.value = '';
       return;
     }
     
     // Kiểm tra loại file
     if (!file.type.match('image.*')) {
       setError('Vui lòng chọn tệp hình ảnh.');
-      fileInput.value = ''; // Reset input
+      fileInput.value = '';
       return;
     }
     
     setAvatarFile(file);
     
+    // Đọc và hiển thị preview
     const reader = new FileReader();
     reader.onload = (event) => {
       if (event.target && event.target.result) {
@@ -835,16 +1481,15 @@ const handleAvatarChange = (e) => {
       setError('Không thể đọc tệp. Vui lòng thử lại.');
     };
     reader.readAsDataURL(file);
-  }
-};
+  };
 
-  // Hàm xử lý khi người dùng lưu thông tin đã chỉnh sửa - sử dụng service
+  // Hàm xử lý khi người dùng lưu thông tin đã chỉnh sửa
   const handleSaveChanges = async () => {
     try {
       setIsLoading(true);
       
-      // Gọi service để cập nhật thông tin người dùng
-      const updatedUserData = await updateUserProfile({
+      // Cập nhật thông tin người dùng
+      await updateUserProfile({
         email: userData?.email,
         firstName: editData.firstName,
         lastName: editData.lastName,
@@ -860,21 +1505,20 @@ const handleAvatarChange = (e) => {
       }
       
       // Cập nhật userData state
-      setUserData({
-        ...userData,
+      setUserData(prev => ({
+        ...prev,
         firstName: editData.firstName,
         lastName: editData.lastName,
         phoneNumber: editData.phoneNumber,
         user_date_of_birth: editData.dateOfBirth,
         user_gender: editData.gender,
-        user_avatar: avatarUrl || userData?.user_avatar
-      });
+        user_avatar: avatarUrl || prev?.user_avatar
+      }));
       
       // Cập nhật thông tin trong AuthContext
       updateUserInfo({
         firstName: editData.firstName,
         lastName: editData.lastName,
-        // Không cần cập nhật email vì email thường không thay đổi
       });
       
       // Hiển thị thông báo thành công
@@ -885,10 +1529,9 @@ const handleAvatarChange = (e) => {
       setIsEditing(false);
       setAvatarFile(null);
       setAvatarPreview(null);
-      
     } catch (error) {
-      setError('Đã xảy ra lỗi khi cập nhật thông tin. Vui lòng thử lại.');
       console.error('Error updating profile:', error);
+      setError('Đã xảy ra lỗi khi cập nhật thông tin. Vui lòng thử lại.');
     } finally {
       setIsLoading(false);
     }
@@ -899,12 +1542,12 @@ const handleAvatarChange = (e) => {
     newPassword: '',
     confirmPassword: ''
   });
-
+  
   const [passwordErrors, setPasswordErrors] = useState({
     newPassword: null,
     confirmPassword: null
   });
-
+  
   const [showNewPassword, setShowNewPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [changePasswordLoading, setChangePasswordLoading] = useState(false);
@@ -916,25 +1559,20 @@ const handleAvatarChange = (e) => {
     length: passwordForm.newPassword.length >= 8
   };
 
- 
-
-  // Lấy text hiển thị cho độ mạnh mật khẩu
-  
-
   // Xử lý thay đổi input cho form đổi mật khẩu
   const handlePasswordInputChange = (e) => {
     const { name, value } = e.target;
-    setPasswordForm({
-      ...passwordForm,
+    setPasswordForm(prev => ({
+      ...prev,
       [name]: value
-    });
+    }));
     
     // Xóa lỗi khi người dùng thay đổi input
     if (passwordErrors[name]) {
-      setPasswordErrors({
-        ...passwordErrors,
+      setPasswordErrors(prev => ({
+        ...prev,
         [name]: null
-      });
+      }));
     }
     
     // Xóa thông báo thành công hoặc lỗi khi người dùng bắt đầu nhập lại
@@ -944,15 +1582,21 @@ const handleAvatarChange = (e) => {
     }
   };
 
-  // Xử lý đổi mật khẩu - sử dụng service
+  // Xử lý đổi mật khẩu
   const handleChangePassword = async (e) => {
     e.preventDefault();
     
-    // Kiểm tra form - bỏ phần kiểm tra currentPassword
+    // Kiểm tra form
     let formErrors = {};
     let hasError = false;
     
-
+    if (!passwordForm.newPassword) {
+      formErrors.newPassword = 'Vui lòng nhập mật khẩu mới';
+      hasError = true;
+    } else if (passwordForm.newPassword.length < 8) {
+      formErrors.newPassword = 'Mật khẩu phải có ít nhất 8 ký tự';
+      hasError = true;
+    }
     
     if (!passwordForm.confirmPassword) {
       formErrors.confirmPassword = 'Vui lòng xác nhận mật khẩu mới';
@@ -967,7 +1611,6 @@ const handleAvatarChange = (e) => {
       return;
     }
     
-    // Sử dụng resetPassword với token từ localStorage
     try {
       setChangePasswordLoading(true);
       
@@ -978,16 +1621,13 @@ const handleAvatarChange = (e) => {
         throw new Error('Bạn cần đăng nhập lại để thực hiện hành động này');
       }
       
-      // Chuẩn bị dữ liệu để đổi mật khẩu
-      const resetPasswordData = {
-        token: token,
+      // Gọi API resetPassword
+      await resetPassword({
+        token,
         newPassword: passwordForm.newPassword,
         confirmPassword: passwordForm.confirmPassword,
         isStaff: isStaff === 'true'
-      };
-      
-      // Gọi API resetPassword
-      await resetPassword(resetPasswordData);
+      });
       
       // Xử lý thành công
       setChangePasswordSuccess(true);
@@ -996,68 +1636,21 @@ const handleAvatarChange = (e) => {
         confirmPassword: ''
       });
     } catch (error) {
+      console.error('Error changing password:', error);
       setChangePasswordError(error.message || 'Đã xảy ra lỗi khi đổi mật khẩu. Vui lòng thử lại sau.');
     } finally {
       setChangePasswordLoading(false);
     }
   };
 
-  // Xử lý chức năng ngày sinh
-  const [birthDate, setBirthDate] = useState({
-    day: '',
-    month: '',
-    year: ''
-  });
-
-  // Thêm useEffect để phân tách ngày sinh thành ngày, tháng, năm khi bắt đầu chỉnh sửa
-  useEffect(() => {
-    if (isEditing && editData.dateOfBirth) {
-      const [year, month, day] = editData.dateOfBirth.split('-');
-      setBirthDate({
-        day: parseInt(day, 10).toString(),
-        month: parseInt(month, 10).toString(),
-        year
-      });
-    }
-  }, [isEditing, editData.dateOfBirth]);
-
-  // Thêm kiểm tra trong useEffect khi xử lý ngày sinh
-useEffect(() => {
-  if (isEditing && editData?.dateOfBirth) {
-    const [year, month, day] = editData.dateOfBirth.split('-');
-    setBirthDate({
-      day: parseInt(day, 10).toString(),
-      month: parseInt(month, 10).toString(),
-      year
-    });
-  }
-}, [isEditing, editData?.dateOfBirth]);
-
-  // Thêm hàm xử lý thay đổi ngày sinh
-  const handleBirthDateChange = (field, value) => {
-    const newBirthDate = { ...birthDate, [field]: value };
-    setBirthDate(newBirthDate);
-    
-    // Cập nhật giá trị dateOfBirth trong editData
-    if (newBirthDate.day && newBirthDate.month && newBirthDate.year) {
-      const formattedMonth = newBirthDate.month.padStart(2, '0');
-      const formattedDay = newBirthDate.day.padStart(2, '0');
-      const dateOfBirth = `${newBirthDate.year}-${formattedMonth}-${formattedDay}`;
-      
-      setEditData({
-        ...editData,
-        dateOfBirth
-      });
-    }
-  };
-
+  // Helper functions
   // Tạo danh sách các năm từ năm hiện tại trở về 100 năm trước
   const currentYear = new Date().getFullYear();
   const years = Array.from({ length: 100 }, (_, i) => (currentYear - i).toString());
-
+  
   // Tạo danh sách các tháng (1-12)
   const months = Array.from({ length: 12 }, (_, i) => (i + 1).toString());
-
+  
   // Tạo danh sách các ngày (1-31)
   const getDaysInMonth = (month, year) => {
     if (!month || !year) return Array.from({ length: 31 }, (_, i) => (i + 1).toString());
@@ -1066,65 +1659,47 @@ useEffect(() => {
     return Array.from({ length: daysInMonth }, (_, i) => (i + 1).toString());
   };
 
-  // Hàm hiển thị tên cấp bậc
-  const getRankName = (rankId) => {
-    switch(rankId) {
-      case 1: return 'Thành viên mới';
-      case 2: return 'Thành viên Bạc';
-      case 3: return 'Thành viên Vàng';
-      case 4: return 'VIP';
-      default: return 'Thành viên mới';
-    }
-  };
-
-  // Các helper function
-  const getNextRankProgress = (rankId, points) => {
-    switch(rankId) {
-      case 1: return Math.min(points / 1000 * 100, 100);
-      case 2: return Math.min((points - 1000) / 1000 * 100, 100);
-      case 3: return Math.min((points - 2000) / 3000 * 100, 100);
-      case 4: return 100;
-      default: return 0;
-    }
-  };
-
-  const getPointsToNextRank = (rankId, points) => {
-    switch(rankId) {
-      case 1: return 1000 - points;
-      case 2: return 2000 - points;
-      case 3: return 5000 - points;
-      case 4: return 0;
-      default: return 1000;
-    }
-  };
-
   // Định dạng ngày tháng
   const formatDate = (dateString) => {
     if (!dateString) return '';
-    const date = new Date(dateString);
-    return new Intl.DateTimeFormat('vi-VN', { 
-      day: '2-digit', 
-      month: '2-digit', 
-      year: 'numeric' 
-    }).format(date);
+    try {
+      const date = new Date(dateString);
+      if (isNaN(date.getTime())) return '';
+      
+      return new Intl.DateTimeFormat('vi-VN', {
+        day: '2-digit',
+        month: '2-digit',
+        year: 'numeric'
+      }).format(date);
+    } catch (error) {
+      console.error('Error formatting date:', error);
+      return '';
+    }
   };
-
+  
   // Định dạng ngày giờ
   const formatDateTime = (dateString) => {
     if (!dateString) return '';
-    const date = new Date(dateString);
-    return new Intl.DateTimeFormat('vi-VN', { 
-      day: '2-digit', 
-      month: '2-digit', 
-      year: 'numeric',
-      hour: '2-digit',
-      minute: '2-digit'
-    }).format(date);
+    try {
+      const date = new Date(dateString);
+      if (isNaN(date.getTime())) return '';
+      
+      return new Intl.DateTimeFormat('vi-VN', {
+        day: '2-digit',
+        month: '2-digit',
+        year: 'numeric',
+        hour: '2-digit',
+        minute: '2-digit'
+      }).format(date);
+    } catch (error) {
+      console.error('Error formatting datetime:', error);
+      return '';
+    }
   };
-
+  
   // Định dạng trạng thái vé
   const getTicketStatusText = (status) => {
-    switch(status) {
+    switch (status) {
       case 'completed': return 'Đã hoàn thành';
       case 'pending': return 'Đang xử lý';
       case 'cancelled': return 'Đã hủy';
@@ -1132,109 +1707,7 @@ useEffect(() => {
     }
   };
 
-  // Kiểm tra đăng nhập và lấy thông tin người dùng
-  useEffect(() => {
-    const fetchUserData = async () => {
-      try {
-        setIsLoading(true);
-        setError(null);
-        
-        // Gọi service để lấy thông tin người dùng
-        const userData = await getUserProfile();
-        setUserData(userData);
-      } catch (err) {
-        // Nếu không lấy được dữ liệu người dùng, chuyển hướng đến trang đăng nhập
-        navigate('/login', { 
-          state: { 
-            from: '/profile',
-            message: 'Vui lòng đăng nhập để xem thông tin cá nhân.'
-          } 
-        });
-      } finally {
-        setIsLoading(false);
-      }
-    };
-    
-    fetchUserData();
-  }, [navigate]);
-
-  // Các hàm lọc và tìm kiếm (giữ nguyên)
-  const filterTickets = (statusValue, dateValue, query) => {
-    let filtered = [...tickets];
-    
-    // Lọc theo trạng thái
-    if (statusValue !== 'all') {
-      filtered = filtered.filter(ticket => ticket.status === statusValue);
-    }
-    
-    // Lọc theo thời gian
-    if (dateValue !== 'all') {
-      filtered = applyDateFilter(filtered, dateValue);
-    }
-    
-    // Tìm kiếm
-    if (query && query.trim() !== '') {
-      filtered = filtered.filter(ticket => 
-        ticket.movieName.toLowerCase().includes(query.toLowerCase()) ||
-        ticket.theater.toLowerCase().includes(query.toLowerCase()) ||
-        ticket.id.toLowerCase().includes(query.toLowerCase())
-      );
-    }
-    
-    setFilteredTickets(filtered);
-    setCurrentPage(1); // Reset về trang đầu tiên
-  };
-  
-  const handleFilterChange = (type, value) => {
-    if (type === 'status') {
-      setStatusFilter(value);
-    } else if (type === 'date') {
-      setDateFilter(value);
-    }
-    
-    // Áp dụng bộ lọc
-    filterTickets(type === 'status' ? value : statusFilter, type === 'date' ? value : dateFilter, searchQuery);
-  };
-  
-  const applyDateFilter = (tickets, dateFilterValue) => {
-    const now = new Date();
-    let filterDate;
-    
-    switch (dateFilterValue) {
-      case 'month':
-        filterDate = new Date();
-        filterDate.setMonth(now.getMonth() - 1);
-        break;
-      case 'three-months':
-        filterDate = new Date();
-        filterDate.setMonth(now.getMonth() - 3);
-        break;
-      case 'year':
-        filterDate = new Date();
-        filterDate.setFullYear(now.getFullYear() - 1);
-        break;
-      default:
-        return tickets;
-    }
-    
-    return tickets.filter(ticket => new Date(ticket.date) >= filterDate);
-  };
-  
-  const handleSearch = (e) => {
-    const query = e.target.value;
-    setSearchQuery(query);
-    filterTickets(statusFilter, dateFilter, query);
-  };
-
-  // Xử lý phân trang
-  const paginate = (pageNumber) => setCurrentPage(pageNumber);
-
-  // Tính toán vé hiện tại để hiển thị
-  const indexOfLastTicket = currentPage * ticketsPerPage;
-  const indexOfFirstTicket = indexOfLastTicket - ticketsPerPage;
-  const currentTickets = filteredTickets.slice(indexOfFirstTicket, indexOfLastTicket);
-
-  // Render UI
+  // Loading state
   if (isLoading) {
     return (
       <PageContainer>
@@ -1247,7 +1720,8 @@ useEffect(() => {
       </PageContainer>
     );
   }
-  
+
+  // Error state
   if (error) {
     return (
       <PageContainer>
@@ -1257,7 +1731,7 @@ useEffect(() => {
       </PageContainer>
     );
   }
-  
+
   return (
     <PageContainer>
       <Container>
@@ -1265,7 +1739,7 @@ useEffect(() => {
           <ProfileHeader>
             <PageTitle>Thông tin cá nhân</PageTitle>
           </ProfileHeader>
-          
+
           <Tab.Container defaultActiveKey="personal" onSelect={handleTabSelect}>
             <StyledNav variant="tabs">
               <Nav.Item>
@@ -1279,427 +1753,425 @@ useEffect(() => {
                 </Nav.Link>
               </Nav.Item>
             </StyledNav>
-            
+
             <TabContent>
+              {/* Tab Thông tin cá nhân */}
               <Tab.Pane eventKey="personal">
-  <Row>
-    <Col lg={4} className="mb-4">
-      <div className="text-center mb-4">
-        <AvatarContainer>
-          <AvatarImage>
-            {avatarPreview ? (
-              <img src={avatarPreview} alt="Profile Preview" />
-            ) : userData?.user_avatar ? (
-              <img src={userData.user_avatar} alt="Profile" />
-            ) : (
-              <FaUserCircle />
-            )}
-          </AvatarImage>
-          {isEditing && (
-            <>
-              <UploadButton 
-                onClick={() => fileInputRef.current && fileInputRef.current.click()}
-                type="button"
-              >
-                <FaCamera size={16} />
-              </UploadButton>
-              <input
-                type="file"
-                ref={fileInputRef}
-                onChange={handleAvatarChange}
-                style={{ display: 'none' }}
-                accept="image/*"
-              />
-            </>
-          )}
-        </AvatarContainer>
-        <UserName>
-          {userData?.firstName || userData?.user_first_name || ''} {userData?.lastName || userData?.user_last_name || ''}
-        </UserName>
-        <UserStatus status={userData?.user_status || 'inactive'}>
-          Trạng thái: 
-          <span className="status-badge">
-            {userData?.user_status === 'active' ? 'Đang hoạt động' : 
-             userData?.user_status === 'suspended' ? 'Tạm khóa' : 'Không hoạt động'}
-          </span>
-        </UserStatus>
-      </div>
-
-      <RankInfo>
-        <RankBadge rank={userData?.rank_id || 1}>
-          <FaMedal size={40} color="#fff" />
-        </RankBadge>
-        <RankName>
-          {userData?.userRank || 'Mầm'}
-        </RankName>
-        
-        <PointInfo>
-          <InfoLabel>Điểm thưởng</InfoLabel>
-          <PointValue>{(userData?.userPoint || 0).toLocaleString()}</PointValue>
-        
-          
-          <div className="text-center mt-2">
-            <InfoLabel>Tổng số vé đã mua</InfoLabel>
-            <div style={{ color: '#f3f4f6', fontSize: '1.2rem' }}>
-              <FaTicketAlt className="me-1" color="#F9376E" />
-              {userData?.ticket_count || 0}
-            </div>
-          </div>
-        </PointInfo>
-      </RankInfo>
-    </Col>
-    
-    <Col lg={8}>
-      {!isEditing ? (
-        <>
-          {/* Phần hiển thị thông tin cá nhân */}
-          <InfoSection>
-            <div className="d-flex justify-content-between align-items-center mb-4">
-              <SectionTitle>
-                <FaUser /> Thông tin cá nhân
-              </SectionTitle>
-              <Button 
-                variant="outline-primary" 
-                size="sm" 
-                onClick={handleEditClick}
-              >
-                <FaPen className="me-1" /> Chỉnh sửa
-              </Button>
-            </div>
-            
-            <Row>
-              <Col md={6}>
-                <InfoGroup>
-                  <InfoLabel>Họ</InfoLabel>
-                  <InfoValue>
-                    {userData?.firstName || userData?.user_first_name || 'Chưa cập nhật'}
-                  </InfoValue>
-                </InfoGroup>
-              </Col>
-              <Col md={6}>
-                <InfoGroup>
-                  <InfoLabel>Tên</InfoLabel>
-                  <InfoValue>
-                    {userData?.lastName || userData?.user_last_name || 'Chưa cập nhật'}
-                  </InfoValue>
-                </InfoGroup>
-              </Col>
-              <Col md={6}>
-                <InfoGroup>
-                  <InfoLabel>Email</InfoLabel>
-                  <InfoValue>
-                    <FaEnvelope /> {userData?.email || 'Chưa cập nhật'}
-                  </InfoValue>
-                </InfoGroup>
-              </Col>
-              <Col md={6}>
-                <InfoGroup>
-                  <InfoLabel>Số điện thoại</InfoLabel>
-                  <InfoValue>
-                    <FaPhone /> {userData?.phoneNumber || userData?.user_phone_number || 'Chưa cập nhật'}
-                  </InfoValue>
-                </InfoGroup>
-              </Col>
-              <Col md={6}>
-                <InfoGroup>
-                  <InfoValue>Ngày sinh</InfoValue>
-                  <InfoValue>
-                    <FaCalendarAlt /> {formatDate(userData?.user_date_of_birth) || 'Chưa cập nhật'}
-                  </InfoValue>
-                </InfoGroup>
-              </Col>
-              <Col md={6}>
-                <InfoGroup>
-                  <InfoLabel>Giới tính</InfoLabel>
-                  <InfoValue>
-                    <FaTransgender /> 
-                    {userData?.user_gender === 'M' ? 'Nam' : 
-                     userData?.user_gender === 'F' ? 'Nữ' : 
-                     userData?.user_gender === 'O' ? 'Khác' : 'Chưa cập nhật'}
-                  </InfoValue>
-                </InfoGroup>
-              </Col>
-              <Col md={6}>
-                <InfoGroup>
-                  <InfoLabel>Ngày tham gia</InfoLabel>
-                  <InfoValue>
-                    <FaClock /> {formatDateTime(userData?.user_createAt) || 'Không xác định'}
-                  </InfoValue>
-                </InfoGroup>
-              </Col>
-            </Row>
-          </InfoSection>
-
-          {/* Phần đổi mật khẩu - đã được thêm vào tab thông tin cá nhân */}
-          <InfoSection>
-            <SectionTitle>
-              <FaKey /> Đổi mật khẩu
-            </SectionTitle>
-            
-            {changePasswordSuccess && (
-              <Alert variant="success" className="mb-3">
-                <FaCheckCircle className="me-2" />
-                Đổi mật khẩu thành công!
-              </Alert>
-            )}
-            
-            {changePasswordError && (
-              <Alert variant="danger" className="mb-3">
-                <FaExclamationTriangle className="me-2" />
-                {changePasswordError}
-              </Alert>
-            )}
-            
-            <Form onSubmit={handleChangePassword}>
-              <Row>
-                <Col md={6}>
-                  <InfoGroup>
-                    <InfoLabel>Mật khẩu mới</InfoLabel>
-                    <div className="position-relative">
-                      <FormControl 
-                        type={showNewPassword ? 'text' : 'password'}
-                        name="newPassword"
-                        value={passwordForm.newPassword}
-                        onChange={handlePasswordInputChange}
-                        isInvalid={!!passwordErrors.newPassword}
-                      />
-                      <div 
-                        onClick={() => setShowNewPassword(!showNewPassword)} 
-                        style={{ 
-                          position: 'absolute', 
-                          right: '10px', 
-                          top: '50%', 
-                          transform: 'translateY(-50%)',
-                          cursor: 'pointer',
-                          color: '#9ca3af'
-                        }}
-                      >
-                        {showNewPassword ? <FaEyeSlash /> : <FaEye />}
-                      </div>
-                    </div>
-                    {passwordErrors.newPassword && (
-                      <div className="invalid-feedback d-block">{passwordErrors.newPassword}</div>
-                    )}
-                  </InfoGroup>
-                </Col>
-                
-                <Col md={6}>
-                  <InfoGroup>
-                    <InfoLabel>Xác nhận mật khẩu mới</InfoLabel>
-                    <div className="position-relative">
-                      <FormControl 
-                        type={showConfirmPassword ? 'text' : 'password'}
-                        name="confirmPassword"
-                        value={passwordForm.confirmPassword}
-                        onChange={handlePasswordInputChange}
-                        isInvalid={!!passwordErrors.confirmPassword}
-                      />
-                      <div 
-                        onClick={() => setShowConfirmPassword(!showConfirmPassword)} 
-                        style={{ 
-                          position: 'absolute', 
-                          right: '10px', 
-                          top: '50%', 
-                          transform: 'translateY(-50%)',
-                          cursor: 'pointer',
-                          color: '#9ca3af'
-                        }}
-                      >
-                        {showConfirmPassword ? <FaEyeSlash /> : <FaEye />}
-                      </div>
-                    </div>
-                    {passwordErrors.confirmPassword && (
-                      <div className="invalid-feedback d-block">{passwordErrors.confirmPassword}</div>
-                    )}
-                  </InfoGroup>
-                </Col>
-              </Row>
-              
-              {passwordForm.newPassword && (
-                <div className="mb-3">
-
-                  <PasswordRequirements>
-                    <li className={passwordRequirements.length ? 'valid' : 'invalid'}>
-                      {passwordRequirements.length ? <FaCheckCircle /> : <FaExclamationTriangle />}
-                      Ít nhất 8 ký tự
-                    </li>
-                  </PasswordRequirements>
-                </div>
-              )}
-              
-              <div className="mt-3">
-                <Button 
-                  variant="primary" 
-                  type="submit" 
-                  disabled={changePasswordLoading}
-                >
-                  {changePasswordLoading ? 'Đang xử lý...' : 'Đổi mật khẩu'}
-                </Button>
-              </div>
-            </Form>
-          </InfoSection>
-        </>
-      ) : (
-        // Form chỉnh sửa thông tin người dùng - giữ nguyên không đổi
-        <InfoSection>
-          <div className="d-flex justify-content-between align-items-center mb-4">
-            <SectionTitle>
-              <FaPen /> Chỉnh sửa thông tin
-            </SectionTitle>
-          </div>
-          
-          <Row>
-            <Col md={6}>
-              <InfoGroup>
-                <InfoLabel>Họ</InfoLabel>
-                <FormControl
-                  type="text"
-                  name="firstName"
-                  value={editData.firstName || ''}
-                  onChange={handleInputChange}
-                />
-              </InfoGroup>
-            </Col>
-            <Col md={6}>
-              <InfoGroup>
-                <InfoLabel>Tên</InfoLabel>
-                <FormControl
-                  type="text"
-                  name="lastName"
-                  value={editData.lastName || ''}
-                  onChange={handleInputChange}
-                />
-              </InfoGroup>
-            </Col>
-            <Col md={6}>
-              <InfoGroup>
-                <InfoLabel>Email</InfoLabel>
-                <FormControl
-                  type="email"
-                  value={userData.email || ''}
-                  disabled
-                  style={{ opacity: 0.7 }}
-                />
-                <small style={{ color: '#b8c2cc' }}>Email không thể thay đổi</small>
-              </InfoGroup>
-            </Col>
-            <Col md={6}>
-              <InfoGroup>
-                <InfoLabel>Số điện thoại</InfoLabel>
-                <FormControl
-                  type="tel"
-                  name="phoneNumber"
-                  value={editData.phoneNumber || ''}
-                  onChange={handleInputChange}
-                />
-              </InfoGroup>
-            </Col>
-            <Col md={6}>
-              <InfoGroup>
-                <InfoLabel>Ngày sinh</InfoLabel>
                 <Row>
-                  <Col xs={4}>
-                    <FormSelect
-                      name="day"
-                      value={birthDate.day}
-                      onChange={(e) => handleBirthDateChange('day', e.target.value)}
-                      className="mb-2"
-                    >
-                      <option value="">Ngày</option>
-                      {getDaysInMonth(birthDate.month, birthDate.year).map(day => (
-                        <option key={day} value={day}>{day}</option>
-                      ))}
-                    </FormSelect>
+                  <Col lg={4} className="mb-4">
+                    <div className="text-center mb-4">
+                      <AvatarContainer>
+                        <AvatarImage>
+                          {avatarPreview ? (
+                            <img src={avatarPreview} alt="Profile Preview" />
+                          ) : userData?.user_avatar ? (
+                            <img src={userData.user_avatar} alt="Profile" />
+                          ) : (
+                            <FaUserCircle />
+                          )}
+                        </AvatarImage>
+                        {isEditing && (
+                          <>
+                            <UploadButton
+                              onClick={() => fileInputRef.current && fileInputRef.current.click()}
+                              type="button"
+                            >
+                              <FaCamera size={16} />
+                            </UploadButton>
+                            <input
+                              type="file"
+                              ref={fileInputRef}
+                              onChange={handleAvatarChange}
+                              style={{ display: 'none' }}
+                              accept="image/*"
+                            />
+                          </>
+                        )}
+                      </AvatarContainer>
+                      <UserName>
+                        {userData?.firstName || userData?.user_first_name || ''} {userData?.lastName || userData?.user_last_name || ''}
+                      </UserName>
+                      <UserStatus status={userData?.user_status || 'inactive'}>
+                        Trạng thái:
+                        <span className="status-badge">
+                          {userData?.user_status === 'active' ? 'Đang hoạt động' :
+                            userData?.user_status === 'suspended' ? 'Tạm khóa' : 'Không hoạt động'}
+                        </span>
+                      </UserStatus>
+                    </div>
+
+                    <RankInfo>
+                      <RankBadge points={userData?.userPoint || 0}>
+                        <FaMedal size={window.innerWidth <= 576 ? 30 : 40} color="#fff" />
+                      </RankBadge>
+                      <RankName points={userData?.userPoint || 0}>
+                        {(() => {
+                          const points = userData?.userPoint || 0;
+                          if (points >= 15000) return 'Lá';
+                          if (points >= 10000) return 'Chồi';
+                          if (points >= 5000) return 'Mầm';
+                          return 'Chưa có hạng';
+                        })()}
+                      </RankName>
+
+                      <PointInfo>
+                        <InfoLabel>Điểm thưởng</InfoLabel>
+                        <PointValue>{(userData?.userPoint || 0).toLocaleString()}</PointValue>
+                      </PointInfo>
+                    </RankInfo>
                   </Col>
-                  
-                  <Col xs={4}>
-                    <FormSelect
-                      name="month"
-                      value={birthDate.month}
-                      onChange={(e) => handleBirthDateChange('month', e.target.value)}
-                      className="mb-2"
-                    >
-                      <option value="">Tháng</option>
-                      {months.map(month => (
-                        <option key={month} value={month}>{month}</option>
-                      ))}
-                    </FormSelect>
-                  </Col>
-                  
-                  <Col xs={4}>
-                    <FormSelect
-                      name="year"
-                      value={birthDate.year}
-                      onChange={(e) => handleBirthDateChange('year', e.target.value)}
-                      className="mb-2"
-                    >
-                      <option value="">Năm</option>
-                      {years.map(year => (
-                        <option key={year} value={year}>{year}</option>
-                      ))}
-                    </FormSelect>
+
+                  <Col lg={8}>
+                    {!isEditing ? (
+                      <>
+                        {/* Hiển thị thông tin người dùng */}
+                        <InfoSection>
+                          <div className="d-flex justify-content-between align-items-center mb-4">
+                            <SectionTitle>
+                              <FaUser /> Thông tin cá nhân
+                            </SectionTitle>
+                            <Button
+                              variant="outline-primary"
+                              size="sm"
+                              onClick={handleEditClick}
+                            >
+                              <FaPen className="me-1" /> Chỉnh sửa
+                            </Button>
+                          </div>
+
+                          <Row>
+                            <Col md={6}>
+                              <InfoGroup>
+                                <InfoLabel>Họ</InfoLabel>
+                                <InfoValue>
+                                  {userData?.firstName || userData?.user_first_name || 'Chưa cập nhật'}
+                                </InfoValue>
+                              </InfoGroup>
+                            </Col>
+                            <Col md={6}>
+                              <InfoGroup>
+                                <InfoLabel>Tên</InfoLabel>
+                                <InfoValue>
+                                  {userData?.lastName || userData?.user_last_name || 'Chưa cập nhật'}
+                                </InfoValue>
+                              </InfoGroup>
+                            </Col>
+                            <Col md={6}>
+                              <InfoGroup>
+                                <InfoLabel>Email</InfoLabel>
+                                <InfoValue>
+                                  <FaEnvelope /> {userData?.email || 'Chưa cập nhật'}
+                                </InfoValue>
+                              </InfoGroup>
+                            </Col>
+                            <Col md={6}>
+                              <InfoGroup>
+                                <InfoLabel>Số điện thoại</InfoLabel>
+                                <InfoValue>
+                                  <FaPhone /> {userData?.phoneNumber || userData?.user_phone_number || 'Chưa cập nhật'}
+                                </InfoValue>
+                              </InfoGroup>
+                            </Col>
+                            <Col md={6}>
+                              <InfoGroup>
+                                <InfoLabel>Ngày sinh</InfoLabel>
+                                <InfoValue>
+                                  <FaCalendarAlt /> {formatDate(userData?.user_date_of_birth) || 'Chưa cập nhật'}
+                                </InfoValue>
+                              </InfoGroup>
+                            </Col>
+                            <Col md={6}>
+                              <InfoGroup>
+                                <InfoLabel>Giới tính</InfoLabel>
+                                <InfoValue>
+                                  <FaTransgender />
+                                  {userData?.user_gender === 'M' ? 'Nam' :
+                                   userData?.user_gender === 'F' ? 'Nữ' :
+                                   userData?.user_gender === 'O' ? 'Khác' : 'Chưa cập nhật'}
+                                </InfoValue>
+                              </InfoGroup>
+                            </Col>
+                            <Col md={6}>
+                              <InfoGroup>
+                                <InfoLabel>Ngày tham gia</InfoLabel>
+                                <InfoValue>
+                                  <FaClock /> {formatDateTime(userData?.user_createAt) || 'Không xác định'}
+                                </InfoValue>
+                              </InfoGroup>
+                            </Col>
+                          </Row>
+                        </InfoSection>
+
+                        {/* Phần đổi mật khẩu */}
+                        <InfoSection>
+                          <SectionTitle>
+                            <FaKey /> Đổi mật khẩu
+                          </SectionTitle>
+
+                          {changePasswordSuccess && (
+                            <Alert variant="success" className="mb-3">
+                              <FaCheckCircle className="me-2" />
+                              Đổi mật khẩu thành công!
+                            </Alert>
+                          )}
+
+                          {changePasswordError && (
+                            <Alert variant="danger" className="mb-3">
+                              <FaExclamationTriangle className="me-2" />
+                              {changePasswordError}
+                            </Alert>
+                          )}
+
+                          <Form onSubmit={handleChangePassword}>
+                            <Row>
+                              <Col md={6}>
+                                <InfoGroup>
+                                  <InfoLabel>Mật khẩu mới</InfoLabel>
+                                  <div className="position-relative">
+                                    <FormControl
+                                      type={showNewPassword ? 'text' : 'password'}
+                                      name="newPassword"
+                                      value={passwordForm.newPassword}
+                                      onChange={handlePasswordInputChange}
+                                      isInvalid={!!passwordErrors.newPassword}
+                                    />
+                                    <div
+                                      onClick={() => setShowNewPassword(!showNewPassword)}
+                                      style={{
+                                        position: 'absolute',
+                                        right: '10px',
+                                        top: '50%',
+                                        transform: 'translateY(-50%)',
+                                        cursor: 'pointer',
+                                        color: '#9ca3af'
+                                      }}
+                                    >
+                                      {showNewPassword ? <FaEyeSlash /> : <FaEye />}
+                                    </div>
+                                  </div>
+                                  {passwordErrors.newPassword && (
+                                    <div className="invalid-feedback d-block">{passwordErrors.newPassword}</div>
+                                  )}
+                                </InfoGroup>
+                              </Col>
+
+                              <Col md={6}>
+                                <InfoGroup>
+                                  <InfoLabel>Xác nhận mật khẩu mới</InfoLabel>
+                                  <div className="position-relative">
+                                    <FormControl
+                                      type={showConfirmPassword ? 'text' : 'password'}
+                                      name="confirmPassword"
+                                      value={passwordForm.confirmPassword}
+                                      onChange={handlePasswordInputChange}
+                                      isInvalid={!!passwordErrors.confirmPassword}
+                                    />
+                                    <div
+                                      onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                                      style={{
+                                        position: 'absolute',
+                                        right: '10px',
+                                        top: '50%',
+                                        transform: 'translateY(-50%)',
+                                        cursor: 'pointer',
+                                        color: '#9ca3af'
+                                      }}
+                                    >
+                                      {showConfirmPassword ? <FaEyeSlash /> : <FaEye />}
+                                    </div>
+                                  </div>
+                                  {passwordErrors.confirmPassword && (
+                                    <div className="invalid-feedback d-block">{passwordErrors.confirmPassword}</div>
+                                  )}
+                                </InfoGroup>
+                              </Col>
+                            </Row>
+
+                            {passwordForm.newPassword && (
+                              <div className="mb-3">
+
+                                <PasswordRequirements>
+                                  <li className={passwordRequirements.length ? 'valid' : 'invalid'}>
+                                    {passwordRequirements.length ? <FaCheckCircle /> : <FaExclamationTriangle />}
+                                    Ít nhất 8 ký tự
+                                  </li>
+                                </PasswordRequirements>
+                              </div>
+                            )}
+
+                            <div className="mt-3">
+                              <Button
+                                variant="primary"
+                                type="submit"
+                                disabled={changePasswordLoading}
+                              >
+                                {changePasswordLoading ? 'Đang xử lý...' : 'Đổi mật khẩu'}
+                              </Button>
+                            </div>
+                          </Form>
+                        </InfoSection>
+                      </>
+                    ) : (
+                      // Form chỉnh sửa thông tin người dùng - giữ nguyên không đổi
+                      <InfoSection>
+                        <div className="d-flex justify-content-between align-items-center mb-4">
+                          <SectionTitle>
+                            <FaPen /> Chỉnh sửa thông tin
+                          </SectionTitle>
+                        </div>
+
+                        <Row>
+                          <Col md={6}>
+                            <InfoGroup>
+                              <InfoLabel>Họ</InfoLabel>
+                              <FormControl
+                                type="text"
+                                name="firstName"
+                                value={editData.firstName || ''}
+                                onChange={handleInputChange}
+                              />
+                            </InfoGroup>
+                          </Col>
+                          <Col md={6}>
+                            <InfoGroup>
+                              <InfoLabel>Tên</InfoLabel>
+                              <FormControl
+                                type="text"
+                                name="lastName"
+                                value={editData.lastName || ''}
+                                onChange={handleInputChange}
+                              />
+                            </InfoGroup>
+                          </Col>
+                          <Col md={6}>
+                            <InfoGroup>
+                              <InfoLabel>Email</InfoLabel>
+                              <FormControl
+                                type="email"
+                                value={userData.email || ''}
+                                disabled
+                                style={{ opacity: 0.7 }}
+                              />
+                              <small style={{ color: '#b8c2cc' }}>Email không thể thay đổi</small>
+                            </InfoGroup>
+                          </Col>
+                          <Col md={6}>
+                            <InfoGroup>
+                              <InfoLabel>Số điện thoại</InfoLabel>
+                              <FormControl
+                                type="tel"
+                                name="phoneNumber"
+                                value={editData.phoneNumber || ''}
+                                onChange={handleInputChange}
+                              />
+                            </InfoGroup>
+                          </Col>
+                          <Col md={6}>
+                            <InfoGroup>
+                              <InfoLabel>Ngày sinh</InfoLabel>
+                              <Row>
+                                <Col xs={4}>
+                                  <FormSelect
+                                    name="day"
+                                    value={birthDate.day}
+                                    onChange={(e) => handleBirthDateChange('day', e.target.value)}
+                                    className="mb-2"
+                                  >
+                                    <option value="">Ngày</option>
+                                    {getDaysInMonth(birthDate.month, birthDate.year).map(day => (
+                                      <option key={day} value={day}>{day}</option>
+                                    ))}
+                                  </FormSelect>
+                                </Col>
+
+                                <Col xs={4}>
+                                  <FormSelect
+                                    name="month"
+                                    value={birthDate.month}
+                                    onChange={(e) => handleBirthDateChange('month', e.target.value)}
+                                    className="mb-2"
+                                  >
+                                    <option value="">Tháng</option>
+                                    {months.map(month => (
+                                      <option key={month} value={month}>{month}</option>
+                                    ))}
+                                  </FormSelect>
+                                </Col>
+
+                                <Col xs={4}>
+                                  <FormSelect
+                                    name="year"
+                                    value={birthDate.year}
+                                    onChange={(e) => handleBirthDateChange('year', e.target.value)}
+                                    className="mb-2"
+                                  >
+                                    <option value="">Năm</option>
+                                    {years.map(year => (
+                                      <option key={year} value={year}>{year}</option>
+                                    ))}
+                                  </FormSelect>
+                                </Col>
+                              </Row>
+                            </InfoGroup>
+                          </Col>
+                          <Col md={6}>
+                            <InfoGroup>
+                              <InfoLabel>Giới tính</InfoLabel>
+                              <FormSelect
+                                name="gender"
+                                value={editData.gender || ''}
+                                onChange={handleInputChange}
+                              >
+                                <option value="">Chọn giới tính</option>
+                                <option value="M">Nam</option>
+                                <option value="F">Nữ</option>
+                                <option value="O">Khác</option>
+                              </FormSelect>
+                            </InfoGroup>
+                          </Col>
+                        </Row>
+
+                        <ButtonGroup className="mt-3">
+                          <Button
+                            variant="primary"
+                            onClick={handleSaveChanges}
+                            disabled={isLoading}
+                          >
+                            {isLoading ? 'Đang lưu...' : 'Lưu thay đổi'}
+                          </Button>
+                          <Button
+                            variant="outline-secondary"
+                            onClick={handleCancelEdit}
+                            disabled={isLoading}
+                          >
+                            Hủy
+                          </Button>
+                        </ButtonGroup>
+                      </InfoSection>
+                    )}
+                    {successMessage && (
+                      <Alert
+                        variant="success"
+                        className="m-3"
+                        style={{
+                          backgroundColor: 'rgba(46, 213, 115, 0.2)',
+                          color: '#2ed573',
+                          border: 'none'
+                        }}
+                      >
+                        <FaCheckCircle className="me-2" />
+                        {successMessage}
+                      </Alert>
+                    )}
                   </Col>
                 </Row>
-              </InfoGroup>
-            </Col>
-            <Col md={6}>
-              <InfoGroup>
-                <InfoLabel>Giới tính</InfoLabel>
-                <FormSelect
-                  name="gender"
-                  value={editData.gender || ''}
-                  onChange={handleInputChange}
-                >
-                  <option value="">Chọn giới tính</option>
-                  <option value="M">Nam</option>
-                  <option value="F">Nữ</option>
-                  <option value="O">Khác</option>
-                </FormSelect>
-              </InfoGroup>
-            </Col>
-          </Row>
-          
-          <ButtonGroup className="mt-3">
-            <Button
-              variant="primary"
-              onClick={handleSaveChanges}
-              disabled={isLoading}
-            >
-              {isLoading ? 'Đang lưu...' : 'Lưu thay đổi'}
-            </Button>
-            <Button
-              variant="outline-secondary"
-              onClick={handleCancelEdit}
-              disabled={isLoading}
-            >
-              Hủy
-            </Button>
-          </ButtonGroup>
-        </InfoSection>
-      )}
-      {successMessage && (
-        <Alert 
-          variant="success" 
-          className="m-3" 
-          style={{
-            backgroundColor: 'rgba(46, 213, 115, 0.2)',
-            color: '#2ed573',
-            border: 'none'
-          }}
-        >
-          <FaCheckCircle className="me-2" />
-          {successMessage}
-        </Alert>
-      )}
-    </Col>
-  </Row>
-</Tab.Pane>
-              
+              </Tab.Pane>
+
               <Tab.Pane eventKey="history">
                 <SectionTitle>
                   <FaHistory /> Lịch sử mua vé
                 </SectionTitle>
-                
+
                 {isLoadingTickets ? (
                   <div className="text-center py-4">
                     <Spinner animation="border" variant="primary" />
@@ -1711,9 +2183,9 @@ useEffect(() => {
                   <>
                     <FilterBar>
                       <FilterGroup>
-                        <FormSelect 
+                        <FormSelect
                           style={{ maxWidth: '150px' }}
-                          value={statusFilter} 
+                          value={statusFilter}
                           onChange={(e) => handleFilterChange('status', e.target.value)}
                         >
                           <option value="all">Tất cả</option>
@@ -1721,10 +2193,10 @@ useEffect(() => {
                           <option value="pending">Đang xử lý</option>
                           <option value="cancelled">Đã hủy</option>
                         </FormSelect>
-                        
-                        <FormSelect 
+
+                        <FormSelect
                           style={{ maxWidth: '150px' }}
-                          value={dateFilter} 
+                          value={dateFilter}
                           onChange={(e) => handleFilterChange('date', e.target.value)}
                         >
                           <option value="all">Mọi thời gian</option>
@@ -1733,7 +2205,7 @@ useEffect(() => {
                           <option value="year">1 năm qua</option>
                         </FormSelect>
                       </FilterGroup>
-                      
+
                       <FormControl
                         type="text"
                         placeholder="Tìm kiếm vé..."
@@ -1743,7 +2215,7 @@ useEffect(() => {
                         prefix={<FaSearch />}
                       />
                     </FilterBar>
-                  
+
                     {filteredTickets.length === 0 ? (
                       <EmptyState>
                         <FaTicketAlt />
@@ -1762,13 +2234,13 @@ useEffect(() => {
                                 {getTicketStatusText(ticket.status)}
                               </TicketStatus>
                             </TicketHeader>
-                            
+
                             <TicketBody>
                               <TicketDate>
-                                <FaCalendarAlt size={12} /> 
+                                <FaCalendarAlt size={12} />
                                 Đặt vé lúc: {formatDateTime(ticket.bookingDate)}
                               </TicketDate>
-                              
+
                               <TicketInfo className="mt-2">
                                 <TicketInfoItem>
                                   <FaMapMarkerAlt />
@@ -1777,7 +2249,7 @@ useEffect(() => {
                                     <TicketValue>{ticket.theater}</TicketValue>
                                   </div>
                                 </TicketInfoItem>
-                                
+
                                 <TicketInfoItem>
                                   <FaCalendarAlt />
                                   <div>
@@ -1785,7 +2257,7 @@ useEffect(() => {
                                     <TicketValue>{formatDate(ticket.date)}</TicketValue>
                                   </div>
                                 </TicketInfoItem>
-                                
+
                                 <TicketInfoItem>
                                   <FaClock />
                                   <div>
@@ -1793,7 +2265,7 @@ useEffect(() => {
                                     <TicketValue>{ticket.time}</TicketValue>
                                   </div>
                                 </TicketInfoItem>
-                                
+
                                 <TicketInfoItem>
                                   <FaChair />
                                   <div>
@@ -1801,7 +2273,7 @@ useEffect(() => {
                                     <TicketValue>{ticket.seats.join(', ')}</TicketValue>
                                   </div>
                                 </TicketInfoItem>
-                                
+
                                 <TicketInfoItem>
                                   <FaFileInvoice />
                                   <div>
@@ -1809,7 +2281,7 @@ useEffect(() => {
                                     <TicketValue>{ticket.id}</TicketValue>
                                   </div>
                                 </TicketInfoItem>
-                                
+
                                 <TicketInfoItem>
                                   <FaMoneyBillWave />
                                   <div>
@@ -1817,9 +2289,22 @@ useEffect(() => {
                                     <TicketValue>{ticket.paymentMethod}</TicketValue>
                                   </div>
                                 </TicketInfoItem>
+                                {ticket.combos && ticket.combos.length > 0 && (
+                                  <TicketInfoItem>
+                                    <FaFileInvoice />
+                                    <div>
+                                      <TicketLabel>Combo:</TicketLabel>
+                                      <TicketValue>
+                                        {ticket.combos.map(combo => 
+                                          `${combo.name} x${combo.quantity}`
+                                        ).join(', ')}
+                                      </TicketValue>
+                                    </div>
+                                  </TicketInfoItem>
+                                )}
                               </TicketInfo>
                             </TicketBody>
-                            
+
                             <TicketFooter>
                               <TicketPrice>
                                 <TicketLabel>Tổng tiền</TicketLabel>
@@ -1827,7 +2312,7 @@ useEffect(() => {
                                   {(ticket.price || 0).toLocaleString()}đ
                                 </TicketValue>
                               </TicketPrice>
-                              
+
                               <TicketActions>
                                 {ticket.status === 'completed' && (
                                   <>
@@ -1843,34 +2328,34 @@ useEffect(() => {
                             </TicketFooter>
                           </TicketItem>
                         ))}
-                        
+
                         {/* Phân trang */}
                         <PaginationContainer>
                           <ul className="pagination">
                             <li className={`page-item ${currentPage === 1 ? 'disabled' : ''}`}>
-                              <button 
-                                className="page-link" 
+                              <button
+                                className="page-link"
                                 onClick={() => paginate(currentPage - 1)}
                                 disabled={currentPage === 1}
                               >
                                 &laquo;
                               </button>
                             </li>
-                            
+
                             {Array.from({ length: Math.ceil(filteredTickets.length / ticketsPerPage) }).map((_, i) => (
                               <li key={i} className={`page-item ${currentPage === i + 1 ? 'active' : ''}`}>
-                                <button 
-                                  className="page-link" 
+                                <button
+                                  className="page-link"
                                   onClick={() => paginate(i + 1)}
                                 >
                                   {i + 1}
                                 </button>
                               </li>
                             ))}
-                            
+
                             <li className={`page-item ${currentPage === Math.ceil(filteredTickets.length / ticketsPerPage) ? 'disabled' : ''}`}>
-                              <button 
-                                className="page-link" 
+                              <button
+                                className="page-link"
                                 onClick={() => paginate(currentPage + 1)}
                                 disabled={currentPage === Math.ceil(filteredTickets.length / ticketsPerPage)}
                               >

@@ -14,6 +14,7 @@ import {
   Typography,
   Divider,
   IconButton,
+  Alert, // Import Alert component for message display
 } from "@mui/material";
 import {
   Visibility,
@@ -26,18 +27,18 @@ import {
   CalendarToday,
 } from "@mui/icons-material";
 
-const StaffForm = ({ staff, onSave, theaters, roles }) => {
+const StaffForm = ({ staff, onSave, theaters, roles, apiError, apiSuccess }) => {
   const [formData, setFormData] = useState({
-    staffEmail: "",
-    staffPassword: "",
-    staffFirstName: "",
-    staffLastName: "",
-    staffPhoneNumber: "",
-    staffDateOfBirth: "",
-    staffGender: 1,
-    staffRoleId: 1,
-    staffStatus: 1,
-    staffTheaterId: 1,
+    email: "",
+    password: "",
+    firstName: "",
+    lastName: "",
+    phoneNumber: "",
+    dateOfBirth: "",
+    gender: 1,
+    roleId: 2, // Changed default from 1 to 2 (Staff instead of Admin)
+    status: 1,
+    theaterId: 1,
   });
   const [showPassword, setShowPassword] = useState(false);
   const [errors, setErrors] = useState({});
@@ -45,25 +46,31 @@ const StaffForm = ({ staff, onSave, theaters, roles }) => {
   useEffect(() => {
     if (staff) {
       setFormData({
-        staffEmail: staff.staffEmail || "",
-        staffPassword: staff.staffPassword || "",
-        staffFirstName: staff.staffFirstName || "",
-        staffLastName: staff.staffLastName || "",
-        staffPhoneNumber: staff.staffPhoneNumber || "",
-        staffDateOfBirth: staff.staffDateOfBirth || "",
-        staffGender: staff.staffGender || 1,
-        staffRoleId: staff.staffRoleId || 1,
-        staffStatus: staff.staffStatus || 1,
-        staffTheaterId: staff.staffTheaterId || 1,
+        email: staff.email || "",
+        password: "", // Don't set password for existing staff
+        firstName: staff.firstName || "",
+        lastName: staff.lastName || "",
+        phoneNumber: staff.phoneNumber || "",
+        dateOfBirth: staff.dateOfBirth ? staff.dateOfBirth.split('T')[0] : "",
+        // Ensure gender is a number - Parse to int or provide default
+        gender: parseInt(staff.gender) || 1,
+        roleId: staff.roleId || 2, // Changed from 1 to 2 to default to Staff if roleId is missing
+        status: staff.status === undefined ? 1 : staff.status,
+        theaterId: staff.theaterId || 1,
       });
     }
   }, [staff]);
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
+    // Make sure gender is properly converted to a number
+    const convertedValue = name === 'gender' || name === 'status' || name === 'roleId' || name === 'theaterId' 
+      ? parseInt(value) 
+      : value;
+    
     setFormData((prev) => ({
       ...prev,
-      [name]: value,
+      [name]: convertedValue,
     }));
 
     // Clear error for this field when user types
@@ -83,34 +90,34 @@ const StaffForm = ({ staff, onSave, theaters, roles }) => {
     const newErrors = {};
 
     // Email validation
-    if (!formData.staffEmail) {
-      newErrors.staffEmail = "Email không được để trống";
-    } else if (!/\S+@\S+\.\S+/.test(formData.staffEmail)) {
-      newErrors.staffEmail = "Email không hợp lệ";
+    if (!formData.email) {
+      newErrors.email = "Email không được để trống";
+    } else if (!/\S+@\S+\.\S+/.test(formData.email)) {
+      newErrors.email = "Email không hợp lệ";
     }
 
     // Password validation (only required for new staff)
-    if (!staff && !formData.staffPassword) {
-      newErrors.staffPassword = "Mật khẩu không được để trống";
-    } else if (!staff && formData.staffPassword.length < 6) {
-      newErrors.staffPassword = "Mật khẩu phải có ít nhất 6 ký tự";
+    if (!staff && !formData.password) {
+      newErrors.password = "Mật khẩu không được để trống";
+    } else if (!staff && formData.password.length < 6) {
+      newErrors.password = "Mật khẩu phải có ít nhất 6 ký tự";
     }
 
     // First name validation
-    if (!formData.staffFirstName) {
-      newErrors.staffFirstName = "Tên đệm không được để trống";
+    if (!formData.firstName) {
+      newErrors.firstName = "Tên đệm không được để trống";
     }
 
     // Last name validation
-    if (!formData.staffLastName) {
-      newErrors.staffLastName = "Tên không được để trống";
+    if (!formData.lastName) {
+      newErrors.lastName = "Tên không được để trống";
     }
 
     // Phone validation
-    if (!formData.staffPhoneNumber) {
-      newErrors.staffPhoneNumber = "Số điện thoại không được để trống";
-    } else if (!/^[0-9]{10,11}$/.test(formData.staffPhoneNumber)) {
-      newErrors.staffPhoneNumber = "Số điện thoại không hợp lệ";
+    if (!formData.phoneNumber) {
+      newErrors.phoneNumber = "Số điện thoại không được để trống";
+    } else if (!/^[0-9]{10,11}$/.test(formData.phoneNumber)) {
+      newErrors.phoneNumber = "Số điện thoại không hợp lệ";
     }
 
     setErrors(newErrors);
@@ -120,12 +127,34 @@ const StaffForm = ({ staff, onSave, theaters, roles }) => {
   const handleSubmit = (e) => {
     e.preventDefault();
     if (validateForm()) {
-      onSave(formData);
+      // Chỉ gửi password khi tạo mới nhân viên (không có staff) hoặc password đã được nhập
+      const dataToSubmit = { ...formData };
+      
+      if (staff && !dataToSubmit.password) {
+        // Nếu đang edit và không nhập password mới, xóa trường password
+        delete dataToSubmit.password;
+      }
+      
+      onSave(dataToSubmit);
     }
   };
 
   return (
     <Box component="form" onSubmit={handleSubmit} noValidate sx={{ mt: 1 }}>
+      {/* Display API success message if present */}
+      {apiSuccess && (
+        <Alert severity="success" sx={{ mb: 2 }}>
+          {apiSuccess}
+        </Alert>
+      )}
+      
+      {/* Display API error if present */}
+      {apiError && (
+        <Alert severity="error" sx={{ mb: 2 }}>
+          {apiError}
+        </Alert>
+      )}
+      
       <Typography variant="h6" gutterBottom>
         Thông tin cơ bản
       </Typography>
@@ -135,11 +164,12 @@ const StaffForm = ({ staff, onSave, theaters, roles }) => {
             required
             fullWidth
             label="Email"
-            name="staffEmail"
-            value={formData.staffEmail}
+            name="email"
+            value={formData.email}
             onChange={handleInputChange}
-            error={!!errors.staffEmail}
-            helperText={errors.staffEmail}
+            error={!!errors.email}
+            helperText={errors.email}
+            disabled={staff !== null} // Không cho phép thay đổi email nếu là edit
             InputProps={{
               startAdornment: (
                 <InputAdornment position="start">
@@ -153,15 +183,15 @@ const StaffForm = ({ staff, onSave, theaters, roles }) => {
           <TextField
             required={!staff}
             fullWidth
-            name="staffPassword"
+            name="password"
             label={
               staff ? "Mật khẩu (để trống nếu không thay đổi)" : "Mật khẩu"
             }
             type={showPassword ? "text" : "password"}
-            value={formData.staffPassword}
+            value={formData.password}
             onChange={handleInputChange}
-            error={!!errors.staffPassword}
-            helperText={errors.staffPassword}
+            error={!!errors.password}
+            helperText={errors.password}
             InputProps={{
               endAdornment: (
                 <InputAdornment position="end">
@@ -182,11 +212,11 @@ const StaffForm = ({ staff, onSave, theaters, roles }) => {
             required
             fullWidth
             label="Tên đệm"
-            name="staffFirstName"
-            value={formData.staffFirstName}
+            name="firstName"
+            value={formData.firstName}
             onChange={handleInputChange}
-            error={!!errors.staffFirstName}
-            helperText={errors.staffFirstName}
+            error={!!errors.firstName}
+            helperText={errors.firstName}
             InputProps={{
               startAdornment: (
                 <InputAdornment position="start">
@@ -201,11 +231,11 @@ const StaffForm = ({ staff, onSave, theaters, roles }) => {
             required
             fullWidth
             label="Tên"
-            name="staffLastName"
-            value={formData.staffLastName}
+            name="lastName"
+            value={formData.lastName}
             onChange={handleInputChange}
-            error={!!errors.staffLastName}
-            helperText={errors.staffLastName}
+            error={!!errors.lastName}
+            helperText={errors.lastName}
             InputProps={{
               startAdornment: (
                 <InputAdornment position="start">
@@ -220,11 +250,11 @@ const StaffForm = ({ staff, onSave, theaters, roles }) => {
             required
             fullWidth
             label="Số điện thoại"
-            name="staffPhoneNumber"
-            value={formData.staffPhoneNumber}
+            name="phoneNumber"
+            value={formData.phoneNumber}
             onChange={handleInputChange}
-            error={!!errors.staffPhoneNumber}
-            helperText={errors.staffPhoneNumber}
+            error={!!errors.phoneNumber}
+            helperText={errors.phoneNumber}
             InputProps={{
               startAdornment: (
                 <InputAdornment position="start">
@@ -238,9 +268,9 @@ const StaffForm = ({ staff, onSave, theaters, roles }) => {
           <TextField
             fullWidth
             label="Ngày sinh"
-            name="staffDateOfBirth"
+            name="dateOfBirth"
             type="date"
-            value={formData.staffDateOfBirth}
+            value={formData.dateOfBirth}
             onChange={handleInputChange}
             InputLabelProps={{
               shrink: true,
@@ -267,45 +297,47 @@ const StaffForm = ({ staff, onSave, theaters, roles }) => {
             <FormLabel component="legend">Giới tính</FormLabel>
             <RadioGroup
               row
-              name="staffGender"
-              value={formData.staffGender}
+              name="gender"
+              value={formData.gender}
               onChange={handleInputChange}
             >
               <FormControlLabel value={1} control={<Radio />} label="Nam" />
               <FormControlLabel value={2} control={<Radio />} label="Nữ" />
-              <FormControlLabel value={3} control={<Radio />} label="Khác" />
+              <FormControlLabel value={0} control={<Radio />} label="Khác" />
             </RadioGroup>
           </FormControl>
         </Grid>
-        <Grid item xs={12} md={6}>
-          <FormControl component="fieldset">
-            <FormLabel component="legend">Trạng thái</FormLabel>
-            <RadioGroup
-              row
-              name="staffStatus"
-              value={formData.staffStatus}
-              onChange={handleInputChange}
-            >
-              <FormControlLabel
-                value={1}
-                control={<Radio />}
-                label="Hoạt động"
-              />
-              <FormControlLabel
-                value={0}
-                control={<Radio />}
-                label="Không hoạt động"
-              />
-            </RadioGroup>
-          </FormControl>
-        </Grid>
+        {staff && (
+          <Grid item xs={12} md={6}>
+            <FormControl component="fieldset">
+              <FormLabel component="legend">Trạng thái</FormLabel>
+              <RadioGroup
+                row
+                name="status"
+                value={formData.status}
+                onChange={handleInputChange}
+              >
+                <FormControlLabel
+                  value={1}
+                  control={<Radio />}
+                  label="Hoạt động"
+                />
+                <FormControlLabel
+                  value={0}
+                  control={<Radio />}
+                  label="Không hoạt động"
+                />
+              </RadioGroup>
+            </FormControl>
+          </Grid>
+        )}
         <Grid item xs={12} md={6}>
           <TextField
             select
             fullWidth
             label="Vai trò"
-            name="staffRoleId"
-            value={formData.staffRoleId}
+            name="roleId"
+            value={formData.roleId}
             onChange={handleInputChange}
             InputProps={{
               startAdornment: (
@@ -322,13 +354,13 @@ const StaffForm = ({ staff, onSave, theaters, roles }) => {
             ))}
           </TextField>
         </Grid>
-        <Grid item xs={12} md={6}>
+        {/* <Grid item xs={12} md={6}>
           <TextField
             select
             fullWidth
             label="Chi nhánh"
-            name="staffTheaterId"
-            value={formData.staffTheaterId}
+            name="theaterId"
+            value={formData.theaterId}
             onChange={handleInputChange}
             InputProps={{
               startAdornment: (
@@ -344,7 +376,7 @@ const StaffForm = ({ staff, onSave, theaters, roles }) => {
               </MenuItem>
             ))}
           </TextField>
-        </Grid>
+        </Grid> */}
       </Grid>
 
       <Box sx={{ display: "flex", justifyContent: "flex-end", mt: 3 }}>

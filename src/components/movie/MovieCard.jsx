@@ -20,6 +20,12 @@ const Card = styled.div`
       opacity: 1;
     }
   }
+  
+  @media (max-width: 768px) {
+    &:hover {
+      transform: translateY(-5px); // Giảm hiệu ứng hover trên màn hình nhỏ
+    }
+  }
 `;
 
 const PosterContainer = styled.div`
@@ -35,6 +41,18 @@ const Poster = styled.img`
   
   ${Card}:hover & {
     transform: scale(1.05);
+  }
+  
+  @media (max-width: 991px) {
+    height: 320px;
+  }
+  
+  @media (max-width: 768px) {
+    height: 280px;
+  }
+  
+  @media (max-width: 576px) {
+    height: 240px;
   }
 `;
 
@@ -68,6 +86,13 @@ const Badge = styled.div`
   border-radius: 4px;
   font-size: 0.75rem;
   font-weight: 600;
+  
+  @media (max-width: 576px) {
+    padding: 0.2rem 0.4rem;
+    font-size: 0.7rem;
+    top: 0.75rem;
+    right: 0.75rem;
+  }
 `;
 
 const ContentArea = styled.div`
@@ -75,6 +100,14 @@ const ContentArea = styled.div`
   flex-grow: 1;
   display: flex;
   flex-direction: column;
+  
+  @media (max-width: 768px) {
+    padding: 1rem;
+  }
+  
+  @media (max-width: 576px) {
+    padding: 0.75rem;
+  }
 `;
 
 const Title = styled.h3`
@@ -87,6 +120,15 @@ const Title = styled.h3`
   ${Card}:hover & {
     color: #F9376E;
   }
+  
+  @media (max-width: 768px) {
+    font-size: 1rem;
+  }
+  
+  @media (max-width: 576px) {
+    font-size: 0.9rem;
+    margin-bottom: 0.4rem;
+  }
 `;
 
 const MetaInfo = styled.div`
@@ -96,6 +138,12 @@ const MetaInfo = styled.div`
   font-size: 0.875rem;
   margin-bottom: 0.75rem;
   gap: 1rem;
+  
+  @media (max-width: 576px) {
+    font-size: 0.8rem;
+    margin-bottom: 0.5rem;
+    gap: 0.75rem;
+  }
 `;
 
 const MetaItem = styled.div`
@@ -109,6 +157,11 @@ const Genres = styled.div`
   gap: 0.5rem;
   flex-wrap: wrap;
   margin-bottom: 1rem;
+  
+  @media (max-width: 576px) {
+    gap: 0.3rem;
+    margin-bottom: 0.75rem;
+  }
 `;
 
 const GenreTag = styled.span`
@@ -117,6 +170,11 @@ const GenreTag = styled.span`
   padding: 0.25rem 0.5rem;
   border-radius: 4px;
   font-size: 0.75rem;
+  
+  @media (max-width: 576px) {
+    padding: 0.2rem 0.4rem;
+    font-size: 0.7rem;
+  }
 `;
 
 const Description = styled.p`
@@ -128,6 +186,16 @@ const Description = styled.p`
   -webkit-box-orient: vertical;
   overflow: hidden;
   flex-grow: 1;
+  
+  @media (max-width: 768px) {
+    font-size: 0.825rem;
+    -webkit-line-clamp: 2; // Giảm số dòng mô tả trên màn hình nhỏ hơn
+  }
+  
+  @media (max-width: 576px) {
+    font-size: 0.775rem;
+    margin-bottom: 0.75rem;
+  }
 `;
 
 const Footer = styled.div`
@@ -160,9 +228,7 @@ const MovieCard = ({
     <Card onClick={handleClick}>
       <PosterContainer>
         <Poster src={posterUrl} alt={title} />
-        <PosterOverlay className="poster-overlay">
-          {/* You could add action buttons here */}
-        </PosterOverlay>
+        <PosterOverlay className="poster-overlay" />
         {isNew && <Badge>NEW</Badge>}
       </PosterContainer>
       <ContentArea>

@@ -21,6 +21,8 @@ import {
   Snackbar,
   Alert,
   Stack,
+  TableSortLabel,
+  CircularProgress,
 } from "@mui/material";
 import AddIcon from "@mui/icons-material/Add";
 import EditIcon from "@mui/icons-material/Edit";
@@ -119,6 +121,10 @@ const Combos = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [searchDebounce, setSearchDebounce] = useState("");
 
+  // Add sorting state
+  const [sortField, setSortField] = useState("comboId");
+  const [sortDirection, setSortDirection] = useState("asc");
+
   // State for combo form
   const [openComboForm, setOpenComboForm] = useState(false);
   const [selectedCombo, setSelectedCombo] = useState(null);
@@ -132,13 +138,24 @@ const Combos = () => {
     severity: "success",
   });
 
-  // Filter and sort states
+  // Filter and sort states - replace with our new sorting state
   const [filters, setFilters] = useState({
     sorting: {
-      sortBy: null,
-      sortOrder: null,
+      sortBy: sortField,
+      sortOrder: sortDirection,
     },
   });
+
+  // Update filters when sort parameters change
+  useEffect(() => {
+    setFilters((prev) => ({
+      ...prev,
+      sorting: {
+        sortBy: sortField,
+        sortOrder: sortDirection,
+      },
+    }));
+  }, [sortField, sortDirection]);
 
   // Memoize the options for useCombos hook
   const comboOptions = useMemo(
@@ -146,10 +163,10 @@ const Combos = () => {
       page: page + 1,
       limit: rowsPerPage,
       search: searchDebounce,
-      sortBy: filters.sorting.sortBy,
-      sortOrder: filters.sorting.sortOrder,
+      sortBy: sortField,
+      sortOrder: sortDirection,
     }),
-    [page, rowsPerPage, searchDebounce, filters.sorting]
+    [page, rowsPerPage, searchDebounce, sortField, sortDirection]
   );
 
   // Use the custom hook
@@ -276,6 +293,102 @@ const Combos = () => {
     setPage(0);
   };
 
+  // Add client-side sorted data state as a fallback
+  const [sortedCombos, setSortedCombos] = useState([]);
+  
+  // Add handle sort request function - enhance to sort client-side as a fallback
+  const handleRequestSort = (field) => {
+    const isAsc = sortField === field && sortDirection === "asc";
+    const newDirection = isAsc ? "desc" : "asc";
+
+    // Update sort parameters
+    setSortDirection(newDirection);
+    setSortField(field);
+    setPage(0); // Reset to first page when sorting changes
+    
+    // Show feedback while sorting
+    showSnackbar(`Sorting all items by ${field} (${newDirection})...`, "info");
+    
+    // Client-side sorting as immediate feedback
+    const sorted = [...combos].sort((a, b) => {
+      const aValue = a[field];
+      const bValue = b[field];
+      
+      // If values are the same, don't change order
+      if (aValue === bValue) return 0;
+      
+      // Handle special fields
+      if (field === "comboDiscount") {
+        const aNum = parseFloat(aValue) || 0;
+        const bNum = parseFloat(bValue) || 0;
+        return newDirection === "asc" ? aNum - bNum : bNum - aNum;
+      }
+      
+      // For boolean values (like comboAvailable)
+      if (typeof aValue === "boolean") {
+        return newDirection === "asc" 
+          ? (aValue === bValue ? 0 : aValue ? -1 : 1)
+          : (aValue === bValue ? 0 : aValue ? 1 : -1);
+      }
+      
+      // Default string comparison
+      const result = String(aValue).localeCompare(String(bValue));
+      return newDirection === "asc" ? result : -result;
+    });
+    
+    setSortedCombos(sorted);
+    
+    // Force refresh data with new sort parameters
+    refreshCombos().then(() => {
+      console.log("Server-side sorting complete");
+      showSnackbar(`Successfully sorted by ${field} (${newDirection})`, "success");
+    }).catch((error) => {
+      console.error("Error sorting data:", error);
+      showSnackbar(`Using client-side sorting for ${field}`, "warning");
+    });
+  };
+
+  // Add effect to store sorted data when combos changes
+  useEffect(() => {
+    if (combos && combos.length > 0) {
+      const sorted = [...combos].sort((a, b) => {
+        try {
+          const aValue = a[sortField];
+          const bValue = b[sortField];
+          
+          // Handle different data types appropriately
+          if (typeof aValue === 'number' && typeof bValue === 'number') {
+            return sortDirection === 'asc' ? aValue - bValue : bValue - aValue;
+          }
+          
+          if (typeof aValue === 'boolean' && typeof bValue === 'boolean') {
+            return sortDirection === 'asc' 
+              ? (aValue === bValue ? 0 : aValue ? -1 : 1) 
+              : (aValue === bValue ? 0 : aValue ? 1 : -1);
+          }
+          
+          // Default to string comparison
+          const result = String(aValue || '').localeCompare(String(bValue || ''));
+          return sortDirection === 'asc' ? result : -result;
+        } catch (err) {
+          console.error(`Error sorting by ${sortField}:`, err);
+          return 0;
+        }
+      });
+      
+      setSortedCombos(sorted);
+      console.log(`Sorted ${sorted.length} combos by ${sortField} (${sortDirection})`);
+    }
+  }, [combos, sortField, sortDirection]);
+
+  // Add effect to refresh data when page, rowsPerPage, or search changes
+  useEffect(() => {
+    refreshCombos().catch(error => {
+      console.error("Error refreshing data:", error);
+      showSnackbar("Failed to fetch data. Please try again.", "error");
+    });
+  }, [page, rowsPerPage, searchDebounce]);
+
   return (
     <Box sx={{ width: "100%", p: 3 }}>
       {/* Header */}
@@ -287,7 +400,7 @@ const Combos = () => {
         sx={{ mb: 3 }}
       >
         <Typography variant="h4" component="h1" fontWeight="bold">
-          Combos Management
+          Quản lý combo
         </Typography>
 
         <Button
@@ -296,7 +409,7 @@ const Combos = () => {
           onClick={handleAddComboClick}
           sx={{ borderRadius: 2 }}
         >
-          Add Combo
+          Tạo combo mới
         </Button>
       </Stack>
 
@@ -304,7 +417,7 @@ const Combos = () => {
       <TextField
         fullWidth
         variant="outlined"
-        placeholder="Search combos..."
+        placeholder="Tìm kiểm theo tên combo..."
         value={searchTerm}
         onChange={(e) => setSearchTerm(e.target.value)}
         sx={{ mb: 3 }}
@@ -315,52 +428,153 @@ const Combos = () => {
         <Table>
           <TableHead>
             <TableRow>
-              <StyledTableCell>ID</StyledTableCell>
-              <StyledTableCell>Image</StyledTableCell>
-              <StyledTableCell>Name</StyledTableCell>
-              <StyledTableCell>Discount</StyledTableCell>
-              <StyledTableCell>Status</StyledTableCell>
-              <StyledTableCell align="right">Actions</StyledTableCell>
+              <StyledTableCell>
+                <TableSortLabel
+                  active={sortField === "comboId"}
+                  direction={sortField === "comboId" ? sortDirection : "asc"}
+                  onClick={() => handleRequestSort("comboId")}
+                >
+                  ID
+                </TableSortLabel>
+              </StyledTableCell>
+              <StyledTableCell>Hình ảnh</StyledTableCell>
+              <StyledTableCell>
+                <TableSortLabel
+                  active={sortField === "comboName"}
+                  direction={sortField === "comboName" ? sortDirection : "asc"}
+                  onClick={() => handleRequestSort("comboName")}
+                >
+                  Tên
+                </TableSortLabel>
+              </StyledTableCell>
+              <StyledTableCell>
+                <TableSortLabel
+                  active={sortField === "comboDiscount"}
+                  direction={sortField === "comboDiscount" ? sortDirection : "asc"}
+                  onClick={() => handleRequestSort("comboDiscount")}
+                >
+                  Giảm giá
+                </TableSortLabel>
+              </StyledTableCell>
+              <StyledTableCell>
+                <TableSortLabel
+                  active={sortField === "comboAvailable"}
+                  direction={sortField === "comboAvailable" ? sortDirection : "asc"}
+                  onClick={() => handleRequestSort("comboAvailable")}
+                >
+                  Trạng thái
+                </TableSortLabel>
+              </StyledTableCell>
+              <StyledTableCell align="right">Chức năng</StyledTableCell>
             </TableRow>
           </TableHead>
           <TableBody>
-            {combos.map((combo) => (
-              <StyledTableRow key={combo.comboId}>
-                <StyledTableCell>{combo.comboId}</StyledTableCell>
-                <StyledTableCell>
-                  <ComboImage src={combo.comboImage} alt={combo.comboName} />
-                </StyledTableCell>
-                <StyledTableCell>{combo.comboName}</StyledTableCell>
-                <StyledTableCell>
-                  {formatPercent(combo.comboDiscount)}
-                </StyledTableCell>
-                <StyledTableCell>
-                  <StatusChip status={combo.comboAvailable} />
-                </StyledTableCell>
-                <StyledTableCell align="right">
-                  <Tooltip title="View Details">
-                    <IconButton onClick={() => handleViewClick(combo)}>
-                      <VisibilityIcon />
-                    </IconButton>
-                  </Tooltip>
-                  <Tooltip title="Edit">
-                    <IconButton onClick={() => handleEditClick(combo)}>
-                      <EditIcon />
-                    </IconButton>
-                  </Tooltip>
-                  <Tooltip title="Delete">
-                    <IconButton
-                      onClick={() => handleDeleteCombo(combo.comboId)}
-                    >
-                      <DeleteIcon />
-                    </IconButton>
-                  </Tooltip>
-                </StyledTableCell>
-              </StyledTableRow>
-            ))}
+            {loading ? (
+              <TableRow>
+                <TableCell colSpan={6} align="center" sx={{ py: 3 }}>
+                  <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 2 }}>
+                    <CircularProgress />
+                    <Typography variant="body2" color="text.secondary">
+                      {sortField !== "comboId" ? `Sorting by ${sortField} (${sortDirection})...` : "Loading combos..."}
+                    </Typography>
+                  </Box>
+                </TableCell>
+              </TableRow>
+            ) : combos.length === 0 ? (
+              <TableRow>
+                <TableCell colSpan={6} align="center" sx={{ py: 3 }}>
+                  <Typography variant="body1">No combos found</Typography>
+                </TableCell>
+              </TableRow>
+            ) : (
+              // Use sortedCombos when available, otherwise fallback to regular combos
+              (sortedCombos.length > 0 ? sortedCombos : combos).map((combo) => (
+                <StyledTableRow 
+                  key={combo.comboId}
+                  onClick={() => handleViewClick(combo)}
+                  sx={{ cursor: 'pointer' }}
+                >
+                  <StyledTableCell>{combo.comboId}</StyledTableCell>
+                  <StyledTableCell>
+                    <ComboImage src={combo.comboImage} alt={combo.comboName} />
+                  </StyledTableCell>
+                  <StyledTableCell>{combo.comboName}</StyledTableCell>
+                  <StyledTableCell>
+                    {formatPercent(combo.comboDiscount)}
+                  </StyledTableCell>
+                  <StyledTableCell>
+                    <StatusChip status={combo.comboAvailable} />
+                  </StyledTableCell>
+                  <StyledTableCell align="right" onClick={(e) => e.stopPropagation()}>
+                    <Tooltip title="View Details">
+                      <IconButton 
+                        onClick={() => handleViewClick(combo)}
+                        color="info" // Changed to info color to match Vouchers
+                        sx={{
+                          backgroundColor: alpha(theme.palette.info.main, 0.1),
+                          mr: 1,
+                          '&:hover': {
+                            backgroundColor: alpha(theme.palette.info.main, 0.2),
+                          }
+                        }}
+                      >
+                        <VisibilityIcon />
+                      </IconButton>
+                    </Tooltip>
+                    <Tooltip title="Edit">
+                      <IconButton 
+                        onClick={() => handleEditClick(combo)}
+                        color="error" // Keep edit button as red
+                        sx={{
+                          backgroundColor: alpha(theme.palette.error.main, 0.1),
+                          mr: 1,
+                          '&:hover': {
+                            backgroundColor: alpha(theme.palette.error.main, 0.2),
+                          }
+                        }}
+                      >
+                        <EditIcon />
+                      </IconButton>
+                    </Tooltip>
+                    <Tooltip title="Delete">
+                      <IconButton
+                        onClick={() => handleDeleteCombo(combo.comboId)}
+                        sx={{
+                          color: theme.palette.grey[700],
+                          backgroundColor: alpha(theme.palette.grey[500], 0.1),
+                          '&:hover': {
+                            backgroundColor: alpha(theme.palette.grey[700], 0.2),
+                          }
+                        }}
+                      >
+                        <DeleteIcon />
+                      </IconButton>
+                    </Tooltip>
+                  </StyledTableCell>
+                </StyledTableRow>
+              ))
+            )}
           </TableBody>
         </Table>
       </TableContainer>
+
+      {/* Add sort indicator with more useful information - enhanced with debug info */}
+      <Box sx={{ mt: 2, display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+        <Typography variant="body2" sx={{ fontStyle: 'italic', color: 'text.secondary' }}>
+          Showing {combos.length} of {pagination.totalItems} combos, sorted by {sortField} ({sortDirection})
+          {sortedCombos.length > 0 && sortedCombos.length !== combos.length && 
+            ` | Client-side sorted: ${sortedCombos.length} items`}
+        </Typography>
+        
+        {loading && (
+          <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+            <CircularProgress size={16} />
+            <Typography variant="body2" color="text.secondary">
+              Refreshing...
+            </Typography>
+          </Box>
+        )}
+      </Box>
 
       {/* Pagination */}
       <TablePagination

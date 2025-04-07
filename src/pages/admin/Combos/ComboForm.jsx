@@ -112,69 +112,85 @@ const ComboForm = ({
 
   // Load dữ liệu combo khi edit hoặc view
   useEffect(() => {
-    if (combo && (isEdit || isViewOnly)) {
-      console.log("ComboForm initializing with combo:", combo);
+    // First, reset the image state when the dialog opens regardless of edit mode
+    if (open) {
+      setImagePreview("");
+      setImageFile(null);
+      
+      // Then if we have a combo and are in edit or view mode, load the combo data
+      if (combo && (isEdit || isViewOnly)) {
+        console.log("ComboForm initializing with combo:", combo);
 
-      // Mô phỏng trạng thái loading
-      setIsLoadingDetails(true);
+        // Mô phỏng trạng thái loading
+        setIsLoadingDetails(true);
 
-      setTimeout(() => {
-        // Đảm bảo comboDetails luôn là một mảng
-        const comboDetails = combo.comboDetails || [];
+        setTimeout(() => {
+          // Đảm bảo comboDetails luôn là một mảng
+          const comboDetails = combo.comboDetails || [];
 
-        console.log("Combo details:", comboDetails);
-        console.log("Detail count:", comboDetails.length);
+          console.log("Combo details:", comboDetails);
+          console.log("Detail count:", comboDetails.length);
 
-        // Map the details to ensure consistent property names
-        const mappedDetails = comboDetails.map(detail => ({
-          comboDetailId: detail.comboDetailId || detail.ComboDetailId, // Use either format for ID
-          fnbId: detail.fnbId || detail.FnbId, // Try both property name formats
-          quantity: detail.quantity || detail.Quantity,
-          fnbName: detail.fnbName || detail.FnbName || "Unknown Item",
-          fnbPrice: detail.fnbPrice || detail.FnbPrice || 0,
-        }));
+          // Map the details to ensure consistent property names
+          const mappedDetails = comboDetails.map(detail => ({
+            comboDetailId: detail.comboDetailId || detail.ComboDetailId, // Use either format for ID
+            fnbId: detail.fnbId || detail.FnbId, // Try both property name formats
+            quantity: detail.quantity || detail.Quantity,
+            fnbName: detail.fnbName || detail.FnbName || "Unknown Item",
+            fnbPrice: detail.fnbPrice || detail.FnbPrice || 0,
+          }));
 
-        // Log the discount value for debugging
-        console.log("Original combo discount value:", combo.comboDiscount);
-        
-        // Fix for discount value (backend value is already decimal 0-1)
-        let discountValue = 0;
-        if (combo.comboDiscount !== null && combo.comboDiscount !== undefined) {
-          // Check if discount is already a percentage (e.g. 3, 10, 20...)
-          if (combo.comboDiscount >= 0 && combo.comboDiscount <= 1) {
-            // Convert from decimal (0.03) to percentage (3) for display
-            discountValue = Math.round(combo.comboDiscount * 100);
-            console.log("Converting decimal discount to percentage:", discountValue);
-          } else {
-            // Value is already a percentage (e.g. 3, 5, 10...)
-            discountValue = combo.comboDiscount;
-            console.log("Discount already appears to be a percentage:", discountValue);
+          // Log the discount value for debugging
+          console.log("Original combo discount value:", combo.comboDiscount);
+          
+          // Fix for discount value (backend value is already decimal 0-1)
+          let discountValue = 0;
+          if (combo.comboDiscount !== null && combo.comboDiscount !== undefined) {
+            // Check if discount is already a percentage (e.g. 3, 10, 20...)
+            if (combo.comboDiscount >= 0 && combo.comboDiscount <= 1) {
+              // Convert from decimal (0.03) to percentage (3) for display
+              discountValue = Math.round(combo.comboDiscount * 100);
+              console.log("Converting decimal discount to percentage:", discountValue);
+            } else {
+              // Value is already a percentage (e.g. 3, 5, 10...)
+              discountValue = combo.comboDiscount;
+              console.log("Discount already appears to be a percentage:", discountValue);
+            }
           }
-        }
-        
-        console.log("Final discount value for display:", discountValue);
+          
+          console.log("Final discount value for display:", discountValue);
 
-        // Cập nhật form data
-        setFormData({
-          comboId: combo.comboId,
-          comboName: combo.comboName,
-          comboImage: combo.comboImage,
-          comboDiscount: discountValue, // Use the corrected discount value
-          comboAvailable: combo.comboAvailable,
-          comboType: combo.comboType,
-          comboCreateAt: combo.comboCreatedAt,
-          comboDetails: mappedDetails,
-        });
+          // Cập nhật form data
+          setFormData({
+            comboId: combo.comboId,
+            comboName: combo.comboName,
+            comboImage: combo.comboImage,
+            comboDiscount: discountValue, // Use the corrected discount value
+            comboAvailable: combo.comboAvailable,
+            comboType: combo.comboType,
+            comboCreateAt: combo.comboCreatedAt,
+            comboDetails: mappedDetails,
+          });
 
-        // Cập nhật hình ảnh preview
-        if (combo.comboImage) {
-          setImagePreview(combo.comboImage);
-        }
+          // Only set the image preview if the combo has an image
+          if (combo.comboImage) {
+            setImagePreview(combo.comboImage);
+            console.log("Set image preview to:", combo.comboImage);
+          } else {
+            // Explicitly clear the image preview if the combo has no image
+            setImagePreview("");
+            console.log("Cleared image preview because combo has no image");
+          }
 
-        setIsLoadingDetails(false);
-      }, 500);
+          setIsLoadingDetails(false);
+        }, 500);
+      } else if (!combo) {
+        // If no combo is provided, this is a new combo, so reset the form
+        resetForm();
+        console.log("ComboForm reset for new combo");
+      }
     }
-  }, [combo, isEdit, isViewOnly]);
+  }, [combo, isEdit, isViewOnly, open]); // Added 'open' to the dependency array
 
   const handleDialogClose = () => {
     if (!isSubmitting) {

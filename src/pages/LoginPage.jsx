@@ -20,6 +20,10 @@ const ContentContainer = styled.div`
   align-items: center;
   justify-content: center;
   padding: 1rem 1rem 2rem;
+  
+  @media (max-width: 576px) {
+    padding: 0.5rem 0.5rem 1.5rem;
+  }
 `;
 
 const LoginCard = styled(Card)`
@@ -29,16 +33,37 @@ const LoginCard = styled(Card)`
   box-shadow: 0 8px 20px rgba(0, 0, 0, 0.4);
   max-width: 450px;
   width: 100%;
+  
+  @media (max-width: 576px) {
+    border-radius: 8px;
+    box-shadow: 0 6px 16px rgba(0, 0, 0, 0.3);
+  }
 `;
 
 const CardHeader = styled(Card.Header)`
   background: transparent;
   border-bottom: 1px solid #3f425a;
   padding: 1.5rem 1.5rem 1rem;
+  
+  @media (max-width: 768px) {
+    padding: 1.25rem 1.25rem 0.8rem;
+  }
+  
+  @media (max-width: 576px) {
+    padding: 1rem 1rem 0.7rem;
+  }
 `;
 
 const CardBody = styled(Card.Body)`
   padding: 1.5rem;
+  
+  @media (max-width: 768px) {
+    padding: 1.25rem;
+  }
+  
+  @media (max-width: 576px) {
+    padding: 1rem;
+  }
 `;
 
 const PageTitle = styled.h1`
@@ -46,11 +71,24 @@ const PageTitle = styled.h1`
   font-size: 1.8rem;
   font-weight: 600;
   margin-bottom: 0.5rem;
+  
+  @media (max-width: 768px) {
+    font-size: 1.6rem;
+  }
+  
+  @media (max-width: 576px) {
+    font-size: 1.4rem;
+    margin-bottom: 0.4rem;
+  }
 `;
 
 const PageSubtitle = styled.p`
   color: #9ca3af;
   font-size: 0.9rem;
+  
+  @media (max-width: 576px) {
+    font-size: 0.85rem;
+  }
 `;
 
 const FormLabel = styled(Form.Label)`
@@ -75,11 +113,20 @@ const FormControl = styled(Form.Control)`
   &::placeholder {
     color: #6c757d;
   }
+  
+  @media (max-width: 576px) {
+    padding: 0.65rem 1rem 0.65rem 2.3rem;
+    font-size: 0.85rem;
+  }
 `;
 
 const InputGroup = styled.div`
   position: relative;
   margin-bottom: 1.25rem;
+  
+  @media (max-width: 576px) {
+    margin-bottom: 1rem;
+  }
 `;
 
 const InputIcon = styled.div`
@@ -89,6 +136,11 @@ const InputIcon = styled.div`
   transform: translateY(-50%);
   color: #F9376E;
   z-index: 2;
+  
+  @media (max-width: 576px) {
+    left: 0.7rem;
+    font-size: 0.9rem;
+  }
 `;
 
 const ForgotPassword = styled(Link)`
@@ -101,6 +153,11 @@ const ForgotPassword = styled(Link)`
   &:hover {
     text-decoration: underline;
     color: #FF4D4D;
+  }
+  
+  @media (max-width: 576px) {
+    font-size: 0.8rem;
+    margin-top: 0.4rem;
   }
 `;
 
@@ -120,6 +177,14 @@ const LoginDivider = styled.div`
     color: #9ca3af;
     font-size: 0.9rem;
   }
+  
+  @media (max-width: 576px) {
+    margin: 1.25rem 0;
+    
+    span {
+      font-size: 0.85rem;
+    }
+  }
 `;
 
 const SocialButton = styled(Button)`
@@ -134,6 +199,16 @@ const SocialButton = styled(Button)`
   
   svg {
     margin-right: 0.5rem;
+  }
+  
+  @media (max-width: 576px) {
+    padding: 0.65rem;
+    margin-bottom: 0.75rem;
+    font-size: 0.9rem;
+    
+    svg {
+      font-size: 0.9rem;
+    }
   }
 `;
 
@@ -152,12 +227,21 @@ const RegisterText = styled.div`
       text-decoration: underline;
     }
   }
+  
+  @media (max-width: 576px) {
+    margin-top: 1.25rem;
+    font-size: 0.85rem;
+  }
 `;
 
 const TabButtons = styled.div`
   display: flex;
   margin-bottom: 1.5rem;
   border-bottom: 1px solid #3f425a;
+  
+  @media (max-width: 576px) {
+    margin-bottom: 1.25rem;
+  }
 `;
 
 const TabButton = styled.button`
@@ -184,6 +268,15 @@ const TabButton = styled.button`
   &:hover {
     color: #f3f4f6;
   }
+  
+  @media (max-width: 576px) {
+    padding: 0.65rem;
+    font-size: 0.9rem;
+    
+    svg {
+      font-size: 0.9rem;
+    }
+  }
 `;
 
 const BackButton = styled(Button)`
@@ -206,6 +299,15 @@ const BackButton = styled(Button)`
   
   &:active {
     transform: scale(0.95);
+  }
+  
+  @media (max-width: 576px) {
+    padding: 0.5rem;
+    margin-right: 0.75rem;
+    
+    svg {
+      font-size: 16px;
+    }
   }
 `;
 

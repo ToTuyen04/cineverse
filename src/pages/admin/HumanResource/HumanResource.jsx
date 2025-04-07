@@ -59,6 +59,10 @@ export default function HumanResource() {
   // Add pagination state
   const [page, setPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(10);
+  
+  // Add sorting state
+  const [orderBy, setOrderBy] = useState('userLastName');
+  const [order, setOrder] = useState('asc');
 
   useEffect(() => {
     fetchUsers();
@@ -99,22 +103,79 @@ export default function HumanResource() {
     }
   };
 
+  // Handle sorting
+  const handleRequestSort = (property) => {
+    const isAsc = orderBy === property && order === 'asc';
+    setOrder(isAsc ? 'desc' : 'asc');
+    setOrderBy(property);
+  };
+
+  // Sort function
+  const getSortedData = (data, order, orderBy) => {
+    return [...data].sort((a, b) => {
+      // Handle special case for full name which might be composed of first name and last name
+      if (orderBy === 'fullName') {
+        const nameA = `${a.userFirstName || ''} ${a.userLastName || ''}`.trim();
+        const nameB = `${b.userFirstName || ''} ${b.userLastName || ''}`.trim();
+        return order === 'asc' 
+          ? nameA.localeCompare(nameB)
+          : nameB.localeCompare(nameA);
+      }
+      
+      // Handle special case for dates
+      if (orderBy === 'userDateOfBirth' || orderBy === 'userCreateAt') {
+        const dateA = a[orderBy] ? new Date(a[orderBy]) : new Date(0);
+        const dateB = b[orderBy] ? new Date(b[orderBy]) : new Date(0);
+        return order === 'asc' 
+          ? dateA - dateB 
+          : dateB - dateA;
+      }
+      
+      // Handle special case for numeric values like userPoint
+      if (orderBy === 'userPoint') {
+        const numA = Number(a[orderBy] || 0);
+        const numB = Number(b[orderBy] || 0);
+        return order === 'asc' ? numA - numB : numB - numA;
+      }
+      
+      // For other fields
+      if (a[orderBy] === undefined || a[orderBy] === null) return order === 'asc' ? -1 : 1;
+      if (b[orderBy] === undefined || b[orderBy] === null) return order === 'asc' ? 1 : -1;
+      
+      return order === 'asc'
+        ? String(a[orderBy]).localeCompare(String(b[orderBy]))
+        : String(b[orderBy]).localeCompare(String(a[orderBy]));
+    });
+  };
+
   // Filter users based on search term
   const filteredUsers = users.filter((user) => {
-    const searchValue = searchTerm.toLowerCase();
+    const searchValue = searchTerm.toLowerCase().trim();
+    
+    // Skip filtering if search is empty
+    if (!searchValue) return true;
+    
+    // Search by first name, last name, full name, email, or phone number
     return (
-      (user.userFirstName &&
+      (user.userFirstName && 
         user.userFirstName.toLowerCase().includes(searchValue)) ||
-      (user.userLastName &&
+      (user.userLastName && 
         user.userLastName.toLowerCase().includes(searchValue)) ||
-      (user.userEmail && user.userEmail.toLowerCase().includes(searchValue)) ||
-      (user.userPhoneNumber &&
+      // Check combined full name
+      ((user.userFirstName && user.userLastName) && 
+        `${user.userFirstName} ${user.userLastName}`.toLowerCase().includes(searchValue)) ||
+      (user.userEmail && 
+        user.userEmail.toLowerCase().includes(searchValue)) ||
+      (user.userPhoneNumber && 
         user.userPhoneNumber.toLowerCase().includes(searchValue))
     );
   });
 
-  // Get paginated data
-  const paginatedUsers = filteredUsers.slice(
+  // Apply sorting to filtered users
+  const sortedUsers = getSortedData(filteredUsers, order, orderBy);
+
+  // Get paginated data from sorted users
+  const paginatedUsers = sortedUsers.slice(
     page * rowsPerPage,
     page * rowsPerPage + rowsPerPage
   );
@@ -163,6 +224,27 @@ export default function HumanResource() {
     setSnackbar({ ...snackbar, open: false });
   };
 
+  // Add a component for sortable column headers
+  const SortableTableCell = ({ id, label, align }) => {
+    return (
+      <TableCell 
+        align={align || 'left'}
+        sortDirection={orderBy === id ? order : false}
+        sx={{ cursor: 'pointer' }}
+        onClick={() => handleRequestSort(id)}
+      >
+        <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: align === 'center' ? 'center' : 'flex-start' }}>
+          {label}
+          <Box component="span" sx={{ ml: 0.5 }}>
+            {orderBy === id ? (
+              order === 'asc' ? '↑' : '↓'
+            ) : ''}
+          </Box>
+        </Box>
+      </TableCell>
+    );
+  };
+
   return (
     <Container maxWidth="xl">
       <Box sx={{ p: 3 }}>
@@ -176,13 +258,13 @@ export default function HumanResource() {
           }}
         >
           <Typography variant="h4" fontWeight="bold" color="primary">
-            Quản lý nhân sự
+            Quản lý khách hàng
           </Typography>
           <Box>
             <TextField
               variant="outlined"
               size="small"
-              placeholder="Tìm kiếm người dùng..."
+              placeholder="Tìm theo tên, số điện thoại hoặc email..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
               sx={{ mr: 1, width: 300 }}
@@ -449,14 +531,14 @@ export default function HumanResource() {
                         <TableCell align="center" width={70}>
                           #
                         </TableCell>
-                        <TableCell>Người dùng</TableCell>
-                        <TableCell>Email</TableCell>
-                        <TableCell>Số điện thoại</TableCell>
-                        <TableCell>Ngày sinh</TableCell>
-                        <TableCell align="center">Giới tính</TableCell>
-                        <TableCell align="center">Điểm</TableCell>
-                        <TableCell align="center">Trạng thái</TableCell>
-                        <TableCell align="center">Ngày tạo</TableCell>
+                        <SortableTableCell id="fullName" label="Người dùng" />
+                        <SortableTableCell id="userEmail" label="Email" />
+                        <SortableTableCell id="userPhoneNumber" label="Số điện thoại" />
+                        <SortableTableCell id="userDateOfBirth" label="Ngày sinh" />
+                        <SortableTableCell id="userGender" label="Giới tính" align="center" />
+                        <SortableTableCell id="userPoint" label="Điểm" align="center" />
+                        <SortableTableCell id="userStatus" label="Trạng thái" align="center" />
+                        <SortableTableCell id="userCreateAt" label="Ngày tạo" align="center" />
                       </TableRow>
                     </TableHead>
                     <TableBody>
@@ -469,7 +551,6 @@ export default function HumanResource() {
                             sx={{ cursor: 'pointer' }}
                           >
                             <TableCell align="center">{page * rowsPerPage + index + 1}</TableCell>
-                            {/* ...existing user row cells... */}
                             <TableCell>
                               <Box sx={{ display: "flex", alignItems: "center" }}>
                                 <Avatar

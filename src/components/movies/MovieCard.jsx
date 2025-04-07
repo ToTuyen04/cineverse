@@ -19,6 +19,12 @@ const Card = styled.div`
       opacity: 0;
     }
   }
+  
+  @media (max-width: 768px) {
+    &:hover {
+      transform: translateY(-3px); // Giảm hiệu ứng trên màn hình nhỏ
+    }
+  }
 `;
 
 const Poster = styled.img`
@@ -29,6 +35,14 @@ const Poster = styled.img`
 
 const CardBody = styled.div`
   padding: 1.25rem;
+  
+  @media (max-width: 768px) {
+    padding: 1rem;
+  }
+  
+  @media (max-width: 576px) {
+    padding: 0.75rem;
+  }
 `;
 
 const Title = styled.h5`
@@ -37,6 +51,15 @@ const Title = styled.h5`
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
+  
+  @media (max-width: 768px) {
+    font-size: 0.95rem;
+    margin-bottom: 0.5rem;
+  }
+  
+  @media (max-width: 576px) {
+    font-size: 0.9rem;
+  }
 `;
 
 const ReleaseDate = styled.small`
@@ -48,12 +71,22 @@ const ReleaseDate = styled.small`
     color: #F9376E;
     margin-right: 0.25rem;
   }
+  
+  @media (max-width: 576px) {
+    font-size: 0.75rem;
+    margin-bottom: 0.5rem;
+  }
 `;
 
 const ButtonContainer = styled.div`
   display: flex;
   gap: 0.5rem;
   margin-top: 1rem;
+  
+  @media (max-width: 576px) {
+    margin-top: 0.75rem;
+    gap: 0.3rem;
+  }
 `;
 
 const Button = styled.button`
@@ -83,6 +116,11 @@ const Button = styled.button`
       background-color: rgba(255, 255, 255, 0.05);
     }
   }
+  
+  @media (max-width: 576px) {
+    padding: 0.3rem 0.6rem;
+    font-size: 0.75rem;
+  }
 `;
 
 const MoviePoster = styled.div`
@@ -101,7 +139,7 @@ const PosterImage = styled.img`
   object-fit: cover;
 `;
 
-// Cập nhật BookmarkBadge cho đẹp hơn
+// Cập nhật BookmarkBadge cho responsive
 const BookmarkBadge = ({ rating, color }) => {
   // Chọn icon phù hợp với phân loại
   const getIcon = (rating) => {
@@ -121,22 +159,19 @@ const BookmarkBadge = ({ rating, color }) => {
       right: 0,
       zIndex: 20,
       filter: 'drop-shadow(0px 3px 6px rgba(0,0,0,0.4))',
-      transition: 'opacity 0.3s ease', // Thêm transition
+      transition: 'opacity 0.3s ease',
     }}>
-      <svg width="50" height="70" viewBox="0 0 50 70">
-        {/* Gradient background for more depth */}
+      <svg width="50" height="70" viewBox="0 0 50 70" className="bookmark-svg">
         <defs>
           <linearGradient id={`badge-gradient-${rating}`} x1="0%" y1="0%" x2="100%" y2="100%">
             <stop offset="0%" style={{stopColor: color, stopOpacity: 1}} />
             <stop offset="100%" style={{stopColor: shadeColor(color, -20), stopOpacity: 1}} />
           </linearGradient>
-          {/* Thêm đường viền */}
           <filter id="glow" x="-20%" y="-20%" width="140%" height="140%">
             <feGaussianBlur stdDeviation="2" result="blur" />
             <feComposite in="SourceGraphic" in2="blur" operator="over" />
           </filter>
         </defs>
-        {/* Path đẹp hơn với bo góc và gradient */}
         <path 
           d="M0,0 H50 V50 C50,50 40,50 25,70 C25,70 10,50 0,50 Z" 
           fill={`url(#badge-gradient-${rating})`}
@@ -144,7 +179,6 @@ const BookmarkBadge = ({ rating, color }) => {
           stroke={shadeColor(color, -30)}
           strokeWidth="0.5"
         />
-        {/* Hiển thị rating với phông chữ đẹp hơn */}
         <text 
           x="25" 
           y={rating.length > 2 ? "30" : "35"}
@@ -186,61 +220,11 @@ function shadeColor(color, percent) {
   return "#"+RR+GG+BB;
 }
 
-// Thay thế định nghĩa AgeRating
-const AgeRating = styled.div`
-  position: absolute;
-  top: 0;
-  right: 10px;
-  width: 36px;
-  height: 50px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  color: white;
-  font-weight: bold;
-  font-size: 0.8rem;
-  z-index: 10;
-  
-  /* Sử dụng hình chữ nhật cơ bản với pseudo-element để tạo hình bookmark */
-  background: ${props => {
-    switch(props.$ageRating) {
-      case 'P': return '#27ae60';
-      case 'K': return '#27ae60';
-      case 'C13': return '#f39c12';
-      case 'C16': return '#e67e22';
-      case 'C18': return '#e74c3c';
-      default: return '#2980b9';
-    }
-  }};
-  
-  /* Tạo tam giác nhỏ ở dưới */
-  &:after {
-    content: '';
-    position: absolute;
-    bottom: 0;
-    left: 0;
-    width: 0;
-    height: 0;
-    border-style: solid;
-    border-width: 8px 18px 0 18px;
-    border-color: ${props => {
-      switch(props.$ageRating) {
-        case 'P': return '#27ae60 transparent transparent transparent';
-        case 'K': return '#27ae60 transparent transparent transparent';
-        case 'C13': return '#f39c12 transparent transparent transparent';
-        case 'C16': return '#e67e22 transparent transparent transparent';
-        case 'C18': return '#e74c3c transparent transparent transparent';
-        default: return '#2980b9 transparent transparent transparent';
-      }
-    }};
-  }
-`;
-
-// Điều chỉnh vị trí MovieReleaseStatus để không chồng lên AgeRating
+// Thêm responsive cho MovieReleaseStatus
 const MovieReleaseStatus = styled.div`
   position: absolute;
   top: 10px;
-  left: 10px; // Đặt bên trái thay vì phải
+  left: 10px;
   padding: 5px 8px;
   border-radius: 4px;
   font-size: 0.7rem;
@@ -248,16 +232,23 @@ const MovieReleaseStatus = styled.div`
   background: ${props => props.$status === 'nowShowing' ? 'rgba(39, 174, 96, 0.9)' : 'rgba(52, 152, 219, 0.9)'};
   color: white;
   z-index: 5;
+  
+  @media (max-width: 576px) {
+    padding: 4px 6px;
+    font-size: 0.65rem;
+    top: 8px;
+    left: 8px;
+  }
 `;
 
-// Tăng z-index cho MovieOverlay khi hover
+// Thêm responsive cho MovieOverlay
 const MovieOverlay = styled.div`
   position: absolute;
   top: 0;
   left: 0;
   right: 0;
   bottom: 0;
-  background-color: rgba(0, 0, 0, 0.85); // Tăng độ mờ background
+  background-color: rgba(0, 0, 0, 0.85);
   color: white;
   padding: 10px;
   display: flex;
@@ -266,10 +257,18 @@ const MovieOverlay = styled.div`
   justify-content: center;
   opacity: 0;
   transition: opacity 0.3s ease;
-  z-index: 25; // Lớn hơn z-index của BookmarkBadge
+  z-index: 25;
   
   ${Card}:hover & {
     opacity: 1;
+  }
+  
+  @media (max-width: 768px) {
+    padding: 8px;
+  }
+  
+  @media (max-width: 576px) {
+    padding: 6px;
   }
 `;
 
@@ -278,11 +277,37 @@ const MovieInfoDetails = styled.div`
   flex-direction: column;
   align-items: center;
   margin-bottom: 10px;
+  
+  span {
+    margin: 2px 0;
+    font-size: 0.85rem;
+  }
+  
+  @media (max-width: 768px) {
+    margin-bottom: 8px;
+    
+    span {
+      font-size: 0.8rem;
+    }
+  }
+  
+  @media (max-width: 576px) {
+    margin-bottom: 6px;
+    
+    span {
+      font-size: 0.75rem;
+      margin: 1px 0;
+    }
+  }
 `;
 
 const ButtonGroup = styled.div`
   display: flex;
   gap: 10px;
+  
+  @media (max-width: 576px) {
+    gap: 6px;
+  }
 `;
 
 const DetailButton = styled.button`
@@ -292,6 +317,12 @@ const DetailButton = styled.button`
   border: none;
   border-radius: 5px;
   cursor: pointer;
+  font-weight: 500;
+  
+  @media (max-width: 576px) {
+    padding: 4px 8px;
+    font-size: 0.75rem;
+  }
 `;
 
 const BookingButton = styled.button`
@@ -301,16 +332,20 @@ const BookingButton = styled.button`
   border: none;
   border-radius: 5px;
   cursor: pointer;
+  font-weight: 500;
+  
+  @media (max-width: 576px) {
+    padding: 4px 8px;
+    font-size: 0.75rem;
+  }
 `;
 
-// Cập nhật hàm getAgeRating để xử lý nhiều trường hợp hơn
+// Hàm helper để xác định rating
 const getAgeRating = (movie) => {
   if (!movie) return 'P';
   
-  // Nếu phim có trường ageRating, sử dụng nó
   if (movie.ageRating) return movie.ageRating;
   
-  // Nếu không có, thử đoán từ các trường khác
   if (movie.genres) {
     if (movie.genres.includes('Kinh dị') || movie.genres.includes('Bạo lực')) {
       return 'C16';
@@ -323,7 +358,6 @@ const getAgeRating = (movie) => {
     }
   }
   
-  // Mặc định là P
   return 'P';
 };
 
@@ -339,15 +373,18 @@ const getBookmarkColor = (ageRating) => {
 };
 
 const formatDate = (date) => {
-  // Implement your logic to format date
-  return new Date(date).toLocaleDateString();
+  if (!date) return '';
+  return new Date(date).toLocaleDateString('vi-VN', {
+    year: 'numeric',
+    month: '2-digit',
+    day: '2-digit'
+  });
 };
 
 const MovieCard = ({ movie, showBookButton = false, showReleaseDate = false, activeTab }) => {
-  // Thêm kiểm tra để tránh lỗi khi movie là undefined/null
   if (!movie) {
     console.error("Missing movie data in MovieCard");
-    return null; // Hoặc return một placeholder card
+    return null;
   }
 
   return (
@@ -359,29 +396,36 @@ const MovieCard = ({ movie, showBookButton = false, showReleaseDate = false, act
         />
         
         {/* BookmarkBadge */}
-        <div style={{ 
-          position: 'absolute',
-          top: 0,
-          right: 0,
-          zIndex: 20,
-          filter: 'drop-shadow(0px 3px 6px rgba(0,0,0,0.4))',
-          transition: 'opacity 0.3s ease', // Thêm transition
-          opacity: 1 
-        }} className="bookmark-badge">
+        <div 
+          className="bookmark-badge"
+          style={{ 
+            position: 'absolute',
+            top: 0,
+            right: 0,
+            zIndex: 20,
+            filter: 'drop-shadow(0px 3px 6px rgba(0,0,0,0.4))',
+            transition: 'opacity 0.3s ease',
+            opacity: 1,
+            transform: 'scale(0.9)',
+            '@media (max-width: 576px)': {
+              transform: 'scale(0.8)'
+            }
+          }}
+        >
           <BookmarkBadge 
             rating={getAgeRating(movie)} 
             color={getBookmarkColor(getAgeRating(movie))} 
           />
         </div>
         
-        {/* MovieReleaseStatus - chỉ hiển thị khi activeTab có giá trị */}
+        {/* MovieReleaseStatus */}
         {activeTab && (
           <MovieReleaseStatus $status={activeTab}>
             {activeTab === 'nowShowing' ? 'Đang chiếu' : 'Sắp chiếu'}
           </MovieReleaseStatus>
         )}
         
-        {/* Nội dung overlay */}
+        {/* Overlay */}
         <MovieOverlay className="movie-info-overlay">
           <MovieInfoDetails className="movie-info-details">
             {movie.duration && <span>{movie.duration} phút</span>}
@@ -401,7 +445,7 @@ const MovieCard = ({ movie, showBookButton = false, showReleaseDate = false, act
         
         {showReleaseDate && (
           <ReleaseDate>
-            <FaCalendarAlt /> Coming {movie.releaseDate}
+            <FaCalendarAlt /> Coming {formatDate(movie.releaseDate)}
           </ReleaseDate>
         )}
         
@@ -416,5 +460,5 @@ const MovieCard = ({ movie, showBookButton = false, showReleaseDate = false, act
   );
 };
 
-export { BookmarkBadge }; // Export named export cho BookmarkBadge
-export default MovieCard; // Export default cho MovieCard
+export { BookmarkBadge };
+export default MovieCard;

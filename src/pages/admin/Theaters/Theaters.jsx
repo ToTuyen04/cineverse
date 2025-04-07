@@ -9,6 +9,7 @@ import { styled } from '@mui/material/styles';
 import MuiEditIcon from '@mui/icons-material/Edit';
 import MuiDeleteIcon from '@mui/icons-material/Delete';
 import MuiAddIcon from '@mui/icons-material/Add';
+import MuiVisibilityIcon from '@mui/icons-material/Visibility'; // Thêm icon xem
 import SearchIcon from '@mui/icons-material/Search';
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import ArrowForwardIcon from '@mui/icons-material/ArrowForward';
@@ -50,19 +51,19 @@ const StatusChip = ({ status }) => {
   let color = 'default';
   let bgcolor, textColor;
   
-  if (status === 'Active') {
+  if (status === 'Hoạt động') {
     color = 'success';
     bgcolor = theme.palette.mode === 'light' 
       ? alpha(theme.palette.success.main, 0.1)
       : alpha(theme.palette.success.main, 0.2);
     textColor = theme.palette.success.main;
-  } else if (status === 'Under Maintenance') {
+  } else if (status === 'Đang bảo trì') {
     color = 'warning';
     bgcolor = theme.palette.mode === 'light' 
       ? alpha(theme.palette.warning.main, 0.1)
       : alpha(theme.palette.warning.main, 0.2);
     textColor = theme.palette.warning.main;
-  } else if (status === 'Closed') {
+  } else if (status === 'Đã đóng cửa') {
     color = 'error';
     bgcolor = theme.palette.mode === 'light' 
       ? alpha(theme.palette.error.main, 0.1)
@@ -95,6 +96,7 @@ const Theaters = () => {
   const [openTheaterForm, setOpenTheaterForm] = useState(false);
   const [selectedTheater, setSelectedTheater] = useState(null);
   const [isEditMode, setIsEditMode] = useState(false);
+  const [isViewMode, setIsViewMode] = useState(false); // Thêm state cho chế độ xem
   
   // State for feedback messages
   const [snackbar, setSnackbar] = useState({
@@ -133,28 +135,53 @@ const Theaters = () => {
   // Handle add theater button click
   const handleAddTheaterClick = () => {
     setIsEditMode(false);
+    setIsViewMode(false);
     setSelectedTheater(null);
     setOpenTheaterForm(true);
   };
   
   // Handle edit theater button click
-  const handleEditClick = async (theaterId) => {
+  const handleEditClick = async (theaterId, event) => {
+    event.stopPropagation(); // Ngăn sự kiện click lan đến row
     try {
       const theaterData = await getTheater(theaterId);
       if (theaterData) {
         setSelectedTheater(theaterData);
         setIsEditMode(true);
+        setIsViewMode(false);
         setOpenTheaterForm(true);
       }
     } catch (err) {
       console.error('Error getting theater details:', err);
-      showSnackbar('Failed to load theater details', 'error');
+      showSnackbar('Tải thông tin rạp thất bại', 'error');
     }
+  };
+
+  // Handle view theater
+  const handleViewTheater = async (theaterId) => {
+    try {
+      const theaterData = await getTheater(theaterId);
+      if (theaterData) {
+        setSelectedTheater(theaterData);
+        setIsViewMode(true);
+        setIsEditMode(false);
+        setOpenTheaterForm(true);
+      }
+    } catch (err) {
+      console.error('Error getting theater details:', err);
+      showSnackbar('Tải thông tin rạp thất bại', 'error');
+    }
+  };
+  
+  // Handle row click
+  const handleRowClick = (theaterId) => {
+    handleViewTheater(theaterId);
   };
 
   // Handle form close
   const handleCloseForm = () => {
     setOpenTheaterForm(false);
+    setIsViewMode(false);
   };
   
   // Handle theater form submission
@@ -164,16 +191,16 @@ const Theaters = () => {
       if (isEditMode) {
         result = await editTheater(selectedTheater.theaterId, formData);
         if (result.success) {
-          showSnackbar('Theater updated successfully', 'success');
+          showSnackbar('Cập nhật rạp thành công', 'success');
         } else {
-          showSnackbar(`Failed to update theater: ${result.error}`, 'error');
+          showSnackbar(`Cập nhật rạp thất bại: ${result.error}`, 'error');
         }
       } else {
         result = await addTheater(formData);
         if (result.success) {
-          showSnackbar('Theater added successfully', 'success');
+          showSnackbar('Thêm rạp thành công', 'success');
         } else {
-          showSnackbar(`Failed to add theater: ${result.error}`, 'error');
+          showSnackbar(`Thêm rạp thất bại: ${result.error}`, 'error');
         }
       }
       
@@ -183,18 +210,19 @@ const Theaters = () => {
       }
     } catch (err) {
       console.error('Error submitting theater:', err);
-      showSnackbar('An error occurred while saving theater', 'error');
+      showSnackbar('Đã xảy ra lỗi khi lưu thông tin rạp', 'error');
     }
   };
   
   // Handle delete theater
-  const handleDeleteTheater = async (id) => {
-    if (window.confirm('Are you sure you want to delete this theater?')) {
+  const handleDeleteTheater = async (id, event) => {
+    event.stopPropagation(); // Ngăn sự kiện click lan đến row
+    if (window.confirm('Bạn có chắc chắn muốn xóa rạp này không?')) {
       const result = await removeTheater(id);
       if (result.success) {
-        showSnackbar('Theater deleted successfully', 'success');
+        showSnackbar('Xóa rạp thành công', 'success');
       } else {
-        showSnackbar(`Failed to delete theater: ${result.error}`, 'error');
+        showSnackbar(`Xóa rạp thất bại: ${result.error}`, 'error');
       }
     }
   };
@@ -245,9 +273,9 @@ const Theaters = () => {
             color: theme.palette.text.primary
           }}
         >
-          Theaters Management
+          Quản lý rạp chiếu phim
         </Typography>
-        {/* <Button 
+        <Button 
           variant="contained" 
           startIcon={<AddIcon />}
           onClick={handleAddTheaterClick}
@@ -260,8 +288,8 @@ const Theaters = () => {
             py: 1
           }}
         >
-          Add New Theater
-        </Button> */}
+          Thêm rạp mới
+        </Button>
       </Box>
       
       {/* Enhanced search box */}
@@ -269,7 +297,7 @@ const Theaters = () => {
         <TextField
           fullWidth
           variant="outlined"
-          placeholder="Search for theaters..."
+          placeholder="Tìm kiếm rạp..."
           value={searchTerm}
           onChange={(e) => setSearchTerm(e.target.value)}
           InputProps={{
@@ -341,15 +369,18 @@ const Theaters = () => {
                     : alpha(theme.palette.common.white, 0.05) 
                 }}>
                   <StyledTableCell>ID</StyledTableCell>
-                  <StyledTableCell>Theater Name</StyledTableCell>
-                  <StyledTableCell>Address</StyledTableCell>
+                  <StyledTableCell>Tên rạp</StyledTableCell>
+                  <StyledTableCell>Địa chỉ</StyledTableCell>
                   <StyledTableCell>Hotline</StyledTableCell>
-                  <StyledTableCell align="center">Actions</StyledTableCell>
+                  <StyledTableCell align="center">Thao tác</StyledTableCell>
                 </TableRow>
               </TableHead>
               <TableBody>
                 {theaters && theaters.map((theater) => (
-                  <StyledTableRow key={theater.theaterId}>
+                  <StyledTableRow 
+                    key={theater.theaterId} 
+                    onClick={() => handleRowClick(theater.theaterId)}
+                  >
                     <StyledTableCell>
                       {theater.theaterId}
                     </StyledTableCell>
@@ -368,8 +399,25 @@ const Theaters = () => {
                     <StyledTableCell align="center">
                       <IconButton 
                         size="small" 
+                        color="info"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          handleViewTheater(theater.theaterId);
+                        }}
+                        sx={{ 
+                          backgroundColor: alpha(theme.palette.info.main, 0.1),
+                          marginRight: 1,
+                          '&:hover': {
+                            backgroundColor: alpha(theme.palette.info.main, 0.2),
+                          }
+                        }}
+                      >
+                        <ViewIcon fontSize="small" />
+                      </IconButton>
+                      <IconButton 
+                        size="small" 
                         color="primary"
-                        onClick={() => handleEditClick(theater.theaterId)}
+                        onClick={(e) => handleEditClick(theater.theaterId, e)}
                         sx={{ 
                           backgroundColor: alpha(theme.palette.primary.main, 0.1),
                           marginRight: 1,
@@ -382,7 +430,7 @@ const Theaters = () => {
                       </IconButton>
                       <IconButton 
                         size="small"
-                        onClick={() => handleDeleteTheater(theater.theaterId)}
+                        onClick={(e) => handleDeleteTheater(theater.theaterId, e)}
                         sx={{ 
                           color: theme.palette.mode === 'light' ? theme.palette.grey[700] : theme.palette.text.primary,
                           backgroundColor: theme.palette.mode === 'light' 
@@ -407,7 +455,7 @@ const Theaters = () => {
                   <TableRow>
                     <TableCell colSpan={5} align="center" sx={{ py: 3 }}>
                       <Typography variant="body1">
-                        No theaters found
+                        Không tìm thấy rạp nào
                       </Typography>
                     </TableCell>
                   </TableRow>
@@ -427,7 +475,7 @@ const Theaters = () => {
             gap: 2
           }}>
             <Typography variant="body2" sx={{ color: theme.palette.text.secondary }}>
-              {`Showing ${theaters?.length || 0} of ${pagination.totalItems} theaters`}
+              {`Hiển thị ${theaters?.length || 0} trong tổng số ${pagination.totalItems} rạp`}
             </Typography>
             
             <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
@@ -488,7 +536,7 @@ const Theaters = () => {
                 gap: 1
               }}>
                 <Typography variant="body2" sx={{ color: theme.palette.text.secondary }}>
-                  Rows per page:
+                  Số hàng mỗi trang:
                 </Typography>
                 <FormControl 
                   variant="outlined" 
@@ -543,6 +591,7 @@ const Theaters = () => {
         theater={selectedTheater}
         onSubmit={handleSubmitTheater}
         isEdit={isEditMode}
+        isView={isViewMode} // Truyền chế độ xem xuống
       />
       
       {/* Feedback Snackbar */}
@@ -567,5 +616,6 @@ const Theaters = () => {
 const EditIcon = MuiEditIcon;
 const DeleteIcon = MuiDeleteIcon;
 const AddIcon = MuiAddIcon;
+const ViewIcon = MuiVisibilityIcon; // Đăng ký icon xem
 
 export default Theaters;

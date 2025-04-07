@@ -18,12 +18,10 @@ import SeatSelectionPage from "./pages/SeatSelectionPage";
 import PaymentPage from "./pages/PaymentPage";
 import MovieDetailPage from "./pages/MovieDetailPage";
 import BookingPage from "./pages/BookingPage";
-import BookingSuccessPage from "./pages/BookingSuccessPage";
 import VerifyAccountPage from "./pages/VerifyAccountPage";
 import ConfirmEmailPage from "./pages/ConfirmEmailPage";
 import ForgotPasswordPage from "./pages/ForgotPasswordPage";
 import ResetPasswordPage from "./pages/ResetPasswordPage";
-import ThankYouPage from "./pages/ThankYouPage";
 import TicketInfo from "./pages/TicketInfo";
 
 // Admin pages
@@ -37,6 +35,8 @@ import Fnbs from "./pages/admin/Fnbs/Fnbs";
 import Staff from "./pages/admin/Staff/Staff";
 import HumanResource from "./pages/admin/HumanResource/HumanResource";
 import Configuration from "./pages/admin/Configurations/Configuration";
+import RoomSeatsManagement from "./pages/admin/Seats/RoomSeatsManagement";
+import SeatManagement from "./pages/admin/Seats/SeatManagement";
 
 // Contexts
 import { AuthProvider } from "./contexts/AuthContext";
@@ -46,6 +46,7 @@ import { ThemeProviderWrapper } from "./context/ThemeContext";
 import GlobalStyles from "./styles/globalStyles";
 import Combos from "./pages/admin/Combos/Combos";
 import Profile from "./pages/admin/Profile/Profile";
+import Excel from "./pages/admin/Excel/Excel";
 
 // Fallback pages
 const NotFoundPage = () => (
@@ -297,6 +298,31 @@ function App() {
                 </AdminLayout>
               }
             />
+            <Route
+              path="/admin/excels"
+              element={
+                <AdminLayout>
+                  <Excel />
+                </AdminLayout>
+              }
+            />
+            <Route
+              path="/admin/seats"
+              element={
+                <AdminLayout>
+                  <SeatManagement />
+                </AdminLayout>
+              }
+            />
+            <Route
+              path="/admin/rooms/:roomId/seats"
+              element={
+                <AdminLayout>
+                  <RoomSeatsManagement />
+                </AdminLayout>
+              }
+            />
+
             {/* 404 page */}
             <Route
               path="*"

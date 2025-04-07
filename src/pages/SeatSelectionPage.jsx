@@ -13,15 +13,48 @@ const PageTitle = styled.h1`
   font-weight: 700;
   margin-bottom: 1.5rem;
   color: #f3f4f6;
+  
+  @media (max-width: 992px) {
+    font-size: 2rem;
+    margin-bottom: 1.25rem;
+  }
+  
+  @media (max-width: 768px) {
+    font-size: 1.75rem;
+    margin-bottom: 1rem;
+  }
+  
+  @media (max-width: 576px) {
+    font-size: 1.5rem;
+    margin-bottom: 0.75rem;
+  }
 `;
 
 // Inline Loading component if it doesn't exist
 const Loading = ({ fullPage, text = "Loading..." }) => (
   <div className={`text-center py-5 ${fullPage ? 'vh-100 d-flex align-items-center justify-content-center' : ''}`}>
-    <div className="spinner-border" role="status" style={{ color: '#F9376E' }}>
-      <span className="visually-hidden">{text}</span>
+    <div 
+      style={{ 
+        display: 'flex', 
+        flexDirection: 'column', 
+        alignItems: 'center',
+        gap: window.innerWidth <= 576 ? '0.5rem' : '0.75rem'
+      }}
+    >
+      <div className="spinner-border" role="status" style={{ 
+        color: '#F9376E',
+        width: window.innerWidth <= 576 ? '2rem' : '2.5rem',
+        height: window.innerWidth <= 576 ? '2rem' : '2.5rem'
+      }}>
+        <span className="visually-hidden">{text}</span>
+      </div>
+      <div style={{ 
+        color: '#9ca3af',
+        fontSize: window.innerWidth <= 576 ? '0.9rem' : '1rem'
+      }}>
+        {text}
+      </div>
     </div>
-    <div className="mt-2" style={{ color: '#9ca3af' }}>{text}</div>
   </div>
 );
 
@@ -37,6 +70,14 @@ import ReservationTimer from '../components/booking/ReservationTimer';
 const StepIndicator = styled.div`
   display: flex;
   margin-bottom: 2rem;
+  
+  @media (max-width: 768px) {
+    margin-bottom: 1.5rem;
+  }
+  
+  @media (max-width: 576px) {
+    margin-bottom: 1.25rem;
+  }
 `;
 
 const Step = styled.div`
@@ -54,6 +95,13 @@ const Step = styled.div`
     background-color: ${props => props.active || props.completed ? '#F9376E' : '#3f425a'};
     z-index: 1;
   }
+  
+  @media (max-width: 576px) {
+    &:not(:last-child)::after {
+      top: 12px;
+      width: calc(100% - 24px);
+    }
+  }
 `;
 
 const StepNumber = styled.div`
@@ -68,12 +116,35 @@ const StepNumber = styled.div`
   position: relative;
   z-index: 2;
   border: ${props => props.active ? '2px solid #F9376E' : 'none'};
+  
+  @media (max-width: 768px) {
+    width: 28px;
+    height: 28px;
+    line-height: 28px;
+    margin-bottom: 6px;
+  }
+  
+  @media (max-width: 576px) {
+    width: 24px;
+    height: 24px;
+    line-height: 24px;
+    margin-bottom: 4px;
+    font-size: 0.9rem;
+  }
 `;
 
 const StepLabel = styled.div`
   color: ${props => props.active ? '#F9376E' : '#9ca3af'};
   font-size: 0.9rem;
   font-weight: ${props => props.active ? '600' : '400'};
+  
+  @media (max-width: 768px) {
+    font-size: 0.85rem;
+  }
+  
+  @media (max-width: 576px) {
+    font-size: 0.75rem;
+  }
 `;
 
 const ScreenArea = styled.div`
@@ -93,6 +164,30 @@ const ScreenArea = styled.div`
     color: #9ca3af;
     font-size: 0.9rem;
   }
+  
+  @media (max-width: 992px) {
+    margin-bottom: 1.75rem;
+  }
+  
+  @media (max-width: 768px) {
+    margin-bottom: 1.5rem;
+    height: 6px;
+    
+    &::before {
+      top: -22px;
+      font-size: 0.85rem;
+    }
+  }
+  
+  @media (max-width: 576px) {
+    margin-bottom: 1.25rem;
+    height: 5px;
+    
+    &::before {
+      top: -20px;
+      font-size: 0.8rem;
+    }
+  }
 `;
 
 const SummaryItem = styled.div`
@@ -104,15 +199,47 @@ const SummaryItem = styled.div`
     border-bottom: 1px solid #3f425a;
     padding-bottom: 0.5rem;
   }
+  
+  @media (max-width: 768px) {
+    margin-bottom: 0.4rem;
+    
+    &:not(:last-child) {
+      padding-bottom: 0.4rem;
+    }
+  }
+  
+  @media (max-width: 576px) {
+    margin-bottom: 0.3rem;
+    
+    &:not(:last-child) {
+      padding-bottom: 0.3rem;
+    }
+  }
 `;
 
 const Label = styled.span`
   color: #9ca3af;
+  
+  @media (max-width: 768px) {
+    font-size: 0.95rem;
+  }
+  
+  @media (max-width: 576px) {
+    font-size: 0.9rem;
+  }
 `;
 
 const Value = styled.span`
   color: #f3f4f6;
   font-weight: 500;
+  
+  @media (max-width: 768px) {
+    font-size: 0.95rem;
+  }
+  
+  @media (max-width: 576px) {
+    font-size: 0.9rem;
+  }
 `;
 
 const Total = styled(SummaryItem)`
@@ -127,6 +254,16 @@ const Total = styled(SummaryItem)`
   ${Value} {
     color: #F9376E;
   }
+  
+  @media (max-width: 768px) {
+    margin-top: 0.9rem;
+    font-size: 1.05rem;
+  }
+  
+  @media (max-width: 576px) {
+    margin-top: 0.8rem;
+    font-size: 1rem;
+  }
 `;
 
 const LegendContainer = styled.div`
@@ -134,12 +271,40 @@ const LegendContainer = styled.div`
   justify-content: center;
   gap: 1.5rem;
   margin-bottom: 1.5rem;
+  
+  @media (max-width: 992px) {
+    gap: 1.25rem;
+    margin-bottom: 1.25rem;
+  }
+  
+  @media (max-width: 768px) {
+    gap: 1rem;
+    margin-bottom: 1rem;
+    flex-wrap: wrap;
+  }
+  
+  @media (max-width: 576px) {
+    gap: 0.75rem;
+    margin-bottom: 0.75rem;
+  }
 `;
 
 const LegendItem = styled.div`
   display: flex;
   align-items: center;
   gap: 0.5rem;
+  
+  @media (max-width: 768px) {
+    gap: 0.4rem;
+    font-size: 0.9rem;
+    flex: 1 0 40%;
+    margin-bottom: 0.5rem;
+  }
+  
+  @media (max-width: 576px) {
+    gap: 0.3rem;
+    font-size: 0.85rem;
+  }
 `;
 
 const LegendColor = styled.div`
@@ -147,6 +312,17 @@ const LegendColor = styled.div`
   height: 20px;
   border-radius: 4px;
   background-color: ${props => props.color};
+  
+  @media (max-width: 768px) {
+    width: 18px;
+    height: 18px;
+  }
+  
+  @media (max-width: 576px) {
+    width: 16px;
+    height: 16px;
+    border-radius: 3px;
+  }
 `;
 
 const TimerWrapper = styled.div`
@@ -160,6 +336,35 @@ const TimerWrapper = styled.div`
   
   svg {
     color: ${props => props.expiring ? '#ef4444' : '#F9376E'};
+  }
+  
+  @media (max-width: 992px) {
+    margin-bottom: 0.9rem;
+    gap: 0.4rem;
+  }
+  
+  @media (max-width: 768px) {
+    margin-bottom: 0.8rem;
+    font-size: 0.95rem;
+    
+    svg {
+      font-size: 0.95rem;
+    }
+  }
+  
+  @media (max-width: 576px) {
+    margin-bottom: 0.7rem;
+    gap: 0.3rem;
+    font-size: 0.9rem;
+    flex-wrap: wrap;
+    
+    svg {
+      font-size: 0.9rem;
+    }
+    
+    span {
+      font-size: 0.85rem;
+    }
   }
 `;
 
@@ -270,7 +475,7 @@ const SeatSelectionPage = () => {
       </Row>
       
       <Row>
-        <Col lg={8}>
+        <Col lg={8} className="mb-4 mb-lg-0">
           <TimerWrapper expiring={timeRemaining < 120}>
             <FaClock />
             <ReservationTimer 
@@ -313,7 +518,7 @@ const SeatSelectionPage = () => {
           <Card>
             <Card.Header>
               <div className="d-flex justify-content-between align-items-center">
-                <span>Booking Summary</span>
+                <span className="fw-bold">Booking Summary</span>
                 <FaTicketAlt />
               </div>
             </Card.Header>
@@ -359,6 +564,10 @@ const SeatSelectionPage = () => {
                   size="lg" 
                   onClick={handleContinue}
                   disabled={selectedSeats.length === 0}
+                  style={{
+                    fontSize: window.innerWidth <= 576 ? '0.95rem' : '1rem',
+                    padding: window.innerWidth <= 576 ? '0.65rem 1rem' : '0.75rem 1.25rem'
+                  }}
                 >
                   Continue to Payment
                 </Button>
@@ -366,6 +575,10 @@ const SeatSelectionPage = () => {
                   variant="outline" 
                   size="lg" 
                   onClick={() => navigate(-1)}
+                  style={{
+                    fontSize: window.innerWidth <= 576 ? '0.95rem' : '1rem',
+                    padding: window.innerWidth <= 576 ? '0.65rem 1rem' : '0.75rem 1.25rem'
+                  }}
                 >
                   Back
                 </Button>
@@ -373,7 +586,12 @@ const SeatSelectionPage = () => {
               
               <div className="mt-3 d-flex align-items-center">
                 <FaInfoCircle className="me-2" style={{ color: '#F9376E' }} />
-                <small style={{ color: '#9ca3af' }}>
+                <small 
+                  style={{ 
+                    color: '#9ca3af',
+                    fontSize: window.innerWidth <= 576 ? '0.8rem' : '0.875rem' 
+                  }}
+                >
                   Seats are reserved for 10 minutes. Complete payment before time expires.
                 </small>
               </div>

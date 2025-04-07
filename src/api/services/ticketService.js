@@ -1,81 +1,26 @@
-// Các dịch vụ liên quan đến vé và lịch sử mua vé
+import apiClient from './apiClient';
 
 /**
  * Lấy lịch sử mua vé
  * @returns {Promise<Array>} - Danh sách vé đã mua
  */
 export const getTicketHistory = async () => {
-  // TODO: Thay thế bằng API thật khi có
-  await new Promise(resolve => setTimeout(resolve, 1200));
-  
-  // Dữ liệu mẫu
-  return [
-    {
-      id: 'TK-001',
-      movieName: 'Người Nhện: Không Còn Nhà',
-      theater: 'CineVerse Sài Gòn',
-      date: '2024-03-15',
-      time: '19:30',
-      seats: ['H7', 'H8'],
-      price: 170000,
-      status: 'completed',
-      bookingDate: '2024-03-10T12:45:00',
-      paymentMethod: 'Thẻ tín dụng/ghi nợ',
-      code: 'QR12345678'
-    },
-    {
-      id: 'TK-002',
-      movieName: 'Black Panther: Wakanda Mãi Mãi',
-      theater: 'CineVerse Hà Nội',
-      date: '2024-04-01',
-      time: '20:15',
-      seats: ['F5', 'F6', 'F7', 'F8'],
-      price: 340000,
-      status: 'pending',
-      bookingDate: '2024-03-28T10:15:00',
-      paymentMethod: 'Ví điện tử MoMo',
-      code: 'QR87654321'
-    },
-    {
-      id: 'TK-003',
-      movieName: 'Sát Thủ John Wick 4',
-      theater: 'CineVerse Đà Nẵng',
-      date: '2024-02-20',
-      time: '21:00',
-      seats: ['D12'],
-      price: 85000,
-      status: 'completed',
-      bookingDate: '2024-02-15T18:30:00',
-      paymentMethod: 'Tiền mặt',
-      code: 'QR13579246'
-    },
-    {
-      id: 'TK-004',
-      movieName: 'Avatar: Dòng Chảy Của Nước',
-      theater: 'CineVerse Sài Gòn',
-      date: '2023-12-25',
-      time: '15:45',
-      seats: ['J10', 'J11', 'J12'],
-      price: 255000,
-      status: 'cancelled',
-      bookingDate: '2023-12-20T09:00:00',
-      paymentMethod: 'Thẻ tín dụng/ghi nợ',
-      code: 'QR24681357'
-    },
-    {
-      id: 'TK-005',
-      movieName: 'Oppenheimer',
-      theater: 'CineVerse Hà Nội',
-      date: '2024-01-10',
-      time: '18:30',
-      seats: ['E15', 'E16'],
-      price: 170000,
-      status: 'completed',
-      bookingDate: '2024-01-05T13:20:00',
-      paymentMethod: 'Ví điện tử ZaloPay',
-      code: 'QR36925814'
+  try {
+    // Lấy email người dùng từ localStorage
+    const userEmail = localStorage.getItem('userEmail');
+    if (!userEmail) {
+      throw new Error('Không tìm thấy thông tin người dùng');
     }
-  ];
+
+    // Gọi API với userEmail
+    const response = await apiClient.get(`/users/profile/${userEmail}/purchase-history`);
+    
+    // Trả về data từ response
+    return response.data.data;
+  } catch (error) {
+    console.error('Error fetching ticket history:', error);
+    throw error;
+  }
 };
 
 /**
