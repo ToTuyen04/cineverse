@@ -25,7 +25,7 @@ import ResetPasswordPage from './pages/ResetPasswordPage';
 import TicketInfo from './pages/TicketInfo';
 
 // Admin pages
-import Dashboard from './pages/admin/Dashboard';
+import Dashboard from './pages/admin/Dashboard/Dashboard';
 import Movies from './pages/admin/Movies/Movies';
 import Theaters from './pages/admin/Theaters/Theaters';
 import Showtimes from './pages/admin/Showtimes/Showtimes';
