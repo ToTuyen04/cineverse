@@ -2,8 +2,8 @@ import axios from 'axios';
 
 // Create a unified API client with common configuration
 const apiClient = axios.create({
-  baseURL: 'https://localhost:7212/api',
-  // baseURL: 'https://cinemamanagement.azurewebsites.net/api',
+  // baseURL: 'https://localhost:7212/api',
+  baseURL: 'https://cinemamanagement.azurewebsites.net/api',
   timeout: 10000,
   headers: {
     'Content-Type': 'application/json',
