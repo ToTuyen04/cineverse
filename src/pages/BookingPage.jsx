@@ -637,25 +637,11 @@ const SeatsGrid = styled.div`
   justify-content: center; /* Căn giữa các ghế trong container */
   align-items: center; /* Căn giữa theo chiều dọc */
 
-  @media (max-width: 1328px) {
-  width: 60%;
-  gap: 10px;
-  }
-  @media (max-width: 1130px) {
-  width: 70%;
-  gap: 10px;
-  }
-   @media (max-width: 910px) {
-  width: 80%;
-  gap: 8px;
-  }
-  @media (max-width: 790px) {
-    width: 100%;
+  @media (max-width: 768px) {
     gap: 8px; /* Giảm khoảng cách trên màn hình nhỏ */
   }
 
   @media (max-width: 576px) {
-    width: 100%;
     gap: 6px; /* Giảm khoảng cách hơn nữa trên màn hình rất nhỏ */
   }
 `;
@@ -762,13 +748,13 @@ function BookingPage() {
         totalPrice = item.comboDetails.reduce((sum, detail) => {
           return sum + (detail.fnbPrice * detail.quantity);
         }, 0);
-
+    
         // Áp dụng giảm giá nếu có
         if (item.comboDiscount > 0) {
           totalPrice = totalPrice * (1 - item.comboDiscount / 100); // Chia comboDiscount cho 100
         }
       }
-
+    
       // Tạo mô tả từ comboDetails
       let description = item.comboDescription;
       if (!description && item.comboDetails && item.comboDetails.length > 0) {
@@ -776,7 +762,7 @@ function BookingPage() {
           .map(detail => `${detail.quantity} ${detail.fnbName}`)
           .join(' + ');
       }
-
+    
       return {
         id: item.comboId,
         name: item.comboName,
@@ -993,8 +979,8 @@ function BookingPage() {
     return { rows, cols };
   };
 
-
-
+  
+  
 
   // Hàm mapping loại ghế từ tên
   const getSeatTypeFromName = (chairTypeName) => {
@@ -1106,26 +1092,26 @@ function BookingPage() {
 
   // Trong BookingPage.jsx - Thêm useEffect để xử lý preselection
   useEffect(() => {
-
+    
 
     // Chọn rạp
     if (location.state?.preselected && theatersList.length > 0 && !loading) {
       const theaterId = location.state.theaterId;
-
+      
       // Tìm rạp trong danh sách
-      const theater = theatersList.find(t =>
-        t.theaterId === parseInt(theaterId) ||
+      const theater = theatersList.find(t => 
+        t.theaterId === parseInt(theaterId) || 
         t.id === parseInt(theaterId)
       );
-
+      
       if (theater) {
         handleTheaterSelect(theater);
       }
     }
   }, [location.state, theatersList, loading]); // Thêm loading là dependency quan trọng
 
-
-
+ 
+  
   if (loading) {
     return (
       <PageContainer>
@@ -1306,8 +1292,8 @@ function BookingPage() {
           <ShowtimesList>
             {selectedDate.times.map(time => (
               <ShowtimeCard
-                key={time.id}
-                $selected={selectedShowtime && selectedShowtime.id === time.id}
+                key={time.showtimeId}
+                $selected={selectedShowtime && selectedShowtime.showtimeId === time.showtimeId}
                 onClick={() => handleShowtimeSelect(time)}
               >
                 <div className="time">
@@ -1859,12 +1845,12 @@ const SeatImage = styled.div`
     bottom: 0;
     border-radius: 8px;
     background-color: ${props => {
-    if (props.$reserved) return '#333';
-    if (props.$selected) return '#800080';
-    if (props.$type === 'Ghế VIP') return '#f39c12';
-    if (props.$type === 'Ghế đôi') return '#9b59b6';
-    return '#2c2c44';
-  }};
+      if (props.$reserved) return '#333';
+      if (props.$selected) return '#800080';
+      if (props.$type === 'Ghế VIP') return '#f39c12';
+      if (props.$type === 'Ghế đôi') return '#9b59b6';
+      return '#2c2c44';
+    }};
   }
   
   &:hover {

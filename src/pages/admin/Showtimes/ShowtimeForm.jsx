@@ -56,21 +56,20 @@ const preserveLocalTime = (date) => {
 const formatDateTimeWithTimezone = (date) => {
   if (!date) return '';
   const d = new Date(date);
-  return d.toLocaleString('en-US', { 
+  return d.toLocaleString('vi-VN', { 
     year: 'numeric', 
-    month: 'short', 
-    day: 'numeric',
+    month: '2-digit', 
+    day: '2-digit',
     hour: '2-digit',
     minute: '2-digit',
-    hour12: true,
-    timeZoneName: 'short'
+    hour12: false
   });
 };
 
 // New API service functions
 const fetchAllMovies = async () => {
   try {
-    const response = await axios.get('https://localhost:7212/api/Movies');
+    const response = await axios.get('https://cinemamanagement.azurewebsites.net/api/Movies');
     return response.data.data || [];
   } catch (error) {
     console.error('Error fetching movies:', error);
@@ -80,7 +79,7 @@ const fetchAllMovies = async () => {
 
 const fetchAllRooms = async () => {
   try {
-    const response = await axios.get('https://localhost:7212/api/Rooms');
+    const response = await axios.get('https://cinemamanagement.azurewebsites.net/api/Rooms');
     return response.data.data || [];
   } catch (error) {
     console.error('Error fetching rooms:', error);
@@ -90,7 +89,7 @@ const fetchAllRooms = async () => {
 
 const fetchMovieById = async (id) => {
   try {
-    const response = await axios.get(`https://localhost:7212/api/Movies/${id}`);
+    const response = await axios.get(`https://cinemamanagement.azurewebsites.net/api/Movies/${id}`);
     return response.data;
   } catch (error) {
     console.error(`Error fetching movie with id ${id}:`, error);
@@ -100,7 +99,7 @@ const fetchMovieById = async (id) => {
 
 const fetchRoomById = async (id) => {
   try {
-    const response = await axios.get(`https://localhost:7212/api/Rooms/${id}`);
+    const response = await axios.get(`https://cinemamanagement.azurewebsites.net/api/Rooms/${id}`);
     return response.data.data;
   } catch (error) {
     console.error(`Error fetching room with id ${id}:`, error);
@@ -108,7 +107,7 @@ const fetchRoomById = async (id) => {
   }
 };
 
-const ShowtimeForm = ({ open, handleClose, showtime, onSubmit, isEdit = false }) => {
+const ShowtimeForm = ({ open, handleClose, showtime, onSubmit, isEdit = false, viewOnly = false }) => {
   const theme = useTheme();
   const [formData, setFormData] = useState({
     showtimeMovieId: 0,
@@ -174,9 +173,9 @@ const ShowtimeForm = ({ open, handleClose, showtime, onSubmit, isEdit = false })
   useEffect(() => {
     // When dialog opens
     if (open) {
-      console.log("Dialog opened, isEdit:", isEdit);
+      console.log("Dialog opened, isEdit:", isEdit, "viewOnly:", viewOnly);
       
-      if (isEdit && showtime) {
+      if ((isEdit || viewOnly) && showtime) {
         console.log("Initializing form with showtime data:", showtime);
         
         setFormData({
@@ -188,44 +187,92 @@ const ShowtimeForm = ({ open, handleClose, showtime, onSubmit, isEdit = false })
         });
         
       } else {
-        // Always reset form completely when opening in add mode
-        resetForm();
+        // Make sure to completely reset EVERYTHING when adding a new showtime
+        console.log("Opening form in ADD mode - resetting all form data");
+        setFormData({
+          showtimeMovieId: 0,
+          showtimeStartAt: new Date(),
+          showtimeCreatedBy: 1,
+          showtimeRoomId: 0,
+          showtimeAvailable: true
+        });
+        setErrors({});
+        setSelectedMovieDetails(null);
+        setSelectedRoomDetails(null);
       }
     }
-  }, [isEdit, showtime, open]);
+  }, [isEdit, viewOnly, showtime, open]);
   
-  // Fetch specific movie and room details when selected or when editing
+  // Fetch specific movie and room details when selected or when editing/viewing
   useEffect(() => {
     const fetchSelectedDetails = async () => {
-      // When movie ID is available, fetch details regardless of edit mode
-      if (formData.showtimeMovieId > 0) {
+      // Skip fetching details if we're in add mode and no IDs are selected yet
+      if (!isEdit && !viewOnly && 
+          (!formData.showtimeMovieId || formData.showtimeMovieId === 0) && 
+          (!formData.showtimeRoomId || formData.showtimeRoomId === 0)) {
+        // Clear selected details when in add mode with no selections
+        setSelectedMovieDetails(null);
+        setSelectedRoomDetails(null);
+        return;
+      }
+      
+      // When in view mode, always fetch movie details from the showtime
+      if (viewOnly && showtime && showtime.movieId) {
         try {
-          const movieDetails = await fetchMovieById(formData.showtimeMovieId);
+          const movieDetails = await fetchMovieById(showtime.movieId);
           if (movieDetails) {
-            console.log("Fetched movie details:", movieDetails);
+            console.log("Fetched movie details for view:", movieDetails);
             setSelectedMovieDetails(movieDetails);
           }
         } catch (error) {
-          console.error("Error fetching movie details:", error);
+          console.error("Error fetching movie details for view:", error);
         }
       }
-      
-      // When room ID is available, fetch details regardless of edit mode
-      if (formData.showtimeRoomId > 0) {
+      // When in view mode, always fetch room details from the showtime
+      if (viewOnly && showtime && showtime.roomId) {
         try {
-          const roomDetails = await fetchRoomById(formData.showtimeRoomId);
+          const roomDetails = await fetchRoomById(showtime.roomId);
           if (roomDetails) {
-            console.log("Fetched room details:", roomDetails);
+            console.log("Fetched room details for view:", roomDetails);
             setSelectedRoomDetails(roomDetails);
           }
         } catch (error) {
-          console.error("Error fetching room details:", error);
+          console.error("Error fetching room details for view:", error);
+        }
+      }
+      
+      // Existing code for edit mode fetching
+      if (!viewOnly) {
+        // When movie ID is available, fetch details regardless of edit mode
+        if (formData.showtimeMovieId > 0) {
+          try {
+            const movieDetails = await fetchMovieById(formData.showtimeMovieId);
+            if (movieDetails) {
+              console.log("Fetched movie details:", movieDetails);
+              setSelectedMovieDetails(movieDetails);
+            }
+          } catch (error) {
+            console.error("Error fetching movie details:", error);
+          }
+        }
+        
+        // When room ID is available, fetch details regardless of edit mode
+        if (formData.showtimeRoomId > 0) {
+          try {
+            const roomDetails = await fetchRoomById(formData.showtimeRoomId);
+            if (roomDetails) {
+              console.log("Fetched room details:", roomDetails);
+              setSelectedRoomDetails(roomDetails);
+            }
+          } catch (error) {
+            console.error("Error fetching room details:", error);
+          }
         }
       }
     };
     
     fetchSelectedDetails();
-  }, [formData.showtimeMovieId, formData.showtimeRoomId]);
+  }, [formData.showtimeMovieId, formData.showtimeRoomId, viewOnly, showtime, isEdit]);
   
   const handleInputChange = (e) => {
     const { name, value } = e.target;
@@ -277,13 +324,13 @@ const ShowtimeForm = ({ open, handleClose, showtime, onSubmit, isEdit = false })
   const validateForm = () => {
     const newErrors = {};
     if (!formData.showtimeMovieId || formData.showtimeMovieId <= 0) {
-      newErrors.showtimeMovieId = 'Please select a movie';
+      newErrors.showtimeMovieId = 'Vui lòng chọn phim';
     }
     if (!formData.showtimeRoomId || formData.showtimeRoomId <= 0) {
-      newErrors.showtimeRoomId = 'Please select a room';
+      newErrors.showtimeRoomId = 'Vui lòng chọn phòng chiếu';
     }
     if (!formData.showtimeStartAt) {
-      newErrors.showtimeStartAt = 'Start time is required';
+      newErrors.showtimeStartAt = 'Thời gian bắt đầu là bắt buộc';
     }
     
     setErrors(newErrors);
@@ -305,8 +352,9 @@ const ShowtimeForm = ({ open, handleClose, showtime, onSubmit, isEdit = false })
   };
   
   // Update how we determine the selected movie and room
-  // Use our fetched details when available, fall back to the data in movies/rooms arrays
-  const selectedMovie = selectedMovieDetails || 
+  // Make sure we don't show any selected movie or room when in add mode with no selections
+  const selectedMovie = (!isEdit && !viewOnly && formData.showtimeMovieId === 0) ? null :
+    selectedMovieDetails || 
     (isEdit && showtime && showtime.movieId === formData.showtimeMovieId ? 
       { 
         movieId: showtime.movieId,
@@ -318,7 +366,8 @@ const ShowtimeForm = ({ open, handleClose, showtime, onSubmit, isEdit = false })
       } : 
       movies.find(movie => movie && movie.movieId === Number(formData.showtimeMovieId)));
   
-  const selectedRoom = selectedRoomDetails || 
+  const selectedRoom = (!isEdit && !viewOnly && formData.showtimeRoomId === 0) ? null :
+    selectedRoomDetails || 
     (isEdit && showtime && showtime.roomId === formData.showtimeRoomId ?
       {
         roomId: showtime.roomId,
@@ -351,11 +400,11 @@ const ShowtimeForm = ({ open, handleClose, showtime, onSubmit, isEdit = false })
         borderBottom: `1px solid ${theme.palette.divider}`
       }}>
         <Typography variant="h5" fontWeight={600}>
-          {isEdit ? 'Edit Showtime' : 'Add New Showtime'}
+          {viewOnly ? 'Xem Chi Tiết Suất Chiếu' : isEdit ? 'Chỉnh Sửa Suất Chiếu' : 'Thêm Suất Chiếu Mới'}
         </Typography>
-        {isEdit && showtime && (
+        {(isEdit || viewOnly) && showtime && (
           <Typography variant="subtitle1" color="text.secondary" sx={{ mt: 0.5 }}>
-            ID: {showtime.showtimeId}
+            Mã suất chiếu: {showtime.showtimeId}
           </Typography>
         )}
       </DialogTitle>
@@ -366,8 +415,8 @@ const ShowtimeForm = ({ open, handleClose, showtime, onSubmit, isEdit = false })
           </Grid>
         ) : (
           <Grid container spacing={3}>
-            {/* Current Selection Info - Only show when editing */}
-            {isEdit && showtime && (
+            {/* Current Selection Info - Show in view/edit mode */}
+            {(isEdit || viewOnly) && showtime && (
               <Grid item xs={12}>
                 <Paper 
                   variant="outlined" 
@@ -380,31 +429,31 @@ const ShowtimeForm = ({ open, handleClose, showtime, onSubmit, isEdit = false })
                   }}
                 >
                   <Typography variant="subtitle2" color="text.secondary" gutterBottom>
-                    Currently Editing:
+                    {viewOnly ? 'Đang xem:' : 'Đang chỉnh sửa:'}
                   </Typography>
                   <Box sx={{ display: 'flex', flexDirection: 'column', gap: 0.5 }}>
                     <Box sx={{ display: 'flex', alignItems: 'center' }}>
                       <Typography variant="body2" color="text.secondary" sx={{ minWidth: 100 }}>
-                        Movie:
+                        Phim:
                       </Typography>
                       <Typography variant="body1" fontWeight={500}>
-                        {showtime.movieName || "Not specified"}
+                        {showtime.movieName || "Chưa xác định"}
                       </Typography>
                     </Box>
                     <Box sx={{ display: 'flex', alignItems: 'center' }}>
                       <Typography variant="body2" color="text.secondary" sx={{ minWidth: 100 }}>
-                        Room:
+                        Phòng:
                       </Typography>
                       <Typography variant="body1" fontWeight={500}>
-                        {showtime.roomName || "Not specified"}
+                        {showtime.roomName || "Chưa xác định"}
                       </Typography>
                     </Box>
                     <Box sx={{ display: 'flex', alignItems: 'center' }}>
                       <Typography variant="body2" color="text.secondary" sx={{ minWidth: 100 }}>
-                        Theater:
+                        Rạp:
                       </Typography>
                       <Typography variant="body1" fontWeight={500}>
-                        {showtime.roomTheaterName || "Not specified"}
+                        {showtime.roomTheaterName || "Chưa xác định"}
                       </Typography>
                     </Box>
                   </Box>
@@ -412,97 +461,152 @@ const ShowtimeForm = ({ open, handleClose, showtime, onSubmit, isEdit = false })
               </Grid>
             )}
             
-            {/* Movie Selection */}
+            {/* Movie Information */}
             <Grid item xs={12}>
               <Typography variant="subtitle1" fontWeight={600} gutterBottom>
-                Movie Information
+                Thông Tin Phim
               </Typography>
             </Grid>
             
+            {/* Movie Selection - Show select in edit mode, show info in view mode */}
             <Grid item xs={12}>
-              <FormControl fullWidth error={!!errors.showtimeMovieId}>
-                <InputLabel id="movie-label">Movie</InputLabel>
-                <Select
-                  labelId="movie-label"
-                  id="showtimeMovieId"
-                  name="showtimeMovieId"
-                  value={formData.showtimeMovieId || 0}
-                  onChange={handleInputChange}
-                  label="Movie"
-                  renderValue={(selected) => {
-                    if (!selected || selected === 0) {
-                      return <em>Select a movie</em>;
-                    }
-                    
-                    // First check if we have the movie name from API response
-                    if (isEdit && showtime && showtime.movieId === selected) {
-                      return showtime.movieName || `Movie ID: ${selected}`;
-                    }
-                    
-                    // Otherwise try to find it in the movies list
-                    const movie = movies.find(m => m && m.movieId === Number(selected));
-                    return movie ? movie.movieName : `Movie ID: ${selected}`;
-                  }}
-                  MenuProps={{
-                    PaperProps: {
-                      sx: { maxHeight: 450 }
-                    }
-                  }}
-                >
-                  <MenuItem value={0}>
-                    <em>Select a movie</em>
-                  </MenuItem>
-                  {movies.map(movie => movie && (
-                    <MenuItem key={movie.movieId} value={movie.movieId} sx={{ py: 2 }}>
-                      <Box sx={{ display: 'flex', alignItems: 'center', width: '100%' }}>
-                        <Avatar 
-                          src={movie.moviePoster} 
-                          variant="rounded"
-                          sx={{ 
-                            width: 48, 
-                            height: 68,
-                            mr: 2,
-                            boxShadow: 1
-                          }}
-                        />
-                        <Box sx={{ flex: 1 }}>
-                          <Typography variant="subtitle1" fontWeight={500}>
-                            {movie.movieName}
-                          </Typography>
-                          <Typography variant="body2" color="text.secondary">
-                            {movie.movieDuration || 0} mins • Dir: {movie.movieDirector || 'Unknown'}
-                          </Typography>
-                          <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.5, mt: 1 }}>
-                            {movie.genres && movie.genres.map(genre => (
-                              <Chip 
-                                key={genre.genresId} 
-                                label={genre.genresName} 
-                                size="small"
-                                sx={{ 
-                                  height: 20,
-                                  fontSize: '0.7rem',
-                                  backgroundColor: theme.palette.mode === 'dark' 
-                                    ? theme.palette.grey[800] 
-                                    : theme.palette.grey[200]
-                                }} 
-                              />
-                            ))}
+              {viewOnly ? (
+                <Paper sx={{ p: 2, borderRadius: 1, border: `1px solid ${theme.palette.divider}` }}>
+                  <Box sx={{ display: 'flex', alignItems: 'flex-start' }}>
+                    <Avatar 
+                      src={(selectedMovie && selectedMovie.moviePoster) || showtime?.moviePoster} 
+                      variant="rounded"
+                      sx={{ 
+                        width: 70, 
+                        height: 100,
+                        mr: 2,
+                        boxShadow: 2
+                      }}
+                    />
+                    <Box>
+                      <Typography variant="h6" fontWeight={600} gutterBottom>
+                        {(selectedMovie && selectedMovie.movieName) || showtime?.movieName || 'Phim không xác định'}
+                      </Typography>
+                      <Typography variant="body2" sx={{ mb: 0.5 }}>
+                        Thời lượng: {(selectedMovie && selectedMovie.movieDuration) || showtime?.movieDuration || '—'} phút
+                      </Typography>
+                      <Typography variant="body2" sx={{ mb: 0.5 }}>
+                        Đạo diễn: {(selectedMovie && selectedMovie.movieDirector) || showtime?.movieDirector || '—'}
+                      </Typography>
+                      <Typography variant="body2" sx={{ mb: 0.5 }}>
+                        Diễn viên: {(selectedMovie && selectedMovie.movieActor) || showtime?.movieActor || '—'}
+                      </Typography>
+                      {selectedMovie && selectedMovie.genres && selectedMovie.genres.length > 0 && (
+                        <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.5, mt: 1 }}>
+                          {selectedMovie.genres.map(genre => (
+                            <Chip 
+                              key={genre.genresId} 
+                              label={genre.genresName} 
+                              size="small"
+                              sx={{ 
+                                height: 20,
+                                fontSize: '0.7rem',
+                                backgroundColor: theme.palette.mode === 'dark' 
+                                  ? theme.palette.grey[800] 
+                                  : theme.palette.grey[200]
+                              }} 
+                            />
+                          ))}
+                        </Box>
+                      )}
+                      {selectedMovie && selectedMovie.movieBrand && (
+                        <Typography variant="body2" color="text.secondary" sx={{ mt: 1 }}>
+                          Hãng phim: {selectedMovie.movieBrand}
+                        </Typography>
+                      )}
+                    </Box>
+                  </Box>
+                </Paper>
+              ) : (
+                <FormControl fullWidth error={!!errors.showtimeMovieId}>
+                  <InputLabel id="movie-label">Phim</InputLabel>
+                  <Select
+                    labelId="movie-label"
+                    id="showtimeMovieId"
+                    name="showtimeMovieId"
+                    value={formData.showtimeMovieId || 0}
+                    onChange={handleInputChange}
+                    label="Phim"
+                    renderValue={(selected) => {
+                      if (!selected || selected === 0) {
+                        return <em>Chọn một phim</em>;
+                      }
+                      
+                      // First check if we have the movie name from API response
+                      if (isEdit && showtime && showtime.movieId === selected) {
+                        return showtime.movieName || `Mã phim: ${selected}`;
+                      }
+                      
+                      // Otherwise try to find it in the movies list
+                      const movie = movies.find(m => m && m.movieId === Number(selected));
+                      return movie ? movie.movieName : `Mã phim: ${selected}`;
+                    }}
+                    MenuProps={{
+                      PaperProps: {
+                        sx: { maxHeight: 450 }
+                      }
+                    }}
+                  >
+                    <MenuItem value={0}>
+                      <em>Chọn một phim</em>
+                    </MenuItem>
+                    {movies.map(movie => movie && (
+                      <MenuItem key={movie.movieId} value={movie.movieId} sx={{ py: 2 }}>
+                        <Box sx={{ display: 'flex', alignItems: 'center', width: '100%' }}>
+                          <Avatar 
+                            src={movie.moviePoster} 
+                            variant="rounded"
+                            sx={{ 
+                              width: 48, 
+                              height: 68,
+                              mr: 2,
+                              boxShadow: 1
+                            }}
+                          />
+                          <Box sx={{ flex: 1 }}>
+                            <Typography variant="subtitle1" fontWeight={500}>
+                              {movie.movieName}
+                            </Typography>
+                            <Typography variant="body2" color="text.secondary">
+                              {movie.movieDuration || 0} phút • ĐD: {movie.movieDirector || 'Không rõ'}
+                            </Typography>
+                            <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.5, mt: 1 }}>
+                              {movie.genres && movie.genres.map(genre => (
+                                <Chip 
+                                  key={genre.genresId} 
+                                  label={genre.genresName} 
+                                  size="small"
+                                  sx={{ 
+                                    height: 20,
+                                    fontSize: '0.7rem',
+                                    backgroundColor: theme.palette.mode === 'dark' 
+                                      ? theme.palette.grey[800] 
+                                      : theme.palette.grey[200]
+                                  }} 
+                                />
+                              ))}
+                            </Box>
                           </Box>
                         </Box>
-                      </Box>
-                    </MenuItem>
-                  ))}
-                </Select>
-                {errors.showtimeMovieId && (
-                  <Typography color="error" variant="caption" sx={{mt: 0.5, ml: 2}}>
-                    {errors.showtimeMovieId}
-                  </Typography>
-                )}
-              </FormControl>
+                      </MenuItem>
+                    ))}
+                  </Select>
+                  {errors.showtimeMovieId && (
+                    <Typography color="error" variant="caption" sx={{mt: 0.5, ml: 2}}>
+                      {errors.showtimeMovieId}
+                    </Typography>
+                  )}
+                </FormControl>
+              )}
             </Grid>
             
-            {/* Selected Movie Details */}
-            {selectedMovie && (
+            {/* Selected Movie Details - Only show in edit mode */}
+            {!viewOnly && selectedMovie && (
               <Grid item xs={12} sx={{ mt: 1 }}>
                 <Box sx={{ 
                   p: 2, 
@@ -525,7 +629,7 @@ const ShowtimeForm = ({ open, handleClose, showtime, onSubmit, isEdit = false })
                       {selectedMovie.movieName}
                     </Typography>
                     <Typography variant="body2" sx={{ mb: 1 }}>
-                      {selectedMovie.movieDuration || '—'} min • {selectedMovie.movieBrand || '—'}
+                      {selectedMovie.movieDuration || '—'} phút • {selectedMovie.movieBrand || '—'}
                     </Typography>
                     <Typography variant="body2" color="text.secondary">
                       {selectedMovie.movieActor || '—'}
@@ -535,57 +639,85 @@ const ShowtimeForm = ({ open, handleClose, showtime, onSubmit, isEdit = false })
               </Grid>
             )}
             
-            {/* Room Selection */}
+            {/* Room Information */}
             <Grid item xs={12} sx={{ mt: 2 }}>
               <Typography variant="subtitle1" fontWeight={600} gutterBottom>
-                Room Information
+                Thông Tin Phòng Chiếu
               </Typography>
             </Grid>
             
+            {/* Room Selection - Show select in edit mode, show info in view mode */}
             <Grid item xs={12}>
-              <FormControl fullWidth error={!!errors.showtimeRoomId}>
-                <InputLabel id="room-label">Room</InputLabel>
-                <Select
-                  labelId="room-label"
-                  id="showtimeRoomId"
-                  name="showtimeRoomId"
-                  value={formData.showtimeRoomId || 0}
-                  onChange={handleInputChange}
-                  label="Room"
-                  renderValue={(selected) => {
-                    if (!selected || selected === 0) {
-                      return <em>Select a room</em>;
-                    }
-                    
-                    // First check if we have the room name from API response
-                    if (isEdit && showtime && showtime.roomId === selected) {
-                      return `${showtime.roomName} - ${showtime.roomTheaterName} (${showtime.roomScreenTypeName})`;
-                    }
-                    
-                    // Otherwise try to find it in the rooms list
-                    const room = rooms.find(r => r && r.roomId === Number(selected));
-                    return room ? `${room.roomName} - ${room.roomTheaterName} (${room.roomScreenTypeName})` : `Room ID: ${selected}`;
-                  }}
-                >
-                  <MenuItem value={0}>
-                    <em>Select a room</em>
-                  </MenuItem>
-                  {rooms.map(room => room && (
-                    <MenuItem key={room.roomId} value={room.roomId}>
-                      {room.roomName} - {room.roomTheaterName} ({room.roomScreenTypeName})
-                    </MenuItem>
-                  ))}
-                </Select>
-                {errors.showtimeRoomId && (
-                  <Typography color="error" variant="caption" sx={{mt: 0.5, ml: 2}}>
-                    {errors.showtimeRoomId}
+              {viewOnly ? (
+                <Paper sx={{ p: 2, borderRadius: 1, border: `1px solid ${theme.palette.divider}` }}>
+                  <Typography variant="h6" fontWeight={600} gutterBottom>
+                    {(selectedRoom && selectedRoom.roomName) || showtime?.roomName || 'Phòng không xác định'}
                   </Typography>
-                )}
-              </FormControl>
+                  <Typography variant="body2" sx={{ mb: 0.5 }}>
+                    Rạp phim: {(selectedRoom && selectedRoom.roomTheaterName) || showtime?.roomTheaterName || '—'}
+                  </Typography>
+                  <Typography variant="body2" sx={{ mb: 0.5 }}>
+                    Loại màn hình: {(selectedRoom && selectedRoom.roomScreenTypeName) || showtime?.roomScreenTypeName || '—'}
+                  </Typography>
+                  <Typography variant="body2" sx={{ mb: 0.5 }}>
+                    Số ghế: {(selectedRoom && selectedRoom.roomChairAmount) || showtime?.roomChairAmount || '—'}
+                  </Typography>
+                  {selectedRoom && selectedRoom.roomStatus && (
+                    <Box sx={{ mt: 1 }}>
+                      <Chip 
+                        label={selectedRoom.roomStatus ? "Đang hoạt động" : "Không hoạt động"} 
+                        size="small"
+                        color={selectedRoom.roomStatus ? "success" : "error"}
+                        variant="outlined"
+                      />
+                    </Box>
+                  )}
+                </Paper>
+              ) : (
+                <FormControl fullWidth error={!!errors.showtimeRoomId}>
+                  <InputLabel id="room-label">Phòng chiếu</InputLabel>
+                  <Select
+                    labelId="room-label"
+                    id="showtimeRoomId"
+                    name="showtimeRoomId"
+                    value={formData.showtimeRoomId || 0}
+                    onChange={handleInputChange}
+                    label="Phòng chiếu"
+                    renderValue={(selected) => {
+                      if (!selected || selected === 0) {
+                        return <em>Chọn phòng chiếu</em>;
+                      }
+                      
+                      // First check if we have the room name from API response
+                      if (isEdit && showtime && showtime.roomId === selected) {
+                        return `${showtime.roomName} - ${showtime.roomTheaterName} (${showtime.roomScreenTypeName})`;
+                      }
+                      
+                      // Otherwise try to find it in the rooms list
+                      const room = rooms.find(r => r && r.roomId === Number(selected));
+                      return room ? `${room.roomName} - ${room.roomTheaterName} (${room.roomScreenTypeName})` : `Mã phòng: ${selected}`;
+                    }}
+                  >
+                    <MenuItem value={0}>
+                      <em>Chọn phòng chiếu</em>
+                    </MenuItem>
+                    {rooms.map(room => room && (
+                      <MenuItem key={room.roomId} value={room.roomId}>
+                        {room.roomName} - {room.roomTheaterName} ({room.roomScreenTypeName})
+                      </MenuItem>
+                    ))}
+                  </Select>
+                  {errors.showtimeRoomId && (
+                    <Typography color="error" variant="caption" sx={{mt: 0.5, ml: 2}}>
+                      {errors.showtimeRoomId}
+                    </Typography>
+                  )}
+                </FormControl>
+              )}
             </Grid>
             
-            {/* Selected Room Information */}
-            {selectedRoom && (
+            {/* Selected Room Information - Only show in edit mode */}
+            {!viewOnly && selectedRoom && (
               <Grid item xs={12} sx={{ mt: 1 }}>
                 <Box sx={{ 
                   p: 2, 
@@ -597,7 +729,7 @@ const ShowtimeForm = ({ open, handleClose, showtime, onSubmit, isEdit = false })
                     {selectedRoom.roomName}
                   </Typography>
                   <Typography variant="body2">
-                    Theater: {selectedRoom.roomTheaterName}
+                    Rạp: {selectedRoom.roomTheaterName}
                   </Typography>
                   <Box sx={{ display: 'flex', alignItems: 'center', mt: 1, gap: 1 }}>
                     <Chip 
@@ -608,7 +740,7 @@ const ShowtimeForm = ({ open, handleClose, showtime, onSubmit, isEdit = false })
                     />
                     {selectedRoom.roomChairAmount && (
                       <Chip 
-                        label={`${selectedRoom.roomChairAmount} seats`} 
+                        label={`${selectedRoom.roomChairAmount} ghế`} 
                         size="small"
                         variant="outlined"
                       />
@@ -618,65 +750,90 @@ const ShowtimeForm = ({ open, handleClose, showtime, onSubmit, isEdit = false })
               </Grid>
             )}
             
-            {/* Showtime Start */}
+            {/* Showtime Information */}
             <Grid item xs={12} sx={{ mt: 2 }}>
               <Typography variant="subtitle1" fontWeight={600} gutterBottom>
-                Showtime Information
+                Thông Tin Suất Chiếu
               </Typography>
             </Grid>
             
+            {/* Showtime Date/Time - Show picker in edit mode, show info in view mode */}
             <Grid item xs={12}>
-              <CustomDateTimePicker
-                label="Start Time"
-                name="showtimeStartAt"
-                value={formData.showtimeStartAt}
-                onChange={handleDateInputChange}
-                error={!!errors.showtimeStartAt}
-                helperText={errors.showtimeStartAt}
-                required={true}
-              />
-              {errors.showtimeStartAt && (
+              {viewOnly ? (
+                <Paper sx={{ p: 2, borderRadius: 1, border: `1px solid ${theme.palette.divider}` }}>
+                  <Typography variant="body1" sx={{ mb: 1 }}>
+                    <strong>Thời gian bắt đầu:</strong> {formatDateTimeWithTimezone(showtime?.showtimeStartAt)}
+                  </Typography>
+                  <Typography variant="body1" sx={{ mb: 1 }}>
+                    <strong>Thời gian kết thúc:</strong> {formatDateTimeWithTimezone(showtime?.showtimeEndAt)}
+                  </Typography>
+                  <Typography variant="body1">
+                    <strong>Trạng thái:</strong> {' '}
+                    <Chip 
+                      label={showtime?.showtimeAvailable ? "Đang hoạt động" : "Không hoạt động"} 
+                      color={showtime?.showtimeAvailable ? "success" : "error"}
+                      size="small"
+                    />
+                  </Typography>
+                </Paper>
+              ) : (
+                <CustomDateTimePicker
+                  label="Thời gian bắt đầu"
+                  name="showtimeStartAt"
+                  value={formData.showtimeStartAt}
+                  onChange={handleDateInputChange}
+                  error={!!errors.showtimeStartAt}
+                  helperText={errors.showtimeStartAt}
+                  required={true}
+                />
+              )}
+              
+              {!viewOnly && errors.showtimeStartAt && (
                 <Typography variant="caption" color="error" sx={{ ml: 2 }}>
                   {errors.showtimeStartAt}
                 </Typography>
               )}
             </Grid>
             
-            {/* Display the formatted date for verification */}
-            <Grid item xs={12}>
-              <Box sx={{ mt: 1 }}>
-                <Typography variant="caption" color="text.secondary" display="block">
-                  Selected time: {formatDateTimeWithTimezone(formData.showtimeStartAt)}
-                </Typography>
-                <Typography variant="caption" color="text.secondary" display="block" sx={{ fontWeight: 'bold' }}>
-                  Time to be sent to server: {preserveLocalTime(formData.showtimeStartAt)}
-                </Typography>
-              </Box>
-            </Grid>
-            
-            {/* Add Showtime Availability Field */}
-            <Grid item xs={12}>
-              <FormControlLabel
-                control={
-                  <Switch
-                    checked={formData.showtimeAvailable}
-                    onChange={handleSwitchChange}
-                    name="showtimeAvailable"
-                    color="primary"
-                  />
-                }
-                label={
-                  <Typography variant="body1" fontWeight={500}>
-                    {formData.showtimeAvailable ? "Active" : "Inactive"} Showtime
+            {/* Display formatted date in edit mode */}
+            {!viewOnly && (
+              <Grid item xs={12}>
+                <Box sx={{ mt: 1 }}>
+                  <Typography variant="caption" color="text.secondary" display="block">
+                    Thời gian đã chọn: {formatDateTimeWithTimezone(formData.showtimeStartAt)}
                   </Typography>
-                }
-              />
-              <Typography variant="caption" color="text.secondary" display="block" sx={{ mt: 0.5 }}>
-                {formData.showtimeAvailable 
-                  ? "This showtime will be visible to users and available for booking" 
-                  : "This showtime will be hidden from users and unavailable for booking"}
-              </Typography>
-            </Grid>
+                  <Typography variant="caption" color="text.secondary" display="block" sx={{ fontWeight: 'bold' }}>
+                    Thời gian sẽ gửi đến máy chủ: {preserveLocalTime(formData.showtimeStartAt)}
+                  </Typography>
+                </Box>
+              </Grid>
+            )}
+            
+            {/* Availability toggle - Only show in edit mode */}
+            {!viewOnly && (
+              <Grid item xs={12}>
+                <FormControlLabel
+                  control={
+                    <Switch
+                      checked={formData.showtimeAvailable}
+                      onChange={handleSwitchChange}
+                      name="showtimeAvailable"
+                      color="primary"
+                    />
+                  }
+                  label={
+                    <Typography variant="body1" fontWeight={500}>
+                      {formData.showtimeAvailable ? "Đang hoạt động" : "Không hoạt động"}
+                    </Typography>
+                  }
+                />
+                <Typography variant="caption" color="text.secondary" display="block" sx={{ mt: 0.5 }}>
+                  {formData.showtimeAvailable 
+                    ? "Suất chiếu này sẽ hiển thị cho người dùng và có thể đặt vé" 
+                    : "Suất chiếu này sẽ ẩn đối với người dùng và không thể đặt vé"}
+                </Typography>
+              </Grid>
+            )}
           </Grid>
         )}
       </DialogContent>
@@ -686,17 +843,19 @@ const ShowtimeForm = ({ open, handleClose, showtime, onSubmit, isEdit = false })
           variant="outlined"
           sx={{ borderRadius: 1 }}
         >
-          Cancel
+          {viewOnly ? 'Đóng' : 'Hủy bỏ'}
         </Button>
-        <Button 
-          onClick={handleSubmit}
-          variant="contained"
-          color="primary"
-          sx={{ borderRadius: 1, px: 3 }}
-          disabled={loading}
-        >
-          {isEdit ? 'Update' : 'Create'}
-        </Button>
+        {!viewOnly && (
+          <Button 
+            onClick={handleSubmit}
+            variant="contained"
+            color="primary"
+            sx={{ borderRadius: 1, px: 3 }}
+            disabled={loading}
+          >
+            {isEdit ? 'Cập nhật' : 'Tạo mới'}
+          </Button>
+        )}
       </DialogActions>
     </Dialog>
   );

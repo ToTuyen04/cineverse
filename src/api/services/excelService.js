@@ -4,7 +4,7 @@ import apiClient from './apiClient';
 export const exportRevenueAllTheaters = async (reportPeriod, startDate, endDate) => {
   try {
     const response = await apiClient.post(
-      '/export-excel-file/revenue/all-theaters',
+      '/export-excel-file',
       {
         reportPeriod,
         startDate,
@@ -25,7 +25,7 @@ export const exportRevenueAllTheaters = async (reportPeriod, startDate, endDate)
 export const exportRevenueByTheater = async (reportPeriod, startDate, endDate, theaterId) => {
   try {
     const response = await apiClient.post(
-      '/export-excel-file/revenue/theater',
+      `/export-excel-file/${theaterId}`,
       {
         reportPeriod,
         startDate,
@@ -46,7 +46,7 @@ export const exportRevenueByTheater = async (reportPeriod, startDate, endDate, t
 // Function to get all theaters
 export const getAllTheaters = async () => {
   try {
-    const response = await apiClient.get('/Theater');
+    const response = await apiClient.get('/theaters');
     return response.data;
   } catch (error) {
     console.error('Error fetching theaters:', error);

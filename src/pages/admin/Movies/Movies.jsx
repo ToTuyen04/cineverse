@@ -379,27 +379,30 @@ const Movies = () => {
         result = await editMovie(selectedMovie.movieId, formData);
         if (result.success) {
           showSnackbar('Cập nhật phim thành công', 'success');
+          setOpenMovieForm(false);
+          refreshMovies();
         } else {
           showSnackbar(`Cập nhật phim thất bại: ${result.error}`, 'error');
+          // Don't close the form on error
         }
       } else {
         result = await addMovie(formData);
         if (result.success) {
           showSnackbar('Tạo phim thành công', 'success');
+          setOpenMovieForm(false);
+          refreshMovies();
         } else {
           showSnackbar(`Tạo phim thất bại: ${result.error}`, 'error');
+          // Don't close the form on error
         }
       }
       
-      if (result.success) {
-        setOpenMovieForm(false);
-        refreshMovies();
-      }
       return result; // Return result to let the MovieForm component know the operation completed
     } catch (err) {
       console.error('Error submitting movie:', err);
       showSnackbar('An error occurred while saving movie', 'error');
-      throw err; // Re-throw so MovieForm can catch it
+      // Don't close the form on error
+      return { success: false, error: err.message }; // Return error object
     }
   };
   

@@ -124,7 +124,12 @@ export const checkIsLoggedIn = () => {
  * Đăng xuất người dùng
  */
 export const logout = () => {
-  localStorage.clear();
+  localStorage.removeItem('token');
+  localStorage.removeItem('userEmail');
+  localStorage.removeItem('userFullName');
+  localStorage.removeItem('isStaff');
+  localStorage.removeItem('role');
+  localStorage.removeItem('expirationTime');
 };
 
 /**
@@ -132,71 +137,21 @@ export const logout = () => {
  * @param {object} userData - Thông tin đăng ký người dùng
  * @returns {Promise<object>} - Thông tin người dùng đã đăng ký
  */
-// Cập nhật hàm register nếu cần thiết
-// Sửa hàm register để xử lý đúng payload và hiển thị lỗi
 export const register = async (userData) => {
   try {
-    // Kiểm tra dữ liệu trước khi gửi
-    const requiredFields = ['Email', 'Password', 'ConfirmPassword', 'FirstName', 'LastName'];
-    for (const field of requiredFields) {
-      if (!userData[field]) {
-        throw new Error(`Trường ${field} là bắt buộc.`);
-      }
-    }
-
-    // Đảm bảo các trường có chữ cái đầu viết hoa
-    const formattedData = {
-      Email: userData.Email,
-      Password: userData.Password,
-      ConfirmPassword: userData.ConfirmPassword,
-      FirstName: userData.FirstName,
-      LastName: userData.LastName,
-      PhoneNumber: userData.PhoneNumber || "",
-      DateOfBirth: userData.DateOfBirth || null,
-      Gender: userData.Gender || 1
-    };
-
-    
-    const response = await apiClient.post('/auth/register', formattedData);
-    
-    if (response.status === 200 || response.status === 201) {
-      return {
-        success: true,
-        message: "Đăng ký thành công! Vui lòng kiểm tra email để xác nhận tài khoản.",
-        data: response.data
-      };
-    } else {
-      throw new Error(response.data?.message || 'Đăng ký thất bại, vui lòng thử lại.');
-    }
+    const response = await apiClient.post('/auth/register', {
+      email: userData.email,
+      password: userData.password,
+      confirmPassword: userData.confirmPassword,
+      firstName: userData.firstName,
+      lastName: userData.lastName,
+      phoneNumber: userData.phoneNumber,
+      dateOfBirth: userData.dateOfBirth,
+      gender: userData.gender
+    });
+    return response.data;
   } catch (error) {
-    console.error('Register error:', error);
-    
-    // Nếu là lỗi do mình tạo ra (ví dụ: thiếu trường bắt buộc)
-    if (error.message && !error.response) {
-      throw error;
-    }
-    
-    // Xử lý lỗi validation từ server
-    if (error.response?.data) {
-      if (error.response.data.errors) {
-        const errorMessages = [];
-        const errors = error.response.data.errors;
-        
-        Object.keys(errors).forEach(key => {
-          errors[key].forEach(message => {
-            errorMessages.push(message);
-          });
-        });
-        
-        throw new Error(errorMessages.join('\n'));
-      } else if (error.response.data.message) {
-        throw new Error(error.response.data.message);
-      } else if (error.response.data.title) {
-        throw new Error(error.response.data.title);
-      }
-    }
-    
-    throw new Error('Đăng ký thất bại. Vui lòng thử lại sau.');
+    throw handleApiError(error);
   }
 };
 

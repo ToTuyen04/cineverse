@@ -1208,8 +1208,7 @@ const OptDesc = styled.div`
 import { useAuth } from '../contexts/AuthContext';
 
 function ProfilePage() {
-  // Thêm isLoggedIn và isCheckingAuth từ AuthContext
-  const { user, updateUserInfo, isLoggedIn, isCheckingAuth } = useAuth();
+  const { updateUserInfo } = useAuth();
   const [userData, setUserData] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -1241,60 +1240,23 @@ function ProfilePage() {
       try {
         setIsLoading(true);
         setError(null);
-
-        // Chỉ tiếp tục nếu đã xác định trạng thái đăng nhập
-        if (!isCheckingAuth) {
-          if (isLoggedIn && user) {
-            // Map dữ liệu từ AuthContext vào userData để phù hợp với format hiện tại
-            const mappedUserData = {
-              firstName: user.firstName || '',
-              lastName: user.lastName || '',
-              email: user.email || '',
-              phoneNumber: user.phoneNumber || '',
-              user_date_of_birth: user.dateOfBirth || '',
-              user_gender: user.gender || '',
-              user_avatar: user.avatar || '',
-              user_createAt: user.userCreateAt || '',
-              userPoint: user.userPoint || 0,
-              rankName: user.rankName || '',
-              rankDiscount: user.rankDiscount || 0
-            };
-
-            setUserData(mappedUserData);
-          } else if (isLoggedIn) {
-            // Nếu đã đăng nhập nhưng chưa có thông tin user đầy đủ, lấy từ API
-            const userData = await getUserProfile();
-            setUserData(userData);
-          } else {
-            // Nếu chưa đăng nhập, chuyển hướng về trang login
-            navigate('/login', {
-              state: {
-                from: '/profile',
-                message: 'Vui lòng đăng nhập để xem thông tin cá nhân.'
-              }
-            });
-          }
-        }
+        const userData = await getUserProfile();
+        setUserData(userData);
       } catch (err) {
         console.error('Error fetching user profile:', err);
-        // Chỉ chuyển hướng khi có lỗi API, không phải vì user null
-        if (!isCheckingAuth && isLoggedIn) {
-          navigate('/login', {
-            state: {
-              from: '/profile',
-              message: 'Vui lòng đăng nhập để xem thông tin cá nhân.'
-            }
-          });
-        }
+        navigate('/login', {
+          state: {
+            from: '/profile',
+            message: 'Vui lòng đăng nhập để xem thông tin cá nhân.'
+          }
+        });
       } finally {
-        if (!isCheckingAuth) {
-          setIsLoading(false);
-        }
+        setIsLoading(false);
       }
     };
 
     fetchUserData();
-  }, [user, navigate, isLoggedIn, isCheckingAuth]);
+  }, [navigate]);
 
   // Tải dữ liệu vé khi chọn tab lịch sử
   const handleTabSelect = (key) => {
@@ -1308,9 +1270,9 @@ function ProfilePage() {
     try {
       setIsLoadingTickets(true);
       setTicketError(null);
-
+      
       const ticketData = await getTicketHistory();
-
+      
       // Chuyển đổi dữ liệu từ API sang định dạng phù hợp với UI
       const formattedTickets = ticketData.map(ticket => ({
         id: ticket.orderId.toString(),
@@ -1332,10 +1294,10 @@ function ProfilePage() {
           price: combo.comboPrice
         })) : []
       }));
-
+      
       // Sắp xếp vé mới nhất lên trên cùng
       formattedTickets.sort((a, b) => new Date(b.bookingDate) - new Date(a.bookingDate));
-
+      
       setTickets(formattedTickets);
       setFilteredTickets(formattedTickets);
     } catch (error) {
@@ -1349,19 +1311,19 @@ function ProfilePage() {
   // Cải tiến hàm lọc vé để tối ưu hiệu suất
   const filterTickets = useCallback((statusValue, dateValue, query) => {
     if (!tickets || tickets.length === 0) return;
-
+    
     let filtered = [...tickets];
-
+    
     // Lọc theo trạng thái
     if (statusValue !== 'all') {
       filtered = filtered.filter(ticket => ticket.status === statusValue);
     }
-
+    
     // Lọc theo thời gian
     if (dateValue !== 'all') {
       const now = new Date();
       let filterDate;
-
+      
       switch (dateValue) {
         case 'month':
           filterDate = new Date(now);
@@ -1378,12 +1340,12 @@ function ProfilePage() {
         default:
           filterDate = null;
       }
-
+      
       if (filterDate) {
         filtered = filtered.filter(ticket => new Date(ticket.date) >= filterDate);
       }
     }
-
+    
     // Tìm kiếm
     if (query && query.trim() !== '') {
       const normalizedQuery = query.toLowerCase().trim();
@@ -1393,7 +1355,7 @@ function ProfilePage() {
         ticket.id.toLowerCase().includes(normalizedQuery)
       );
     }
-
+    
     setFilteredTickets(filtered);
     setCurrentPage(1); // Reset về trang đầu tiên
   }, [tickets]);
@@ -1434,7 +1396,7 @@ function ProfilePage() {
       gender: userData.user_gender || ''
     });
     setIsEditing(true);
-
+    
     // Phân tách ngày sinh thành ngày, tháng, năm
     if (userData.user_date_of_birth) {
       const [year, month, day] = userData.user_date_of_birth.split('-');
@@ -1464,13 +1426,13 @@ function ProfilePage() {
   const handleBirthDateChange = (field, value) => {
     const newBirthDate = { ...birthDate, [field]: value };
     setBirthDate(newBirthDate);
-
+    
     // Cập nhật giá trị dateOfBirth trong editData nếu đủ thông tin
     if (newBirthDate.day && newBirthDate.month && newBirthDate.year) {
       const formattedMonth = newBirthDate.month.padStart(2, '0');
       const formattedDay = newBirthDate.day.padStart(2, '0');
       const dateOfBirth = `${newBirthDate.year}-${formattedMonth}-${formattedDay}`;
-
+      
       setEditData(prev => ({
         ...prev,
         dateOfBirth
@@ -1489,25 +1451,25 @@ function ProfilePage() {
   const handleAvatarChange = (e) => {
     const fileInput = e.target;
     if (!fileInput || !fileInput.files || !fileInput.files[0]) return;
-
+    
     const file = fileInput.files[0];
-
+    
     // Kiểm tra kích thước file (tối đa 5MB)
     if (file.size > 5 * 1024 * 1024) {
       setError('Kích thước ảnh quá lớn. Vui lòng chọn ảnh nhỏ hơn 5MB.');
       fileInput.value = '';
       return;
     }
-
+    
     // Kiểm tra loại file
     if (!file.type.match('image.*')) {
       setError('Vui lòng chọn tệp hình ảnh.');
       fileInput.value = '';
       return;
     }
-
+    
     setAvatarFile(file);
-
+    
     // Đọc và hiển thị preview
     const reader = new FileReader();
     reader.onload = (event) => {
@@ -1525,7 +1487,7 @@ function ProfilePage() {
   const handleSaveChanges = async () => {
     try {
       setIsLoading(true);
-
+      
       // Cập nhật thông tin người dùng
       await updateUserProfile({
         email: userData?.email,
@@ -1535,13 +1497,13 @@ function ProfilePage() {
         dateOfBirth: editData.dateOfBirth,
         gender: editData.gender
       });
-
+      
       // Xử lý upload avatar nếu có
       let avatarUrl = null;
       if (avatarFile) {
         avatarUrl = await updateUserAvatar(avatarFile);
       }
-
+      
       // Cập nhật userData state
       setUserData(prev => ({
         ...prev,
@@ -1552,21 +1514,17 @@ function ProfilePage() {
         user_gender: editData.gender,
         user_avatar: avatarUrl || prev?.user_avatar
       }));
-
+      
       // Cập nhật thông tin trong AuthContext
       updateUserInfo({
         firstName: editData.firstName,
         lastName: editData.lastName,
-        phoneNumber: editData.phoneNumber,
-        dateOfBirth: editData.dateOfBirth,
-        gender: editData.gender,
-        avatar: avatarUrl || userData?.user_avatar
       });
-
+      
       // Hiển thị thông báo thành công
       setSuccessMessage('Cập nhật thông tin thành công!');
       setTimeout(() => setSuccessMessage(''), 3000);
-
+      
       // Reset form
       setIsEditing(false);
       setAvatarFile(null);
@@ -1584,12 +1542,12 @@ function ProfilePage() {
     newPassword: '',
     confirmPassword: ''
   });
-
+  
   const [passwordErrors, setPasswordErrors] = useState({
     newPassword: null,
     confirmPassword: null
   });
-
+  
   const [showNewPassword, setShowNewPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [changePasswordLoading, setChangePasswordLoading] = useState(false);
@@ -1608,7 +1566,7 @@ function ProfilePage() {
       ...prev,
       [name]: value
     }));
-
+    
     // Xóa lỗi khi người dùng thay đổi input
     if (passwordErrors[name]) {
       setPasswordErrors(prev => ({
@@ -1616,7 +1574,7 @@ function ProfilePage() {
         [name]: null
       }));
     }
-
+    
     // Xóa thông báo thành công hoặc lỗi khi người dùng bắt đầu nhập lại
     if (changePasswordSuccess || changePasswordError) {
       setChangePasswordSuccess(false);
@@ -1627,11 +1585,11 @@ function ProfilePage() {
   // Xử lý đổi mật khẩu
   const handleChangePassword = async (e) => {
     e.preventDefault();
-
+    
     // Kiểm tra form
     let formErrors = {};
     let hasError = false;
-
+    
     if (!passwordForm.newPassword) {
       formErrors.newPassword = 'Vui lòng nhập mật khẩu mới';
       hasError = true;
@@ -1639,7 +1597,7 @@ function ProfilePage() {
       formErrors.newPassword = 'Mật khẩu phải có ít nhất 8 ký tự';
       hasError = true;
     }
-
+    
     if (!passwordForm.confirmPassword) {
       formErrors.confirmPassword = 'Vui lòng xác nhận mật khẩu mới';
       hasError = true;
@@ -1647,22 +1605,22 @@ function ProfilePage() {
       formErrors.confirmPassword = 'Mật khẩu xác nhận không khớp';
       hasError = true;
     }
-
+    
     if (hasError) {
       setPasswordErrors(formErrors);
       return;
     }
-
+    
     try {
       setChangePasswordLoading(true);
-
+      
       // Lấy token từ localStorage
       const token = localStorage.getItem('token');
       const isStaff = localStorage.getItem('isStaff');
       if (!token) {
         throw new Error('Bạn cần đăng nhập lại để thực hiện hành động này');
       }
-
+      
       // Gọi API resetPassword
       await resetPassword({
         token,
@@ -1670,7 +1628,7 @@ function ProfilePage() {
         confirmPassword: passwordForm.confirmPassword,
         isStaff: isStaff === 'true'
       });
-
+      
       // Xử lý thành công
       setChangePasswordSuccess(true);
       setPasswordForm({
@@ -1689,14 +1647,14 @@ function ProfilePage() {
   // Tạo danh sách các năm từ năm hiện tại trở về 100 năm trước
   const currentYear = new Date().getFullYear();
   const years = Array.from({ length: 100 }, (_, i) => (currentYear - i).toString());
-
+  
   // Tạo danh sách các tháng (1-12)
   const months = Array.from({ length: 12 }, (_, i) => (i + 1).toString());
-
+  
   // Tạo danh sách các ngày (1-31)
   const getDaysInMonth = (month, year) => {
     if (!month || !year) return Array.from({ length: 31 }, (_, i) => (i + 1).toString());
-
+    
     const daysInMonth = new Date(parseInt(year), parseInt(month), 0).getDate();
     return Array.from({ length: daysInMonth }, (_, i) => (i + 1).toString());
   };
@@ -1707,7 +1665,7 @@ function ProfilePage() {
     try {
       const date = new Date(dateString);
       if (isNaN(date.getTime())) return '';
-
+      
       return new Intl.DateTimeFormat('vi-VN', {
         day: '2-digit',
         month: '2-digit',
@@ -1718,14 +1676,14 @@ function ProfilePage() {
       return '';
     }
   };
-
+  
   // Định dạng ngày giờ
   const formatDateTime = (dateString) => {
     if (!dateString) return '';
     try {
       const date = new Date(dateString);
       if (isNaN(date.getTime())) return '';
-
+      
       return new Intl.DateTimeFormat('vi-VN', {
         day: '2-digit',
         month: '2-digit',
@@ -1738,7 +1696,7 @@ function ProfilePage() {
       return '';
     }
   };
-
+  
   // Định dạng trạng thái vé
   const getTicketStatusText = (status) => {
     switch (status) {
@@ -1749,8 +1707,8 @@ function ProfilePage() {
     }
   };
 
-  // Loading state - cập nhật để hiển thị đúng trạng thái
-  if (isCheckingAuth || isLoading) {
+  // Loading state
+  if (isLoading) {
     return (
       <PageContainer>
         <Container>
@@ -1927,9 +1885,9 @@ function ProfilePage() {
                                 <InfoLabel>Giới tính</InfoLabel>
                                 <InfoValue>
                                   <FaTransgender />
-                                  {userData?.user_gender === 'M' || userData?.user_gender === 'Nam' ? 'Nam' :
-                                    userData?.user_gender === 'F' || userData?.user_gender === 'Nữ' ? 'Nữ' :
-                                      userData?.user_gender === 'O' || userData?.user_gender === 'Khác' ? 'Khác' : 'Chưa cập nhật'}
+                                  {userData?.user_gender === 'M' ? 'Nam' :
+                                   userData?.user_gender === 'F' ? 'Nữ' :
+                                   userData?.user_gender === 'O' ? 'Khác' : 'Chưa cập nhật'}
                                 </InfoValue>
                               </InfoGroup>
                             </Col>
@@ -2167,6 +2125,7 @@ function ProfilePage() {
                                 <option value="">Chọn giới tính</option>
                                 <option value="M">Nam</option>
                                 <option value="F">Nữ</option>
+                                <option value="O">Khác</option>
                               </FormSelect>
                             </InfoGroup>
                           </Col>
@@ -2336,7 +2295,7 @@ function ProfilePage() {
                                     <div>
                                       <TicketLabel>Combo:</TicketLabel>
                                       <TicketValue>
-                                        {ticket.combos.map(combo =>
+                                        {ticket.combos.map(combo => 
                                           `${combo.name} x${combo.quantity}`
                                         ).join(', ')}
                                       </TicketValue>

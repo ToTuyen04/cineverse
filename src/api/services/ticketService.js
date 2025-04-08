@@ -6,13 +6,8 @@ import apiClient from './apiClient';
  */
 export const getTicketHistory = async () => {
   try {
-    const token = localStorage.getItem('token');
         // Gọi API với userEmail
-    const response = await apiClient.get(`/users/profile/purchase-history`, {
-      headers: {
-        'Authorization': `Bearer ${token}`
-      }
-    } );
+    const response = await apiClient.get(`/users/profile/purchase-history`);
     
     // Trả về data từ response
     return response.data.data;

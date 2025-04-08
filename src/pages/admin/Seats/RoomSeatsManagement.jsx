@@ -4,7 +4,7 @@ import { useParams, useNavigate } from 'react-router-dom';
 import styled from 'styled-components';
 import {
   FaChair, FaArrowLeft, FaEdit, FaSync, FaInfoCircle, FaLock, FaLockOpen,
-  FaPlus, FaTrash, FaSave, FaTimes, FaCheck, FaEye, FaSearch, FaList, FaCheckCircle 
+  FaPlus, FaTrash, FaSave, FaTimes, FaCheck, FaEye, FaSearch, FaList 
 } from 'react-icons/fa';
 import {
   getChairsByRoom, updateChairStatus, updateChairType,
@@ -301,52 +301,6 @@ const FormRow = styled.div`
   }
 `;
 
-// Thêm styled component cho thông báo thành công/lỗi
-const StyledAlert = styled(Alert)`
-  display: flex;
-  align-items: center;
-  margin-bottom: 1.5rem;
-  border-left-width: 4px;
-  
-  &.alert-success {
-    background-color: rgba(40, 167, 69, 0.1);
-    border-color: #28a745;
-    color: #28a745;
-  }
-  
-  &.alert-danger {
-    background-color: rgba(220, 53, 69, 0.1);
-    border-color: #dc3545;
-    color: #dc3545;
-  }
-  
-  .icon {
-    font-size: 1.25rem;
-    margin-right: 0.75rem;
-  }
-  
-  .message {
-    font-weight: 500;
-  }
-`;
-
-// Sửa Modal styles để không bị header che
-const StyledModal = styled(Modal)`
-  .modal-dialog {
-    margin-top: 80px;
-  }
-  
-  .modal-header {
-    background-color: ${props => props.theme === 'dark' ? '#333' : '#f8f9fa'};
-    border-bottom: 1px solid ${props => props.theme === 'dark' ? '#444' : '#dee2e6'};
-  }
-  
-  .modal-footer {
-    background-color: ${props => props.theme === 'dark' ? '#333' : '#f8f9fa'};
-    border-top: 1px solid ${props => props.theme === 'dark' ? '#444' : '#dee2e6'};
-  }
-`;
-
 function RoomSeatsManagement() {
   const { roomId } = useParams();
   const navigate = useNavigate();
@@ -519,13 +473,11 @@ function RoomSeatsManagement() {
         setShowEditModal(false);
         setRefreshTrigger(prev => prev + 1);
       } else {
-        setError(response.message || 'Không thể cập nhật ghế.');
-        setShowEditModal(false);
+        alert(response.message || 'Không thể cập nhật ghế.');
       }
     } catch (error) {
       console.error('Error updating chair:', error);
-      setError(error.response?.data?.message || error.message || 'Đã xảy ra lỗi khi cập nhật ghế.');
-      setShowEditModal(false);
+      alert('Đã xảy ra lỗi khi cập nhật ghế.');
     }
   };
   
@@ -559,7 +511,7 @@ function RoomSeatsManagement() {
       );
       
       if (hasEmptyFields) {
-        setError('Vui lòng điền đầy đủ thông tin cho tất cả các ghế.');
+        alert('Vui lòng điền đầy đủ thông tin cho tất cả các ghế.');
         return;
       }
       
@@ -571,19 +523,17 @@ function RoomSeatsManagement() {
       
       const response = await createChairs(roomId, chairsWithRoomId);
       
-      // Status code 201 Created cũng là thành công
-      // Một số API có thể trả về success: false nhưng vẫn là thành công với status 201
-      if (response.success !== false) { // Thay vì kiểm tra response.success
+      if (response.success) {
         setSuccessMessage(`Đã tạo thành công ${newChairs.length} ghế mới!`);
         setShowCreateModal(false);
         setNewChairs([{ chairTypeId: 1, chairName: '', chairPosition: '', chairStatus: true }]);
         setRefreshTrigger(prev => prev + 1);
       } else {
-        setError(response.message || 'Không thể tạo ghế mới.');
+        alert(response.message || 'Không thể tạo ghế mới.');
       }
     } catch (error) {
       console.error('Error creating chairs:', error);
-      setError(error.response?.data?.message || error.message || 'Đã xảy ra lỗi khi tạo ghế mới.');
+      alert('Đã xảy ra lỗi khi tạo ghế mới.');
     }
   };
   
@@ -603,14 +553,11 @@ function RoomSeatsManagement() {
         setChairToDelete(null);
         setRefreshTrigger(prev => prev + 1);
       } else {
-        setError(response.message || 'Không thể xóa ghế.');
-        setShowDeleteModal(false);
+        alert(response.message || 'Không thể xóa ghế.');
       }
     } catch (error) {
       console.error('Error deleting chair:', error);
-      const errorMessage = error.response?.data?.message || error.message || 'Đã xảy ra lỗi khi xóa ghế.';
-      setError(errorMessage);
-      setShowDeleteModal(false);
+      alert('Đã xảy ra lỗi khi xóa ghế.');
     }
   };
   
@@ -646,13 +593,17 @@ function RoomSeatsManagement() {
   
   const handleBulkAction = async (value) => {
     try {
-      let successMsg = '';
-      let response = null;
-      
       if (bulkActionType === 'delete') {
         // Delete selected chairs
-        response = await deleteChairs(roomId, selectedChairs);
-        successMsg = `Đã xóa ${selectedChairs.length} ghế thành công!`;
+        const response = await deleteChairs(roomId, selectedChairs);
+        
+        if (response.success) {
+          setSuccessMessage(`Đã xóa ${selectedChairs.length} ghế thành công!`);
+          setSelectedChairs([]);
+          setRefreshTrigger(prev => prev + 1);
+        } else {
+          alert(response.message || 'Không thể xóa ghế.');
+        }
       } else if (bulkActionType === 'status') {
         // Update status of selected chairs
         const updatedChairs = chairs
@@ -662,8 +613,15 @@ function RoomSeatsManagement() {
             chairStatus: value
           }));
         
-        response = await updateChairs(roomId, updatedChairs);
-        successMsg = `Đã cập nhật trạng thái cho ${selectedChairs.length} ghế thành công!`;
+        const response = await updateChairs(roomId, updatedChairs);
+        
+        if (response.success) {
+          setSuccessMessage(`Đã cập nhật trạng thái cho ${selectedChairs.length} ghế thành công!`);
+          setSelectedChairs([]);
+          setRefreshTrigger(prev => prev + 1);
+        } else {
+          alert(response.message || 'Không thể cập nhật trạng thái ghế.');
+        }
       } else if (bulkActionType === 'type') {
         // Update type of selected chairs
         const updatedChairs = chairs
@@ -673,23 +631,21 @@ function RoomSeatsManagement() {
             chairTypeId: value
           }));
         
-        response = await updateChairs(roomId, updatedChairs);
-        successMsg = `Đã cập nhật loại ghế cho ${selectedChairs.length} ghế thành công!`;
-      }
-      
-      if (response && response.success) {
-        setSuccessMessage(successMsg);
-        setSelectedChairs([]);
-        setRefreshTrigger(prev => prev + 1);
-      } else {
-        setError(response?.message || 'Không thể thực hiện thao tác.');
+        const response = await updateChairs(roomId, updatedChairs);
+        
+        if (response.success) {
+          setSuccessMessage(`Đã cập nhật loại ghế cho ${selectedChairs.length} ghế thành công!`);
+          setSelectedChairs([]);
+          setRefreshTrigger(prev => prev + 1);
+        } else {
+          alert(response.message || 'Không thể cập nhật loại ghế.');
+        }
       }
       
       setShowBulkActionModal(false);
     } catch (error) {
       console.error('Error performing bulk action:', error);
-      setError(error.response?.data?.message || error.message || 'Đã xảy ra lỗi khi thực hiện thao tác hàng loạt.');
-      setShowBulkActionModal(false);
+      alert('Đã xảy ra lỗi khi thực hiện thao tác hàng loạt.');
     }
   };
   
@@ -933,288 +889,6 @@ function RoomSeatsManagement() {
     // Có thể thêm các màu khác dựa trên nhu cầu
   };
   
-  // Modal Edit Chair
-  const renderEditModal = () => (
-    <StyledModal 
-      show={showEditModal} 
-      onHide={() => setShowEditModal(false)}
-      theme={muiTheme.palette.mode}
-    >
-      <Modal.Header closeButton>
-        <Modal.Title>Chỉnh sửa ghế {editingChair?.chairName}</Modal.Title>
-      </Modal.Header>
-      <Modal.Body>
-        <Form>
-          <Form.Group className="mb-3">
-            <Form.Label>Tên ghế</Form.Label>
-            <Form.Control
-              type="text"
-              value={editingChair?.chairName || ''}
-              onChange={(e) => handleEditChange('chairName', e.target.value)}
-            />
-          </Form.Group>
-          
-          <Form.Group className="mb-3">
-            <Form.Label>Vị trí</Form.Label>
-            <Form.Control
-              type="text"
-              value={editingChair?.chairPosition || ''}
-              onChange={(e) => handleEditChange('chairPosition', e.target.value)}
-            />
-            <Form.Text className="text-muted">
-              Định dạng: [Hàng][Số]. Ví dụ: A1, B5, C10
-            </Form.Text>
-          </Form.Group>
-          
-          <Form.Group className="mb-3">
-            <Form.Label>Loại ghế</Form.Label>
-            <Form.Select
-              value={editingChair?.chairTypeId || 1}
-              onChange={(e) => handleEditChange('chairTypeId', parseInt(e.target.value))}
-            >
-              <option value={1}>Ghế thường</option>
-              <option value={2}>Ghế VIP</option>
-              <option value={3}>Ghế đôi</option>
-            </Form.Select>
-          </Form.Group>
-          
-          <Form.Group className="mb-3">
-            <Form.Label>Trạng thái</Form.Label>
-            <Form.Select
-              value={editingChair?.chairStatus}
-              onChange={(e) => handleEditChange('chairStatus', e.target.value === 'true')}
-            >
-              <option value="true">Hoạt động</option>
-              <option value="false">Ngừng hoạt động</option>
-            </Form.Select>
-          </Form.Group>
-        </Form>
-      </Modal.Body>
-      <Modal.Footer>
-        <Button variant="secondary" onClick={() => setShowEditModal(false)}>
-          Hủy
-        </Button>
-        <Button variant="primary" onClick={handleSaveEdit}>
-          Lưu thay đổi
-        </Button>
-      </Modal.Footer>
-    </StyledModal>
-  );
-  
-  // Modal Create Chairs
-  const renderCreateModal = () => (
-    <StyledModal 
-      show={showCreateModal} 
-      onHide={() => setShowCreateModal(false)}
-      size="lg"
-      theme={muiTheme.palette.mode}
-    >
-      <Modal.Header closeButton>
-        <Modal.Title>Thêm ghế mới</Modal.Title>
-      </Modal.Header>
-      <Modal.Body>
-        {newChairs.map((chair, index) => (
-          <div key={index} className="mb-4 p-3" style={{ backgroundColor: muiTheme.palette.mode === 'dark' ? '#333' : '#f8f9fa', borderRadius: '8px' }}>
-            <div className="d-flex justify-content-between align-items-center mb-2">
-              <h6 className="mb-0">Ghế #{index + 1}</h6>
-              {newChairs.length > 1 && (
-                <Button 
-                  variant="outline-danger" 
-                  size="sm"
-                  onClick={() => handleRemoveNewChair(index)}
-                >
-                  <FaTrash />
-                </Button>
-              )}
-            </div>
-            
-            <Row>
-              <Col md={6}>
-                <Form.Group className="mb-3">
-                  <Form.Label>Tên ghế</Form.Label>
-                  <Form.Control
-                    type="text"
-                    value={chair.chairName}
-                    onChange={(e) => handleNewChairChange(index, 'chairName', e.target.value)}
-                    placeholder="Ví dụ: A1"
-                  />
-                </Form.Group>
-              </Col>
-              
-              <Col md={6}>
-                <Form.Group className="mb-3">
-                  <Form.Label>Vị trí</Form.Label>
-                  <Form.Control
-                    type="text"
-                    value={chair.chairPosition}
-                    onChange={(e) => handleNewChairChange(index, 'chairPosition', e.target.value)}
-                    placeholder="Ví dụ: A1"
-                  />
-                </Form.Group>
-              </Col>
-              
-              <Col md={6}>
-                <Form.Group className="mb-3">
-                  <Form.Label>Loại ghế</Form.Label>
-                  <Form.Select
-                    value={chair.chairTypeId}
-                    onChange={(e) => handleNewChairChange(index, 'chairTypeId', parseInt(e.target.value))}
-                  >
-                    <option value={1}>Ghế thường</option>
-                    <option value={2}>Ghế VIP</option>
-                    <option value={3}>Ghế đôi</option>
-                  </Form.Select>
-                </Form.Group>
-              </Col>
-              
-              <Col md={6}>
-                <Form.Group className="mb-3">
-                  <Form.Label>Trạng thái</Form.Label>
-                  <Form.Select
-                    value={chair.chairStatus}
-                    onChange={(e) => handleNewChairChange(index, 'chairStatus', e.target.value === 'true')}
-                  >
-                    <option value="true">Hoạt động</option>
-                    <option value="false">Ngừng hoạt động</option>
-                  </Form.Select>
-                </Form.Group>
-              </Col>
-            </Row>
-          </div>
-        ))}
-        
-        <Button 
-          variant="outline-primary" 
-          className="w-100"
-          onClick={handleAddNewChair}
-        >
-          <FaPlus className="me-1" /> Thêm ghế
-        </Button>
-      </Modal.Body>
-      <Modal.Footer>
-        <Button variant="secondary" onClick={() => setShowCreateModal(false)}>
-          Hủy
-        </Button>
-        <Button variant="primary" onClick={handleCreateChairs}>
-          Tạo ghế
-        </Button>
-      </Modal.Footer>
-    </StyledModal>
-  );
-  
-  // Modal Delete Confirmation
-  const renderDeleteModal = () => (
-    <StyledModal 
-      show={showDeleteModal} 
-      onHide={() => setShowDeleteModal(false)}
-      theme={muiTheme.palette.mode}
-    >
-      <Modal.Header closeButton>
-        <Modal.Title>Xác nhận xóa</Modal.Title>
-      </Modal.Header>
-      <Modal.Body>
-        Bạn có chắc chắn muốn xóa ghế <strong>{chairToDelete?.chairName}</strong>?
-        <div className="alert alert-warning mt-3">
-          <FaInfoCircle className="me-2" />
-          Lưu ý: Hành động này không thể hoàn tác.
-        </div>
-      </Modal.Body>
-      <Modal.Footer>
-        <Button variant="secondary" onClick={() => setShowDeleteModal(false)}>
-          Hủy
-        </Button>
-        <Button variant="danger" onClick={handleConfirmDelete}>
-          Xác nhận xóa
-        </Button>
-      </Modal.Footer>
-    </StyledModal>
-  );
-  
-  // Modal Bulk Action
-  const renderBulkActionModal = () => (
-    <StyledModal 
-      show={showBulkActionModal} 
-      onHide={() => setShowBulkActionModal(false)}
-      theme={muiTheme.palette.mode}
-    >
-      <Modal.Header closeButton>
-        <Modal.Title>
-          {bulkActionType === 'status' ? 'Thay đổi trạng thái ghế' : 
-           bulkActionType === 'type' ? 'Thay đổi loại ghế' : 
-           'Xác nhận xóa'}
-        </Modal.Title>
-      </Modal.Header>
-      <Modal.Body>
-        {bulkActionType === 'delete' ? (
-          <>
-            <p>Bạn có chắc chắn muốn xóa <strong>{selectedChairs.length}</strong> ghế đã chọn?</p>
-            <div className="alert alert-warning">
-              <FaInfoCircle className="me-2" />
-              Lưu ý: Hành động này không thể hoàn tác.
-            </div>
-          </>
-        ) : bulkActionType === 'status' ? (
-          <>
-            <p>Chọn trạng thái mới cho <strong>{selectedChairs.length}</strong> ghế đã chọn:</p>
-            <div className="d-flex gap-3 mt-3">
-              <Button 
-                variant="success" 
-                className="w-50"
-                onClick={() => handleBulkAction(true)}
-              >
-                <FaLock className="me-2" /> Kích hoạt
-              </Button>
-              <Button 
-                variant="danger" 
-                className="w-50"
-                onClick={() => handleBulkAction(false)}
-              >
-                <FaLockOpen className="me-2" /> Vô hiệu hóa
-              </Button>
-            </div>
-          </>
-        ) : (
-          <>
-            <p>Chọn loại ghế mới cho <strong>{selectedChairs.length}</strong> ghế đã chọn:</p>
-            <div className="d-flex flex-column gap-2 mt-3">
-              <Button 
-                variant="primary" 
-                onClick={() => handleBulkAction(1)}
-                style={{ backgroundColor: '#64b5f6' }}
-              >
-                Ghế thường
-              </Button>
-              <Button 
-                variant="primary" 
-                onClick={() => handleBulkAction(2)}
-                style={{ backgroundColor: '#9c27b0' }}
-              >
-                Ghế VIP
-              </Button>
-              <Button 
-                variant="primary" 
-                onClick={() => handleBulkAction(3)}
-                style={{ backgroundColor: '#e91e63' }}
-              >
-                Ghế đôi
-              </Button>
-            </div>
-          </>
-        )}
-      </Modal.Body>
-      <Modal.Footer>
-        <Button variant="secondary" onClick={() => setShowBulkActionModal(false)}>
-          Hủy
-        </Button>
-        {bulkActionType === 'delete' && (
-          <Button variant="danger" onClick={() => handleBulkAction()}>
-            Xác nhận xóa
-          </Button>
-        )}
-      </Modal.Footer>
-    </StyledModal>
-  );
-  
   return (
     // Bỏ padding-y vì AdminLayout đã có padding
     <Box>
@@ -1252,17 +926,17 @@ function RoomSeatsManagement() {
           </PageHeader>
           
           {successMessage && (
-            <StyledAlert variant="success">
-              <FaCheckCircle className="icon" />
-              <span className="message">{successMessage}</span>
-            </StyledAlert>
+            <Alert variant="success" className="d-flex align-items-center">
+              <FaCheckCircle className="me-2" />
+              {successMessage}
+            </Alert>
           )}
           
           {error && (
-            <StyledAlert variant="danger">
-              <FaInfoCircle className="icon" />
-              <span className="message">{error}</span>
-            </StyledAlert>
+            <Alert variant="danger" className="d-flex align-items-center">
+              <FaInfoCircle className="me-2" />
+              {error}
+            </Alert>
           )}
           
           <SearchContainer>
@@ -1338,12 +1012,6 @@ function RoomSeatsManagement() {
           </TabContent>
         </Card.Body>
       </Card>
-      
-      {/* Render các Modal */}
-      {renderEditModal()}
-      {renderCreateModal()}
-      {renderDeleteModal()}
-      {renderBulkActionModal()}
     </Box>
   );
 }

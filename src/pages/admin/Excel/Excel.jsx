@@ -130,6 +130,15 @@ const ButtonContainer = styled.div`
   justify-content: center;
 `;
 
+// Function to format date to YYYY-MM-DD
+const formatDate = (date) => {
+  const year = date.getFullYear();
+  const month = String(date.getMonth() + 1).padStart(2, '0'); // Month is 0-indexed
+  const day = String(date.getDate()).padStart(2, '0');
+  
+  return `${year}-${month}-${day}`;
+};
+
 export default function Excel() {
   const [theaters, setTheaters] = useState([]);
   const [selectedTheater, setSelectedTheater] = useState('all');
@@ -156,17 +165,21 @@ export default function Excel() {
     try {
       let response;
       
+      // Format dates as YYYY-MM-DD before sending to backend
+      const formattedStartDate = formatDate(startDate);
+      const formattedEndDate = formatDate(endDate);
+      
       if (selectedTheater === 'all') {
         response = await exportRevenueAllTheaters(
           reportPeriod,
-          startDate.toISOString(),
-          endDate.toISOString()
+          formattedStartDate,
+          formattedEndDate
         );
       } else {
         response = await exportRevenueByTheater(
           reportPeriod,
-          startDate.toISOString(),
-          endDate.toISOString(),
+          formattedStartDate,
+          formattedEndDate,
           parseInt(selectedTheater)
         );
       }

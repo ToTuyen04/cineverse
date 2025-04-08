@@ -111,14 +111,14 @@ export const checkVoucher = async (voucherCode, totalAmount) => {
 
 /**
  * Lấy danh sách tất cả voucher từ API
- * @returns {Promise} Promise trả về danh sách tất cả voucher 
+ * @returns {Promise} Promise trả về danh sách tất cả voucher
  */
 export const getAllVouchers = async () => {
   try {
     const response = await apiClient.get('/vouchers');
     return response.data;
   } catch (error) {
-    console.error('Error fetching vouchers:', error);
+    console.error("Error fetching vouchers:", error);
     throw error;
   }
 };
@@ -173,6 +173,7 @@ export const getVouchersPaginated = async (
       params.append('searchTerm', searchTerm);
     }
 
+    // Xử lý sắp xếp nếu có
     if (sortBy !== null && sortBy !== undefined) {
       params.append('sortBy', sortBy);
     }
@@ -187,7 +188,7 @@ export const getVouchersPaginated = async (
     const response = await apiClient.get(url);
     return response.data;
   } catch (error) {
-    console.error('Error fetching paginated vouchers:', error);
+    console.error("Error fetching paginated vouchers:", error);
     throw error;
   }
 };
@@ -219,7 +220,7 @@ export const createVoucher = async (voucherData) => {
     const response = await apiClient.post('/vouchers', voucherData);
     return response.data;
   } catch (error) {
-    console.error('Error creating voucher:', error);
+    console.error("Error creating voucher:", error);
     throw error;
   }
 };

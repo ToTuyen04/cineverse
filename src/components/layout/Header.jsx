@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { Navbar, Nav, Container, Dropdown, Form } from "react-bootstrap";
 import { Link, useNavigate } from "react-router-dom";
-import { FaSearch, FaUserCircle, FaMapMarkerAlt, FaCalendarAlt, FaClock, FaSignOutAlt, FaUserCog, FaBars, FaTimes, FaMedal } from "react-icons/fa";
+import { FaSearch, FaUserCircle, FaMapMarkerAlt, FaCalendarAlt, FaClock, FaSignOutAlt, FaUserCog, FaBars, FaTimes } from "react-icons/fa";
 import styled from "styled-components";
 import SearchBar from "../forms/SearchBar";
 import Button from "../common/Button";

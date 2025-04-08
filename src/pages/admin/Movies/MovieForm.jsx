@@ -281,6 +281,7 @@ const MovieForm = ({ open, handleClose, movie, onSubmit, isEdit = false, isViewO
       setIsSubmitting(true);
       
       try {
+        //n
         const movieFormData = new FormData();
         
         const propertyMapping = {
@@ -427,12 +428,15 @@ const MovieForm = ({ open, handleClose, movie, onSubmit, isEdit = false, isViewO
                 disabled={isViewOnly || isSubmitting}
               />
               
-              <MovieFormAvailability
-                formData={formData}
-                handleAvailabilityChange={handleAvailabilityChange}
-                errors={errors}
-                disabled={isViewOnly || isSubmitting}
-              />
+              {/* Only show availability toggle when editing existing movies */}
+              {isEdit && (
+                <MovieFormAvailability
+                  formData={formData}
+                  handleAvailabilityChange={handleAvailabilityChange}
+                  errors={errors}
+                  disabled={isViewOnly || isSubmitting}
+                />
+              )}
                 
               <MovieFormContent
                 formData={formData}

@@ -779,6 +779,23 @@ const passwordRequirements = {
     }
   };
 
+  // Hàm xử lý thay đổi gender
+  const handleGenderChange = (e) => {
+    // Chuyển đổi giá trị gender từ chuỗi sang số
+    let genderValue;
+    switch (e.target.value) {
+      case 'Male': genderValue = 0; break;
+      case 'Female': genderValue = 1; break;
+      case 'Other': genderValue = 2; break;
+      default: genderValue = 0;
+    }
+    
+    setFormData({
+      ...formData,
+      gender: genderValue
+    });
+  };
+
   // Kiểm tra form hợp lệ
   const validateForm = () => {
     const newErrors = {};
@@ -825,25 +842,12 @@ const passwordRequirements = {
       setIsSubmitting(true);
       setServerError(null); // Xóa lỗi server trước đó
       
-      // Tạo payload mới với các key viết hoa chữ cái đầu tiên
-      const payload = {
-        Email: formData.email,
-        Password: formData.password,
-        ConfirmPassword: formData.confirmPassword,
-        FirstName: formData.firstName,
-        LastName: formData.lastName,
-        PhoneNumber: formData.phoneNumber ,
-        DateOfBirth: formData.dateOfBirth ,
-        Gender: formData.gender || 1
-      };
-      // Gọi API đăng ký với payload đã được chuyển đổi
-      const result = await register(payload);
+      // Gọi API đăng ký
+      const result = await register(formData);
       
       // Hiển thị popup thành công
-      if(result && result.success) {
-        setShowSuccessPopup(true);
+      setShowSuccessPopup(true);
       setSuccessMessage("Đăng ký thành công! Vui lòng kiểm tra email của bạn để xác nhận tài khoản trước khi đăng nhập.");
-      
       
       // Reset form
       setFormData({
@@ -856,10 +860,7 @@ const passwordRequirements = {
         dateOfBirth: '',
         gender: 1 // Reset gender về giá trị mặc định số (1 = Male)
       });
-    }else {
-      // Nếu không thành công nhưng không có lỗi (trường hợp hiếm gặp)
-      setServerError("Đăng ký không thành công. Vui lòng thử lại sau.");
-    }
+      
     } catch (error) {
       console.error("Registration failed:", error);
       
@@ -1199,9 +1200,9 @@ const passwordRequirements = {
                                 <RadioInput
                                   type="radio"
                                   name="gender"
-                                  value="1" // Thay đổi từ "Male" thành "1"
+                                  value="Male"
                                   checked={formData.gender === 1}
-                                  onChange={() => setFormData({...formData, gender: 1})} // Thay đổi cách xử lý onChange
+                                  onChange={handleGenderChange}
                                 />
                                 Nam
                               </RadioLabel>
@@ -1209,13 +1210,22 @@ const passwordRequirements = {
                                 <RadioInput
                                   type="radio"
                                   name="gender"
-                                  value="2" // Thay đổi từ "Female" thành "2"
+                                  value="Female"
                                   checked={formData.gender === 2}
-                                  onChange={() => setFormData({...formData, gender: 2})} // Thay đổi cách xử lý onChange
+                                  onChange={handleGenderChange}
                                 />
                                 Nữ
                               </RadioLabel>
-                             
+                              <RadioLabel>
+                                <RadioInput
+                                  type="radio"
+                                  name="gender"
+                                  value="Other"
+                                  checked={formData.gender === 3}
+                                  onChange={handleGenderChange}
+                                />
+                                Khác
+                              </RadioLabel>
                             </div>
                           </div>
                         </RadioGroup>
