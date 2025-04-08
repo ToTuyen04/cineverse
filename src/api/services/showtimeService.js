@@ -88,7 +88,7 @@ const mockShowtimes = {
 // Get all showtimes
 export const getAllShowtimes = async () => {
   try {
-    const response = await apiClient.get('/Showtime');
+    const response = await apiClient.get('/showtimes');
     return response.data.success ? response.data.data : [];
   } catch (error) {
     console.error('Error fetching all showtimes:', error);
@@ -99,7 +99,7 @@ export const getAllShowtimes = async () => {
 
 export const getShowtimesByMovieAndTheater = async (movieId, theaterId) => {
   try {
-    const response = await apiClient.get(`/Showtime/${theaterId}/${movieId}`);
+    const response = await apiClient.get(`/showtimes/${theaterId}/${movieId}`);
     return response.data;
     
     // return showtimesData.filter(
@@ -115,7 +115,7 @@ export const getShowtimesByMovieAndTheater = async (movieId, theaterId) => {
 // Get showtime by ID
 export const getShowtimeById = async (id) => {
   try {
-    const response = await apiClient.get(`/Showtime/${id}`);
+    const response = await apiClient.get(`/showtimes/${id}`);
     console.log(`Showtime API response for ID ${id}:`, response.data);
     
     if (!response.data || !response.data.success) {
@@ -133,7 +133,7 @@ export const getShowtimeById = async (id) => {
 // Update showtime
 export const updateShowtime = async (id, showtimeData) => {
   try {
-    const response = await apiClient.put(`/Showtime/${id}`, showtimeData);
+    const response = await apiClient.put(`/showtimes/${id}`, showtimeData);
     return response.data;
   } catch (error) {
     console.error(`Error updating showtime with id ${id}:`, error);
@@ -144,7 +144,7 @@ export const updateShowtime = async (id, showtimeData) => {
 // Delete showtime
 export const deleteShowtime = async (id) => {
   try {
-    const response = await apiClient.delete(`/Showtime/${id}`);
+    const response = await apiClient.delete(`/showtimes/${id}`);
     return response.data;
   } catch (error) {
     console.error(`Error deleting showtime with id ${id}:`, error);
@@ -155,7 +155,7 @@ export const deleteShowtime = async (id) => {
 // Create showtime
 export const createShowtime = async (showtimeData) => {
   try {
-    const response = await apiClient.post('/Showtime', showtimeData);
+    const response = await apiClient.post('/showtimes', showtimeData);
     return response.data;
   } catch (error) {
     console.error('Error creating showtime:', error);
@@ -166,7 +166,7 @@ export const createShowtime = async (showtimeData) => {
 // Get all rooms for selection in form
 export const getAllRooms = async () => {
   try {
-    const response = await apiClient.get('/Room');
+    const response = await apiClient.get('/rooms');
     return response.data.success ? response.data.data : [];
   } catch (error) {
     console.error('Error fetching all rooms:', error);
@@ -177,7 +177,7 @@ export const getAllRooms = async () => {
 // Get all movies for selection in form
 export const getActiveMovies = async () => {
   try {
-    const response = await apiClient.get('/Movie/active');
+    const response = await apiClient.get('/movies/active');
     return response.data.success ? response.data.data : [];
   } catch (error) {
     console.error('Error fetching active movies:', error);
@@ -188,7 +188,7 @@ export const getActiveMovies = async () => {
 // Get all movies from Movies API
 export const getAllMovies = async () => {
   try {
-    const response = await apiClient.get('/Movies');
+    const response = await apiClient.get('/movies');
     
     // Debug the response
     console.log("Movies API response:", response.data);
@@ -215,7 +215,7 @@ export const getAllMovies = async () => {
 // Get paginated showtimes
 export const getPaginatedShowtimes = async (pageIndex = 1, pageSize = 10, searchTerm = '') => {
   try {
-    let url = `/Showtime/paginated?pageIndex=${pageIndex}&pageSize=${pageSize}`;
+    let url = `/showtimes/paginated?pageIndex=${pageIndex}&pageSize=${pageSize}`;
     
     // Add search parameter if provided
     if (searchTerm) {
@@ -253,7 +253,7 @@ export const getPaginatedShowtimes = async (pageIndex = 1, pageSize = 10, search
  */
 export const getMovieScheduleByTheaterAndMovie = async (movieId, theaterId) => {
   try {
-    const response = await apiClient.get(`/Movies/${movieId}/theater/${theaterId}/schedule`);
+    const response = await apiClient.get(`/movies/${movieId}/theater/${theaterId}/schedule`);
     return response.data;
   } catch (error) {
     console.error(`Error fetching schedule for movie ${movieId} at theater ${theaterId}:`, error);

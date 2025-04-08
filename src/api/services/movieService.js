@@ -13,7 +13,7 @@ import apiClient from './apiClient';
  */
 export const getAllMovies = async (includeUnavailable = false) => {
   try {
-    const response = await apiClient.get('/Movies');
+    const response = await apiClient.get('/movies');
     
     // Xác định mảng phim từ response
     let moviesArray = [];
@@ -89,7 +89,7 @@ export const getMoviesPaginated = async (
     
     // Use apiClient directly with URL path and query string
     const queryString = params.toString();
-    const url = `/Movies/${pageIndex}/${pageSize}${queryString ? `?${queryString}` : ''}`;
+    const url = `/movies/${pageIndex}/${pageSize}${queryString ? `?${queryString}` : ''}`;
     
     console.log("API Call URL:", url); // For debugging
     const response = await apiClient.get(url);
@@ -108,7 +108,7 @@ export const getMoviesPaginated = async (
  */
 export const getMovieById = async (id, checkAvailability = true) => {
   try {
-    const response = await apiClient.get(`/Movies/${id}`);
+    const response = await apiClient.get(`/movies/${id}`);
     
     // Kiểm tra phim có khả dụng không - chỉ áp dụng khi checkAvailability = true
     // Đối với admin, nên truyền checkAvailability = false để xem được phim không khả dụng
@@ -167,7 +167,7 @@ export const getComingSoonMovies = async () => {
  */
 export const getMoviesByTheater = async (theaterId) => {
   try {
-    const response = await apiClient.get(`/Movies/bookingQuick/theaters/${theaterId}/getMovies`);
+    const response = await apiClient.get(`/movies/bookingQuick/theaters/${theaterId}/getMovies`);
     
     if (response.data && response.data.success && response.data.data) {
       return response.data.data;
@@ -202,7 +202,7 @@ export const getBannerMovie = async () => {
 export const searchMoviesInFe = async (query) => {
   try {
     // Trong môi trường thực tế, thay thế bằng API call:
-    // const response = await apiClient.get(`/Movies/search?query=${encodeURIComponent(query)}`);
+    // const response = await apiClient.get(`/movies/search?query=${encodeURIComponent(query)}`);
     // return formatMovieData(response.data);
 
     // Giả lập API delay
@@ -234,7 +234,7 @@ export const searchMoviesInFe = async (query) => {
  */
 export const searchMovies = async (query, pageIndex = 1, pageSize = 10, additionalParams = '') => {
   try {
-    const url = `/Movies/${pageIndex}/${pageSize}?searchTerm=${encodeURIComponent(query)}${additionalParams ? `&${additionalParams}` : ''}`;
+    const url = `/movies/${pageIndex}/${pageSize}?searchTerm=${encodeURIComponent(query)}${additionalParams ? `&${additionalParams}` : ''}`;
     const response = await apiClient.get(url);
     return response.data;
   } catch (error) {
@@ -251,7 +251,7 @@ export const searchMovies = async (query, pageIndex = 1, pageSize = 10, addition
 export const createMovie = async (movieData) => {
   try {
     // When using FormData with POST requests, need the same handling as PUT requests
-    const response = await apiClient.post('/Movies', movieData, {
+    const response = await apiClient.post('/movies', movieData, {
       // Make sure we don't set Content-Type as the browser will set it
       // automatically with the correct boundary for multipart/form-data
       headers: {
@@ -285,7 +285,7 @@ export const updateMovie = async (id, movieData) => {
   try {
     // When using FormData with PUT requests, some API clients
     // or servers might not process it correctly
-    const response = await apiClient.put(`/Movies/${id}`, movieData, {
+    const response = await apiClient.put(`/movies/${id}`, movieData, {
       // Make sure we don't set Content-Type as the browser will set it
       // automatically with the correct boundary for multipart/form-data
       headers: {
@@ -317,7 +317,7 @@ export const updateMovie = async (id, movieData) => {
  */
 export const deleteMovie = async (id) => {
   try {
-    const response = await apiClient.delete(`/Movies/${id}`);
+    const response = await apiClient.delete(`/movies/${id}`);
     return response.data;
   } catch (error) {
     console.error(`Error deleting movie with ID ${id}:`, error);
@@ -331,7 +331,7 @@ export const deleteMovie = async (id) => {
  */
 export const getAllGenres = async () => {
   try {
-    const response = await apiClient.get('/Genres');
+    const response = await apiClient.get('/genres');
     return response.data;
   } catch (error) {
     console.error('Error fetching genres:', error);
@@ -346,7 +346,7 @@ export const getAllGenres = async () => {
  */
 export const getGenreById = async (id) => {
   try {
-    const response = await apiClient.get(`/Genres/${id}`);
+    const response = await apiClient.get(`/genres/${id}`);
     return response.data;
   } catch (error) {
     console.error(`Error fetching genre with ID ${id}:`, error);

@@ -44,7 +44,7 @@ const saveUserData = (userData) => {
  */
 export const loginWithEmail = async (email, password) => {
   try {
-    const response = await apiClient.post('/Auth/login', { email, password });
+    const response = await apiClient.post('/auth/login', { email, password });
     const userData = response.data;
     
     
@@ -63,7 +63,7 @@ export const loginWithEmail = async (email, password) => {
  */
 export const loginWithPhone = async (phone, password) => {
   try {
-    const response = await apiClient.post('/Auth/login-phone', { phone, password });
+    const response = await apiClient.post('/auth/login-phone', { phone, password });
     const userData = response.data;
     
     if (userData.isSuccessful) {
@@ -139,7 +139,7 @@ export const logout = () => {
  */
 export const register = async (userData) => {
   try {
-    const response = await apiClient.post('/Auth/register', {
+    const response = await apiClient.post('/auth/register', {
       email: userData.email,
       password: userData.password,
       confirmPassword: userData.confirmPassword,
@@ -163,7 +163,7 @@ export const register = async (userData) => {
 export const confirmEmail = async (token) => {
   try {
     // Đã đổi từ method GET sang POST theo yêu cầu
-    const response = await apiClient.post(`/Auth/confirm-email?token=${token}`);
+    const response = await apiClient.post(`/auth/confirm-email?token=${token}`);
     return response.data;
   } catch (error) {
     throw handleApiError(error);
@@ -177,7 +177,7 @@ export const confirmEmail = async (token) => {
  */
 export const resendConfirmationEmail = async (email) => {
   try {
-    const response = await apiClient.post('/Auth/resend-confirmation-email', { email });
+    const response = await apiClient.post('/auth/resend-confirmation-email', { email });
     return response.data;
   } catch (error) {
     throw handleApiError(error);
@@ -220,7 +220,7 @@ export const getToken = () => {
  */
 export const updateUserProfile = async (userData) => {
   try {
-    const response = await apiClient.put('/Auth/update-profile', userData);
+    const response = await apiClient.put('/auth/update-profile', userData);
     
     // Cập nhật thông tin người dùng trong localStorage
     const currentUser = JSON.parse(localStorage.getItem('userData') || '{}');
@@ -239,7 +239,7 @@ export const updateUserProfile = async (userData) => {
  */
 export const requestPasswordReset = async (email) => {
   try {
-    const response = await apiClient.post('/Auth/forgot-password', { email });
+    const response = await apiClient.post('/auth/forgot-password', { email });
     return response.data;
   } catch (error) {
     throw handleApiError(error);
@@ -253,7 +253,7 @@ export const requestPasswordReset = async (email) => {
  */
 export const resetPassword = async (resetData) => {
   try {
-    const response = await apiClient.post('/Auth/reset-password', resetData);
+    const response = await apiClient.post('/auth/reset-password', resetData);
     return response.data;
   } catch (error) {
     throw handleApiError(error);
@@ -269,7 +269,7 @@ export const resetPassword = async (resetData) => {
  */
 export const changePassword = async (currentPassword, newPassword, confirmPassword) => {
   try {
-    const response = await apiClient.post('/Auth/reset-password', {
+    const response = await apiClient.post('/auth/reset-password', {
       currentPassword,
       newPassword,
       confirmPassword

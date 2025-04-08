@@ -11,7 +11,7 @@ import apiClient from './apiClient';
 export const getBasicDashboardData = async () => {
   try {
     // Basic endpoint without parameters
-    const response = await apiClient.get(`/DashBoard/order-dashboard`);
+    const response = await apiClient.get(`/dashboard/order-dashboard`);
     return response.data;
   } catch (error) {
     console.error('Error fetching basic dashboard data:', error);
@@ -51,7 +51,7 @@ export const getDetailedDashboardData = async (theater = 'All', time = 'All') =>
     }
     
     // Detailed endpoint with parameters - ensure 'All' is capitalized
-    const response = await apiClient.get(`/DashBoard/order-dashboard/${theater}/${time}`);
+    const response = await apiClient.get(`/dashboard/order-dashboard/${theater}/${time}`);
     return response.data;
   } catch (error) {
     console.error('Error fetching detailed dashboard data:', error);

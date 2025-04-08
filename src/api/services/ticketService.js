@@ -6,14 +6,8 @@ import apiClient from './apiClient';
  */
 export const getTicketHistory = async () => {
   try {
-    // Lấy email người dùng từ localStorage
-    const userEmail = localStorage.getItem('userEmail');
-    if (!userEmail) {
-      throw new Error('Không tìm thấy thông tin người dùng');
-    }
-
-    // Gọi API với userEmail
-    const response = await apiClient.get(`/users/profile/${userEmail}/purchase-history`);
+        // Gọi API với userEmail
+    const response = await apiClient.get(`/users/profile/purchase-history`);
     
     // Trả về data từ response
     return response.data.data;

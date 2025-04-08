@@ -134,11 +134,11 @@ export const getCombosPaginated = async (
   } catch (error) {
     console.error("Error fetching from /Combos endpoint:", error);
     
-    // Nếu API gọi lỗi, thử gọi với endpoint /Combo (không có s ở cuối)
+    // Nếu API gọi lỗi, thử gọi với endpoint /combos (không có s ở cuối)
     try {
-      console.log("Falling back to /Combo endpoint");
-      const response = await apiClient.get("/Combo");
-      console.log("Response from /Combo:", response.data);
+      console.log("Falling back to /combos endpoint");
+      const response = await apiClient.get("/combos");
+      console.log("Response from /combos:", response.data);
       
       const allData = response.data || [];
       
@@ -240,12 +240,12 @@ export const getComboById = async (id) => {
   } catch (error) {
     console.error(`Error fetching combo with ID ${id} from /Combos endpoint:`, error);
     
-    // Nếu lỗi, thử lại với endpoint /Combo/{id}
+    // Nếu lỗi, thử lại với endpoint /combos/{id}
     try {
-      const response = await apiClient.get(`/Combo/${id}`);
+      const response = await apiClient.get(`/combos/${id}`);
       return response.data;
     } catch (fallbackError) {
-      console.error(`Error fetching combo with ID ${id} from /Combo endpoint:`, fallbackError);
+      console.error(`Error fetching combo with ID ${id} from /combos endpoint:`, fallbackError);
       throw fallbackError;
     }
   }
@@ -263,12 +263,12 @@ export const getAvailableCombos = async () => {
   } catch (error) {
     console.error("Error fetching available combos from /Combos endpoint:", error);
     
-    // Nếu lỗi, thử lại với endpoint /Combo/available
+    // Nếu lỗi, thử lại với endpoint /combos/available
     try {
-      const response = await apiClient.get("/Combo/available");
+      const response = await apiClient.get("/combos/available");
       return response.data;
     } catch (fallbackError) {
-      console.error("Error fetching available combos from /Combo endpoint:", fallbackError);
+      console.error("Error fetching available combos from /combos endpoint:", fallbackError);
       throw fallbackError;
     }
   }
@@ -290,7 +290,7 @@ export const createCombo = async (comboData) => {
     }
     
     // Use the same approach as in movieService.js
-    const response = await apiClient.post("/Combo", comboData, {
+    const response = await apiClient.post("/combos", comboData, {
       headers: {
         // Important: Set Content-Type to undefined to let the browser set it correctly
         'Content-Type': undefined
@@ -300,7 +300,7 @@ export const createCombo = async (comboData) => {
     console.log("Create combo response:", response.data);
     return response.data;
   } catch (error) {
-    console.error("Error creating combo with /Combo endpoint:", error);
+    console.error("Error creating combo with /combos endpoint:", error);
     
     if (error.response) {
       console.error("Error response data:", error.response.data);
@@ -513,7 +513,7 @@ export const updateCombo = async (id, comboData) => {
         
         // Get the original combo using Fetch API
         const baseUrl = apiClient.defaults.baseURL || 'https://localhost:7212/api';
-        fetch(`${baseUrl}/Combo/${id}`, {
+        fetch(`${baseUrl}/combos/${id}`, {
           method: 'GET',
           credentials: 'include'
         })
@@ -599,7 +599,7 @@ export const updateCombo = async (id, comboData) => {
         
         // Open the request - direct URL to match backend exactly
         const baseUrl = apiClient.defaults.baseURL || 'https://localhost:7212/api';
-        const url = `${baseUrl}/Combo/${id}`;
+        const url = `${baseUrl}/combos/${id}`;
         console.log(`XHR Opening PUT request to: ${url}`);
         
         xhr.open("PUT", url, true);
@@ -616,7 +616,7 @@ export const updateCombo = async (id, comboData) => {
     try {
       console.log("Trying fetch API as fallback");
       const baseUrl = apiClient.defaults.baseURL || 'https://localhost:7212/api';
-      const response = await fetch(`${baseUrl}/Combo/${id}`, {
+      const response = await fetch(`${baseUrl}/combos/${id}`, {
         method: 'PUT',
         body: comboData,
         credentials: 'include'
@@ -632,7 +632,7 @@ export const updateCombo = async (id, comboData) => {
       
       // LAST RESORT: Try axios with explicit options
       console.log("Trying axios as last resort");
-      const response = await apiClient.put(`/Combo/${id}`, comboData, {
+      const response = await apiClient.put(`/combos/${id}`, comboData, {
         headers: {
           'Content-Type': undefined,
           'X-Requested-With': 'XMLHttpRequest'
@@ -652,17 +652,17 @@ export const updateCombo = async (id, comboData) => {
 export const deleteCombo = async (id) => {
   try {
     // Thử gọi API với endpoint /Combos/{id}
-    const response = await apiClient.delete(`/Combos/${id}`);
+    const response = await apiClient.delete(`/combos/${id}`);
     return response.data;
   } catch (error) {
-    console.error(`Error deleting combo with ID ${id} using /Combos endpoint:`, error);
+    console.error(`Error deleting combo with ID ${id} using /combos endpoint:`, error);
     
-    // Nếu lỗi, thử lại với endpoint /Combo/{id}
+    // Nếu lỗi, thử lại với endpoint /combos/{id}
     try {
-      const response = await apiClient.delete(`/Combo/${id}`);
+      const response = await apiClient.delete(`/combos/${id}`);
       return response.data;
     } catch (fallbackError) {
-      console.error(`Error deleting combo with ID ${id} using /Combo endpoint:`, fallbackError);
+      console.error(`Error deleting combo with ID ${id} using /combos endpoint:`, fallbackError);
       throw fallbackError;
     }
   }
@@ -676,21 +676,21 @@ export const deleteCombo = async (id) => {
 export const getComboDetails = async (id) => {
   try {
     // Thử gọi API với endpoint /Combos/{id}/details
-    console.log(`===== Fetching combo details for ID: ${id} from /Combos/${id}/details =====`);
-    const response = await apiClient.get(`/Combos/${id}/details`);
-    console.log(`===== Response from /Combos/${id}/details:`, response.data);
+    console.log(`===== Fetching combo details for ID: ${id} from /combos/${id}/details =====`);
+    const response = await apiClient.get(`/combos/${id}/details`);
+    console.log(`===== Response from /combos/${id}/details:`, response.data);
     return response.data;
   } catch (error) {
-    console.error(`===== Error fetching from /Combos/${id}/details:`, error);
+    console.error(`===== Error fetching from /combos/${id}/details:`, error);
     
-    // Nếu lỗi, thử lại với endpoint /Combo/{id}/details
+    // Nếu lỗi, thử lại với endpoint /combos/{id}/details
     try {
-      console.log(`===== Trying fallback to /Combo/${id}/details =====`);
-      const response = await apiClient.get(`/Combo/${id}/details`);
-      console.log(`===== Response from /Combo/${id}/details:`, response.data);
+      console.log(`===== Trying fallback to /combos/${id}/details =====`);
+      const response = await apiClient.get(`/combos/${id}/details`);
+      console.log(`===== Response from /combos/${id}/details:`, response.data);
       return response.data;
     } catch (fallbackError) {
-      console.error(`===== Error fetching from /Combo/${id}/details:`, fallbackError);
+      console.error(`===== Error fetching from /combos/${id}/details:`, fallbackError);
       throw fallbackError; // Ném lỗi ra để xử lý ở phía trên
     }
   }
@@ -711,13 +711,13 @@ export const addComboDetail = async (comboId, detailData) => {
   } catch (error) {
     console.error(`Error adding combo detail for combo ID ${comboId} using /Combos endpoint:`, error);
     
-    // Nếu lỗi, thử lại với endpoint /Combo/{comboId}/details
+    // Nếu lỗi, thử lại với endpoint /combos/{comboId}/details
     try {
-      const response = await apiClient.post(`/Combo/${comboId}/details`, detailData);
+      const response = await apiClient.post(`/combos/${comboId}/details`, detailData);
       console.log("Add combo detail fallback response:", response.data);
       return response.data;
     } catch (fallbackError) {
-      console.error(`Error adding combo detail for combo ID ${comboId} using /Combo endpoint:`, fallbackError);
+      console.error(`Error adding combo detail for combo ID ${comboId} using /combos endpoint:`, fallbackError);
       throw fallbackError;
     }
   }
@@ -733,19 +733,19 @@ export const addComboDetail = async (comboId, detailData) => {
 export const updateComboDetail = async (comboId, detailId, detailData) => {
   try {
     // Thử gọi API với endpoint /Combos/{comboId}/details/{detailId}
-    const response = await apiClient.put(`/Combos/${comboId}/details/${detailId}`, detailData);
+    const response = await apiClient.put(`/combos/${comboId}/details/${detailId}`, detailData);
     console.log("Update combo detail response:", response.data);
     return response.data;
   } catch (error) {
-    console.error(`Error updating combo detail ID ${detailId} using /Combos endpoint:`, error);
+    console.error(`Error updating combo detail ID ${detailId} using /combos endpoint:`, error);
     
-    // Nếu lỗi, thử lại với endpoint /Combo/{comboId}/details/{detailId}
+    // Nếu lỗi, thử lại với endpoint /combos/{comboId}/details/{detailId}
     try {
-      const response = await apiClient.put(`/Combo/${comboId}/details/${detailId}`, detailData);
+      const response = await apiClient.put(`/combos/${comboId}/details/${detailId}`, detailData);
       console.log("Update combo detail fallback response:", response.data);
       return response.data;
     } catch (fallbackError) {
-      console.error(`Error updating combo detail ID ${detailId} using /Combo endpoint:`, fallbackError);
+      console.error(`Error updating combo detail ID ${detailId} using /combos endpoint:`, fallbackError);
       throw fallbackError;
     }
   }
@@ -766,13 +766,13 @@ export const deleteComboDetail = async (comboId, detailId) => {
   } catch (error) {
     console.error(`Error deleting combo detail ID ${detailId} using /Combos endpoint:`, error);
     
-    // Nếu lỗi, thử lại với endpoint /Combo/{comboId}/details/{detailId}
+    // Nếu lỗi, thử lại với endpoint /combos/{comboId}/details/{detailId}
     try {
-      const response = await apiClient.delete(`/Combo/${comboId}/details/${detailId}`);
+      const response = await apiClient.delete(`/combos/${comboId}/details/${detailId}`);
       console.log("Delete combo detail fallback response:", response.data);
       return response.data;
     } catch (fallbackError) {
-      console.error(`Error deleting combo detail ID ${detailId} using /Combo endpoint:`, fallbackError);
+      console.error(`Error deleting combo detail ID ${detailId} using /combos endpoint:`, fallbackError);
       throw fallbackError;
     }
   }

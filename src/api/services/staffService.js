@@ -3,7 +3,7 @@ import apiClient from './apiClient';
 // Lấy danh sách tất cả nhân viên
 export const getAllStaffs = async () => {
   try {
-    const response = await apiClient.get('/Staff/get-all');
+    const response = await apiClient.get('/staffs/get-all');
     return response.data.staffs; // Trả về mảng staffs từ response
   } catch (error) {
     console.error('Error fetching staffs:', error);
@@ -14,7 +14,7 @@ export const getAllStaffs = async () => {
 // Lấy thông tin 1 nhân viên theo ID
 export const getStaffById = async (id) => {
   try {
-    const response = await apiClient.get(`/Staff/${id}`);
+    const response = await apiClient.get(`/staffs/${id}`);
     return response.data;
   } catch (error) {
     console.error(`Error fetching staff with id ${id}:`, error);
@@ -25,7 +25,7 @@ export const getStaffById = async (id) => {
 // Lấy thông tin nhân viên theo email
 export const getStaffByEmail = async (email) => {
   try {
-    const response = await apiClient.get(`/Staff/email/${encodeURIComponent(email)}`);
+    const response = await apiClient.get(`/staffs/email/${encodeURIComponent(email)}`);
     console.log("API response for getStaffByEmail:", response.data);
     
     // Check if response has expected structure with staff object
@@ -44,7 +44,7 @@ export const getStaffByEmail = async (email) => {
 // Tạo nhân viên mới
 export const createStaff = async (staffData) => {
   try {
-    const response = await apiClient.post('/Staff', staffData);
+    const response = await apiClient.post('/staffs', staffData);
     
     // Return the full API response including success message
     return {
@@ -77,7 +77,7 @@ export const createStaff = async (staffData) => {
 // Cập nhật thông tin nhân viên
 export const updateStaff = async (staffData) => {
   try {
-    const response = await apiClient.put('/Staff/update-staff', staffData);
+    const response = await apiClient.put('/staffs/update-staff', staffData);
     console.log('Update staff response:', response.data);
     return response.data; // Trả về response với staff đã được cập nhật
   } catch (error) {
@@ -90,7 +90,7 @@ export const updateStaff = async (staffData) => {
 export const updateStaffProfile = async (profileData) => {
   try {
     console.log("Gửi yêu cầu cập nhật profile:", profileData);
-    const response = await apiClient.put(`/Staff/update-staff`, profileData);
+    const response = await apiClient.put(`/staffs/update-staff`, profileData);
     return response.data;
   } catch (error) {
     console.error(`Error updating staff profile for email ${profileData.email}:`, error);
@@ -102,7 +102,7 @@ export const updateStaffProfile = async (profileData) => {
 export const deleteStaff = async (email) => {
   try {
     // Giả sử API xóa nhân viên theo email (hoặc có thể là endpoint khác)
-    // const response = await apiClient.delete(`/Staff/email/${encodeURIComponent(email)}`);
+    // const response = await apiClient.delete(`/staffs/email/${encodeURIComponent(email)}`);
     // return response.data;
     
     // Tạm thời sử dụng cách này để giả lập xóa nhân viên (vì API chưa có endpoint xóa)
@@ -156,7 +156,7 @@ export const getTheaters = async () => {
 // Cập nhật trạng thái nhân viên
 export const updateStaffStatus = async (id, status) => {
   try {
-    const response = await apiClient.patch(`/Staff/${id}/status`, { status });
+    const response = await apiClient.patch(`/staffs/${id}/status`, { status });
     return response.data;
   } catch (error) {
     console.error(`Error updating staff status with id ${id}:`, error);

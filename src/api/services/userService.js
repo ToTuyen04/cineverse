@@ -17,7 +17,7 @@ export const getUserProfile = async () => {
     }
 
     // Gọi API lấy thông tin người dùng với token trong header
-    const response = await apiClient.get('/Auth/logged-profile', {
+    const response = await apiClient.get('/auth/logged-profile', {
       headers: {
         'Authorization': `Bearer ${token}`
       }
@@ -109,7 +109,7 @@ export const updateUserProfile = async (userInfo) => {
       status: 1 // Mặc định là active
     };
     // Gọi API cập nhật thông tin người dùng
-    const response = await apiClient.put('/Users', payload, {
+    const response = await apiClient.put('/users', payload, {
       headers: {
         'Authorization': `Bearer ${token}`,
         'Content-Type': 'application/json'
@@ -208,7 +208,7 @@ export const getAllUsers = async () => {
       throw new Error('Không tìm thấy token xác thực');
     }
     
-    const response = await apiClient.get('/User/get-all', {
+    const response = await apiClient.get('/users/get-all', {
       headers: {
         'Authorization': `Bearer ${token}`
       }
@@ -243,7 +243,7 @@ export const getUserPurchaseHistory = async (email) => {
     }
     
     const encodedEmail = encodeURIComponent(email);
-    const response = await apiClient.get(`/User/profile/${encodedEmail}/purchase-history`, {
+    const response = await apiClient.get(`/users/profile/purchase-history`, {
       headers: {
         'Authorization': `Bearer ${token}`
       }
@@ -288,7 +288,7 @@ export const updateUserStatus = async (userData) => {
       status: userData.userStatus === 1 ? 0 : 1 // Toggle status
     };
     
-    const response = await apiClient.put('/User/status', payload, {
+    const response = await apiClient.put('/users/status', payload, {
       headers: {
         'Authorization': `Bearer ${token}`,
         'Content-Type': 'application/json'

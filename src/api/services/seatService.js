@@ -58,7 +58,7 @@ export const reserveSeats = async (showtimeId, seatIds) => {
  */
 export const getChairsByRoom = async (roomId) => {
   try {
-    const response = await apiClient.get(`/Chair/room/${roomId}`);
+    const response = await apiClient.get(`/chairs/room/${roomId}`);
     return response.data;
   } catch (error) {
     console.error('Error fetching chairs by room:', error);
@@ -98,7 +98,7 @@ export const createChairs = async (roomId, chairs) => {
     //     "chairStatus": true
     //   }
     // ]
-    const response = await apiClient.post(`/Chair/room/${roomId}`, chairs);
+    const response = await apiClient.post(`/chairs/room/${roomId}`, chairs);
     return response.data;
   } catch (error) {
     console.error('Error creating chairs:', error);
@@ -124,7 +124,7 @@ export const updateChairs = async (roomId, chairs) => {
     //     "chairStatus": true
     //   }
     // ]
-    const response = await apiClient.put(`/Chair/room/${roomId}`, chairs);
+    const response = await apiClient.put(`/chairs/room/${roomId}`, chairs);
     return response.data;
   } catch (error) {
     console.error('Error updating chairs:', error);
@@ -142,7 +142,7 @@ export const deleteChairs = async (roomId, chairIds) => {
   try {
     // Format API yêu cầu:
     // [0, 1, 2] - mảng chairId
-    const response = await apiClient.delete(`/Chair/room/${roomId}`, {
+    const response = await apiClient.delete(`/chairs/room/${roomId}`, {
       data: chairIds
     });
     return response.data;
@@ -160,7 +160,7 @@ export const deleteChairs = async (roomId, chairIds) => {
  */
 export const updateChairStatus = async (chairId, status) => {
   try {
-    const response = await apiClient.put(`/Chair/${chairId}/status`, { status });
+    const response = await apiClient.put(`/chairs/${chairId}/status`, { status });
     return response.data;
   } catch (error) {
     console.error('Error updating chair status:', error);
@@ -176,7 +176,7 @@ export const updateChairStatus = async (chairId, status) => {
  */
 export const updateChairType = async (chairId, chairTypeId) => {
   try {
-    const response = await apiClient.put(`/Chair/${chairId}/type`, { chairTypeId });
+    const response = await apiClient.put(`/chairs/${chairId}/type`, { chairTypeId });
     return response.data;
   } catch (error) {
     console.error('Error updating chair type:', error);

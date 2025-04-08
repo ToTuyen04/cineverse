@@ -1,7 +1,4 @@
-import theaters from '../mock/theaters.json';
 import showtimes from '../mock/showtimes.json';
-import seats from '../mock/seats.json';
-import seatsData from '../mock/seats.json';
 import apiClient from './apiClient';
 
 
@@ -24,7 +21,7 @@ export const getShowtimesByTheater = async (theaterId) => {
 
 export const getSeatsByShowtime = async (showtimeId) => {
   try {
-    const response = await apiClient.get(`/Showtime/Booking/${showtimeId}`);
+    const response = await apiClient.get(`/showtimes/Booking/${showtimeId}`);
     const { chairs, combos } = response.data;
 
     // Map dữ liệu ghế

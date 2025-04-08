@@ -4,7 +4,7 @@ import apiClient from './apiClient';
 export const getTheaters = async () => {
   try {
     // Gọi API thực để lấy dữ liệu
-    const response = await apiClient.get('/Theater');
+    const response = await apiClient.get('/theaters');
     return response.data;
   } catch (error) {
     console.error('Error fetching theaters:', error);
@@ -17,7 +17,7 @@ export const getTheaters = async () => {
 export const getTheaterById = async (id) => {
   try {
     // Gọi API thực để lấy dữ liệu của một rạp cụ thể
-    const response = await apiClient.get(`/Theater/${id}`);
+    const response = await apiClient.get(`/theaters/${id}`);
     return response.data;
   } catch (error) {
     console.error(`Error fetching theater with id ${id}:`, error);
@@ -62,7 +62,7 @@ export const mapTheatersData = (theaters) => {
  */
 export const getTheatersPaginated = async (pageIndex, pageSize) => {
   try {
-    const response = await apiClient.get(`/Theater/${pageIndex}/${pageSize}`);
+    const response = await apiClient.get(`/theaters/${pageIndex}/${pageSize}`);
     return response.data;
   } catch (error) {
     console.error('Error fetching paginated theaters:', error);
@@ -79,7 +79,7 @@ export const getTheatersPaginated = async (pageIndex, pageSize) => {
  */
 export const searchTheaters = async (query) => {
   try {
-    const response = await apiClient.get(`/Theater/search/${query}`);
+    const response = await apiClient.get(`/theaters/search/${query}`);
     return response.data;
   } catch (error) {
     console.error(`Error searching theaters with query "${query}":`, error);
@@ -94,7 +94,7 @@ export const searchTheaters = async (query) => {
  */
 export const createTheater = async (theaterData) => {
   try {
-    const response = await apiClient.post('/Theater', theaterData);
+    const response = await apiClient.post('/theaters', theaterData);
     return response.data;
   } catch (error) {
     console.error('Error creating theater:', error);
@@ -110,7 +110,7 @@ export const createTheater = async (theaterData) => {
  */
 export const updateTheater = async (id, theaterData) => {
   try {
-    const response = await apiClient.put(`/Theater/${id}`, theaterData);
+    const response = await apiClient.put(`/theaters/${id}`, theaterData);
     return response.data;
   } catch (error) {
     console.error(`Error updating theater with ID ${id}:`, error);
@@ -125,7 +125,7 @@ export const updateTheater = async (id, theaterData) => {
  */
 export const deleteTheater = async (id) => {
   try {
-    const response = await apiClient.delete(`/Theater/${id}`);
+    const response = await apiClient.delete(`/theaters/${id}`);
     return response.data;
   } catch (error) {
     console.error(`Error deleting theater with ID ${id}:`, error);
@@ -139,7 +139,7 @@ export const deleteTheater = async (id) => {
  */
 export const getAllAreas = async () => {
   try {
-    const response = await apiClient.get('/Areas');
+    const response = await apiClient.get('/areas');
     return response.data;
   } catch (error) {
     console.error('Error fetching areas:', error);

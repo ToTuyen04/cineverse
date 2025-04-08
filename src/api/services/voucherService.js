@@ -16,7 +16,7 @@ export const checkVoucher = async (voucherCode, totalAmount) => {
       };
     }
 
-    const response = await apiClient.get(`/Voucher/code/${voucherCode}`);
+    const response = await apiClient.get(`/vouchers/code/${voucherCode}`);
     console.log('Voucher check response:', response.data);
     
     // Nếu không có dữ liệu hoặc API trả về lỗi
@@ -115,7 +115,7 @@ export const checkVoucher = async (voucherCode, totalAmount) => {
  */
 export const getAllVouchers = async () => {
   try {
-    const response = await apiClient.get('/Vouchers');
+    const response = await apiClient.get('/vouchers');
     return response.data;
   } catch (error) {
     console.error("Error fetching vouchers:", error);
@@ -183,7 +183,7 @@ export const getVouchersPaginated = async (
     }
 
     const queryString = params.toString();
-    const url = `/Vouchers/${pageIndex}/${pageSize}${queryString ? `?${queryString}` : ''}`;
+    const url = `/vouchers/${pageIndex}/${pageSize}${queryString ? `?${queryString}` : ''}`;
 
     const response = await apiClient.get(url);
     return response.data;
@@ -200,7 +200,7 @@ export const getVouchersPaginated = async (
  */
 export const getVoucherById = async (id) => {
   try {
-    const response = await apiClient.get(`/Voucher/${id}`);
+    const response = await apiClient.get(`/vouchers/${id}`);
     return response.data;
   } catch (error) {
     console.error(`Error fetching voucher with ID ${id}:`, error);
@@ -217,7 +217,7 @@ export const getVoucherById = async (id) => {
  */
 export const createVoucher = async (voucherData) => {
   try {
-    const response = await apiClient.post('/Vouchers', voucherData);
+    const response = await apiClient.post('/vouchers', voucherData);
     return response.data;
   } catch (error) {
     console.error("Error creating voucher:", error);
@@ -233,7 +233,7 @@ export const createVoucher = async (voucherData) => {
  */
 export const updateVoucher = async (id, voucherData) => {
   try {
-    const response = await apiClient.put(`/Voucher/${id}`, voucherData);
+    const response = await apiClient.put(`/vouchers/${id}`, voucherData);
     return response.data;
   } catch (error) {
     console.error(`Error updating voucher with ID ${id}:`, error);
@@ -248,7 +248,7 @@ export const updateVoucher = async (id, voucherData) => {
  */
 export const deleteVoucher = async (id) => {
   try {
-    const response = await apiClient.delete(`/Voucher/${id}`);
+    const response = await apiClient.delete(`/vouchers/${id}`);
     return response.data;
   } catch (error) {
     console.error(`Error deleting voucher with ID ${id}:`, error);
@@ -263,7 +263,7 @@ export const deleteVoucher = async (id) => {
  */
 export const validateVoucherCode = async (code) => {
   try {
-    const response = await apiClient.get(`/Voucher/validate/${code}`);
+    const response = await apiClient.get(`/vouchers/validate/${code}`);
     return response.data;
   } catch (error) {
     console.error(`Error validating voucher code ${code}:`, error);
@@ -278,7 +278,7 @@ export const validateVoucherCode = async (code) => {
  */
 export const searchVouchers = async (searchTerm) => {
   try {
-    const response = await apiClient.get(`/Voucher/search?name=${encodeURIComponent(searchTerm)}`);
+    const response = await apiClient.get(`/vouchers/search?name=${encodeURIComponent(searchTerm)}`);
     return response.data;
   } catch (error) {
     console.error('Error searching vouchers:', error);

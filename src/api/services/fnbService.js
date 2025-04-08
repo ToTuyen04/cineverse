@@ -6,7 +6,7 @@ import apiClient from "./apiClient";
  */
 export const getAllFnbs = async () => {
   try {
-    const response = await apiClient.get("/Fnbs");
+    const response = await apiClient.get("/fnbs");
     return response.data;
   } catch (error) {
     console.error("Error fetching F&B items:", error);
@@ -34,7 +34,7 @@ export const getFnbsPaginated = async (
 ) => {
   try {
     // Gọi API lấy toàn bộ danh sách F&B thay vì sử dụng endpoint phân trang
-    const response = await apiClient.get("/Fnbs");
+    const response = await apiClient.get("/fnbs");
     const allData = response.data;
 
     // Xử lý tìm kiếm nếu có
@@ -103,7 +103,7 @@ export const getFnbsPaginated = async (
  */
 export const getFnbById = async (id) => {
   try {
-    const response = await apiClient.get(`/Fnbs/${id}`);
+    const response = await apiClient.get(`/fnbs/${id}`);
     return response.data;
   } catch (error) {
     console.error(`Error fetching F&B item with ID ${id}:`, error);
@@ -117,7 +117,7 @@ export const getFnbById = async (id) => {
  */
 export const getAvailableFnbs = async () => {
   try {
-    const response = await apiClient.get("/Fnbs/available");
+    const response = await apiClient.get("/fnbs/available");
     return response.data;
   } catch (error) {
     console.error("Error fetching available F&B items:", error);
@@ -132,7 +132,7 @@ export const getAvailableFnbs = async () => {
  */
 export const getFnbsByType = async (type) => {
   try {
-    const response = await apiClient.get(`/Fnbs/type/${type}`);
+    const response = await apiClient.get(`/fnbs/type/${type}`);
     return response.data;
   } catch (error) {
     console.error(`Error fetching F&B items of type ${type}:`, error);
@@ -155,7 +155,7 @@ export const searchFnbs = async (
   additionalParams = ""
 ) => {
   try {
-    const url = `/Fnbs/${pageIndex}/${pageSize}?searchTerm=${encodeURIComponent(
+    const url = `/fnbs/${pageIndex}/${pageSize}?searchTerm=${encodeURIComponent(
       query
     )}${additionalParams ? `&${additionalParams}` : ""}`;
     const response = await apiClient.get(url);
@@ -173,7 +173,7 @@ export const searchFnbs = async (
  */
 export const createFnb = async (fnbData) => {
   try {
-    const response = await apiClient.post("/Fnbs", fnbData, {
+    const response = await apiClient.post("/fnbs", fnbData, {
       headers: {
         "Content-Type": undefined, // Let browser set correct content type for FormData
       },
@@ -204,7 +204,7 @@ export const updateFnb = async (id, fnbData) => {
     // Create a new FormData instance if fnbData isn't already FormData
     const formData = fnbData instanceof FormData ? fnbData : new FormData();
 
-    const response = await apiClient.put(`/Fnbs/${id}`, formData, {
+    const response = await apiClient.put(`/fnbs/${id}`, formData, {
       headers: {
         "Content-Type": "multipart/form-data", // Set correct content type
       },
@@ -231,7 +231,7 @@ export const updateFnb = async (id, fnbData) => {
  */
 export const deleteFnb = async (id) => {
   try {
-    const response = await apiClient.delete(`/Fnbs/${id}`);
+    const response = await apiClient.delete(`/fnbs/${id}`);
     return response.data;
   } catch (error) {
     console.error(`Error deleting F&B item with ID ${id}:`, error);

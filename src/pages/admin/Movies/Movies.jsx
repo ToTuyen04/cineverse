@@ -18,7 +18,7 @@ import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import VisibilityIcon from '@mui/icons-material/Visibility';
 import useMovies from '../../../hooks/useMovies';
 import MovieForm from './MovieForm';
-import { getAllGenres } from '../../../api/services/movieService';
+import { getAllGenres, getMovieById } from '../../../api/services/movieService'; // Add getMovieById import
 
 // Enhanced styling for table cells with better light/dark mode support
 const StyledTableCell = styled(TableCell)(({ theme }) => ({
@@ -306,11 +306,21 @@ const Movies = () => {
     setOpenMovieForm(true);
   };
   
-  // Handle edit movie button click
+  // Handle edit movie button click - UPDATED
   const handleEditClick = async (movieId) => {
     try {
-      const movieData = await getMovie(movieId);
+      // Use getMovieById directly with checkAvailability=false to allow editing unavailable movies
+      const movieData = await getMovieById(movieId, false);
       if (movieData) {
+        // Add genreIds for form handling just like getMovie in useMovies hook
+        if (movieData.genres) {
+          movieData.genreIds = movieData.genres.map(genre => genre.genresId);
+          movieData.genresDisplay = movieData.genres;
+        } else {
+          movieData.genreIds = [];
+          movieData.genresDisplay = [];
+        }
+        
         setSelectedMovie(movieData);
         setIsEditMode(true);
         setIsViewOnly(false); // Not in view only mode
@@ -322,13 +332,23 @@ const Movies = () => {
     }
   };
 
-  // New handler for view only button - updated to set isEditMode to true
+  // New handler for view only button - UPDATED
   const handleViewClick = async (movieId) => {
     try {
-      const movieData = await getMovie(movieId);
+      // Use getMovieById directly with checkAvailability=false to allow viewing unavailable movies
+      const movieData = await getMovieById(movieId, false);
       if (movieData) {
+        // Add genreIds for form handling just like getMovie in useMovies hook
+        if (movieData.genres) {
+          movieData.genreIds = movieData.genres.map(genre => genre.genresId);
+          movieData.genresDisplay = movieData.genres;
+        } else {
+          movieData.genreIds = [];
+          movieData.genresDisplay = [];
+        }
+        
         setSelectedMovie(movieData);
-        setIsEditMode(true); // Changed from false to true to ensure form is populated with data
+        setIsEditMode(true); // Keep true to ensure form is populated with data
         setIsViewOnly(true);  // In view only mode
         setOpenMovieForm(true);
       }

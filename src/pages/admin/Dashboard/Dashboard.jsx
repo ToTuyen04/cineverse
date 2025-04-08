@@ -183,19 +183,19 @@ const Dashboard = () => {
     datasets: [
       {
         type: 'bar',
-        label: 'Vé',
+        label: 'Doanh thu vé (triệu VND)',
         data: ticketSalesData,
         backgroundColor: 'rgba(53, 162, 235, 0.8)',  // Blue for tickets
       },
       {
         type: 'bar',
-        label: 'Combo',
+        label: 'Doanh thu combo (triệu VND)',
         data: comboSalesData,
         backgroundColor: 'rgba(255, 99, 132, 0.8)',  // Red for combos
       },
       {
         type: 'line',
-        label: 'Doanh thu (triệu VND)',
+        label: 'Tổng doanh thu (triệu VND)',
         data: ticketSalesRevenueData,
         borderColor: 'rgba(75, 192, 192, 1)',
         backgroundColor: 'rgba(75, 192, 192, 0.2)',
@@ -428,12 +428,12 @@ const Dashboard = () => {
       if (orderDate.getMonth() === monthIndex && orderDate.getFullYear() === year) {
         const day = orderDate.getDate() - 1; // Convert to 0-based index
         
-        // Add ticket and combo data
-        ticketSales[day] += Math.round(order.ticketTotal / 100000); // Assuming average price
-        comboSales[day] += order.comboTotal ? Math.round(order.comboTotal / 80000) : 0; // Assuming average combo price
+        // Use actual revenue values from the API (convert to millions)
+        ticketSales[day] += order.ticketTotal / 1000000;
+        comboSales[day] += (order.comboTotal || 0) / 1000000;
         
-        // Revenue in millions
-        revenue[day] += (order.orderTotal / 1000000);
+        // Total revenue in millions
+        revenue[day] += (order.orderTotal || 0) / 1000000;
       }
     });
     
@@ -466,12 +466,12 @@ const Dashboard = () => {
         // Check if the month is in the selected quarter
         const quarterIndex = months.indexOf(month);
         if (quarterIndex !== -1) {
-          // Add ticket and combo data
-          ticketSales[quarterIndex] += Math.round(order.ticketTotal / 100000);
-          comboSales[quarterIndex] += order.comboTotal ? Math.round(order.comboTotal / 80000) : 0;
+          // Use actual revenue values from the API (convert to millions)
+          ticketSales[quarterIndex] += order.ticketTotal / 1000000;
+          comboSales[quarterIndex] += (order.comboTotal || 0) / 1000000;
           
-          // Revenue in millions
-          revenue[quarterIndex] += (order.orderTotal / 1000000);
+          // Total revenue in millions
+          revenue[quarterIndex] += (order.orderTotal || 0) / 1000000;
         }
       }
     });
@@ -495,7 +495,7 @@ const Dashboard = () => {
       setTicketSalesData(ticketSales);
       setComboSalesData(comboSales);
       setTicketSalesRevenueData(revenue);
-      return;
+      return { ticketSales, comboSales, revenue };
     }
 
     // Process each order
@@ -504,12 +504,12 @@ const Dashboard = () => {
       const orderDate = new Date(order.orderCreateAt);
       const month = orderDate.getMonth(); // 0-based (0 for January)
       
-      // Add ticket and combo data
-      ticketSales[month] += Math.round(order.ticketTotal / 100000);
-      comboSales[month] += order.comboTotal ? Math.round(order.comboTotal / 80000) : 0;
+      // Use actual revenue values from the API (convert to millions)
+      ticketSales[month] += order.ticketTotal / 1000000;
+      comboSales[month] += (order.comboTotal || 0) / 1000000;
       
-      // Revenue in millions
-      revenue[month] += (order.orderTotal / 1000000);
+      // Total revenue in millions
+      revenue[month] += (order.orderTotal || 0) / 1000000;
     });
 
     // Set chart data
@@ -517,6 +517,8 @@ const Dashboard = () => {
     setTicketSalesData(ticketSales);
     setComboSalesData(comboSales);
     setTicketSalesRevenueData(revenue);
+
+    return { ticketSales, comboSales, revenue };
   };
 
   // Also update the select handlers to call fetchDataBasedOnFilters
@@ -619,6 +621,15 @@ const Dashboard = () => {
 
   // Add loading indicator for charts and data
   const [chartsLoading, setChartsLoading] = useState(false);
+
+  // Add utility function to format currency values
+  const formatCurrency = (value) => {
+    return new Intl.NumberFormat('vi-VN', {
+      style: 'currency',
+      currency: 'VND',
+      minimumFractionDigits: 0
+    }).format(value);
+  };
 
   return (
     <Box>
@@ -1046,6 +1057,71 @@ const Dashboard = () => {
                     Không có dữ liệu combo
                   </Typography>
                 )}
+              </Box>
+            </CardContent>
+          </StyledCard>
+        </Grid>
+
+        {/* Revenue Display */}
+        <Grid item xs={12} md={4}>
+          <StyledCard>
+            <CardContent>
+              <Typography variant="h6" gutterBottom>
+                Doanh Thu
+              </Typography>
+              <Box sx={{ mt: 2 }}>
+                <Box sx={{ 
+                  p: 1, 
+                  borderBottom: borderStyle,
+                  display: 'flex',
+                  justifyContent: 'space-between',
+                  alignItems: 'center'
+                }}>
+                  <Typography variant="body2" sx={{ color: 'rgba(53, 162, 235, 1)' }}>
+                    Doanh thu vé:
+                  </Typography>
+                  <Typography variant="body2" sx={{ 
+                    fontWeight: 'bold',
+                    color: 'rgba(53, 162, 235, 1)'
+                  }}>
+                    {formatCurrency(totalTicketRevenue)}
+                  </Typography>
+                </Box>
+                <Box sx={{ 
+                  p: 1, 
+                  borderBottom: borderStyle,
+                  display: 'flex',
+                  justifyContent: 'space-between',
+                  alignItems: 'center'
+                }}>
+                  <Typography variant="body2" sx={{ color: 'rgba(255, 99, 132, 1)' }}>
+                    Doanh thu combo:
+                  </Typography>
+                  <Typography variant="body2" sx={{ 
+                    fontWeight: 'bold',
+                    color: 'rgba(255, 99, 132, 1)'
+                  }}>
+                    {formatCurrency(totalComboRevenue)}
+                  </Typography>
+                </Box>
+                <Box sx={{ 
+                  p: 1,
+                  display: 'flex',
+                  justifyContent: 'space-between',
+                  alignItems: 'center',
+                  bgcolor: alpha(theme.palette.primary.main, 0.1),
+                  borderRadius: 1
+                }}>
+                  <Typography variant="body1" sx={{ fontWeight: 'medium' }}>
+                    Tổng doanh thu:
+                  </Typography>
+                  <Typography variant="body1" sx={{ 
+                    fontWeight: 'bold',
+                    color: theme.palette.primary.main
+                  }}>
+                    {formatCurrency(totalTicketRevenue + totalComboRevenue)}
+                  </Typography>
+                </Box>
               </Box>
             </CardContent>
           </StyledCard>
