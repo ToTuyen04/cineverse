@@ -383,6 +383,12 @@ const LoginPage = () => {
 
       // Cập nhật context với thông tin user
       login(userData);
+      if (userData.isStaff) {
+        console.log('Staff user logged in:', userData);
+        navigate('/admin', { replace: true });
+        return;
+      }
+
 
       // Đăng nhập thành công, chuyển về trang chủ hoặc trang yêu cầu trước đó
       if (from === '/login') {

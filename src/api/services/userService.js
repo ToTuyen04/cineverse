@@ -237,7 +237,7 @@ export const getAllUsers = async () => {
 export const getUserPurchaseHistory = async (email) => {
   try {
     const token = localStorage.getItem('token');
-    
+     
     if (!token) {
       throw new Error('Không tìm thấy token xác thực');
     }
@@ -253,6 +253,7 @@ export const getUserPurchaseHistory = async (email) => {
       return response.data.data;
     } else {
       throw new Error(response.data.message || 'Không thể lấy lịch sử mua hàng');
+      
     }
   } catch (error) {
     console.error('Error getting user purchase history:', error);

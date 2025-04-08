@@ -36,7 +36,7 @@ export const AuthProvider = ({ children }) => {
             rankName: profile.rankName,
             userCreateAt: profile.userCreateAt
           });
-  
+          
           setIsLoggedIn(true);
         } else {
           throw new Error('Failed to fetch user profile');

@@ -70,7 +70,7 @@ const formatDateTimeWithTimezone = (date) => {
 // New API service functions
 const fetchAllMovies = async () => {
   try {
-    const response = await axios.get('https://cinemamanagement.azurewebsites.net/api/Movies');
+    const response = await axios.get('https://localhost:7212/api/Movies');
     return response.data.data || [];
   } catch (error) {
     console.error('Error fetching movies:', error);
@@ -80,7 +80,7 @@ const fetchAllMovies = async () => {
 
 const fetchAllRooms = async () => {
   try {
-    const response = await axios.get('https://cinemamanagement.azurewebsites.net/api/Rooms');
+    const response = await axios.get('https://localhost:7212/api/Rooms');
     return response.data.data || [];
   } catch (error) {
     console.error('Error fetching rooms:', error);
@@ -90,7 +90,7 @@ const fetchAllRooms = async () => {
 
 const fetchMovieById = async (id) => {
   try {
-    const response = await axios.get(`https://cinemamanagement.azurewebsites.net/api/Movies/${id}`);
+    const response = await axios.get(`https://localhost:7212/api/Movies/${id}`);
     return response.data;
   } catch (error) {
     console.error(`Error fetching movie with id ${id}:`, error);
@@ -100,7 +100,7 @@ const fetchMovieById = async (id) => {
 
 const fetchRoomById = async (id) => {
   try {
-    const response = await axios.get(`https://cinemamanagement.azurewebsites.net/api/Rooms/${id}`);
+    const response = await axios.get(`https://localhost:7212/api/Rooms/${id}`);
     return response.data.data;
   } catch (error) {
     console.error(`Error fetching room with id ${id}:`, error);
