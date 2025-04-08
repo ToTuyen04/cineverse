@@ -110,7 +110,8 @@ export const getMovieById = async (id, checkAvailability = true) => {
   try {
     const response = await apiClient.get(`/Movies/${id}`);
     
-    // Kiểm tra phim có khả dụng không
+    // Kiểm tra phim có khả dụng không - chỉ áp dụng khi checkAvailability = true
+    // Đối với admin, nên truyền checkAvailability = false để xem được phim không khả dụng
     if (checkAvailability && response.data && response.data.movieAvailable === false) {
       throw new Error('Phim này hiện không khả dụng');
     }

@@ -34,6 +34,22 @@ export const getBasicDashboardData = async () => {
  */
 export const getDetailedDashboardData = async (theater = 'All', time = 'All') => {
   try {
+    // Validate time format to ensure it matches expected patterns
+    if (time && time !== 'All') {
+      // Check if it's a valid month format: MM_YYYY
+      const monthPattern = /^(0[1-9]|1[0-2])_\d{4}$/;
+      // Check if it's a valid quarter format: Q1_YYYY to Q4_YYYY
+      const quarterPattern = /^Q[1-4]_\d{4}$/;
+      // Check if it's a valid year format: YYYY
+      const yearPattern = /^\d{4}$/;
+      
+      if (!monthPattern.test(time) && !quarterPattern.test(time) && !yearPattern.test(time) && time !== 'All') {
+        console.warn('Invalid time format:', time);
+        // Default to 'All' if format doesn't match expected patterns
+        time = 'All';
+      }
+    }
+    
     // Detailed endpoint with parameters - ensure 'All' is capitalized
     const response = await apiClient.get(`/DashBoard/order-dashboard/${theater}/${time}`);
     return response.data;

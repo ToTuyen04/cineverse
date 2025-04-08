@@ -117,7 +117,16 @@ const useMovies = (options = {}) => {
   // Get a movie by ID
   const getMovie = async (id) => {
     try {
+      console.log(`Fetching movie with ID: ${id}`);
       const movie = await getMovieById(id);
+      
+      console.log('Movie data received:', movie);
+      
+      // Check if we received valid movie data
+      if (!movie || typeof movie !== 'object') {
+        console.error('Invalid movie data received:', movie);
+        throw new Error('Invalid movie data received from server');
+      }
       
       // Extract genre IDs directly from the API response
       if (movie && movie.genres) {
@@ -126,12 +135,16 @@ const useMovies = (options = {}) => {
         
         // Keep the original genres for display
         movie.genresDisplay = movie.genres;
+      } else {
+        console.warn('Movie has no genres data:', movie);
+        movie.genreIds = [];
+        movie.genresDisplay = [];
       }
       
       return movie;
     } catch (err) {
-      console.error('Error getting movie:', err);
-      return null;
+      console.error('Error getting movie details:', err);
+      throw err; // Propagate error to be handled by the component
     }
   };
   

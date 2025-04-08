@@ -152,6 +152,13 @@ const Dashboard = () => {
     revenue: Array(12).fill(0)
   });
 
+  // Add new state variables for dynamic chart data
+  const [ticketSalesChartTitle, setTicketSalesChartTitle] = useState('Monthly Ticket Sales');
+  const [ticketSalesLabels, setTicketSalesLabels] = useState([]);
+  const [ticketSalesData, setTicketSalesData] = useState([]);
+  const [comboSalesData, setComboSalesData] = useState([]);
+  const [ticketSalesRevenueData, setTicketSalesRevenueData] = useState([]);
+
   // Create chart data using state variables instead of direct references
   const genreDistributionData = {
     labels: [`Doanh thu bán vé (${ticketPercent}%)`, `Doanh thu combo (${comboPercent}%)`],
@@ -171,25 +178,25 @@ const Dashboard = () => {
   };
 
   // Dữ liệu cho BarChart
-  const ticketSalesData = {
-    labels: ['Tháng 1', 'Tháng 2', 'Tháng 3', 'Tháng 4', 'Tháng 5', 'Tháng 6', 'Tháng 7', 'Tháng 8', 'Tháng 9', 'Tháng 10', 'Tháng 11', 'Tháng 12'],
+  const ticketSalesChartData = {
+    labels: ticketSalesLabels,
     datasets: [
       {
         type: 'bar',
-        label: 'Vé thường',
-        data: monthlyTicketData.regularTickets,
-        backgroundColor: 'rgba(53, 162, 235, 0.8)',
+        label: 'Vé',
+        data: ticketSalesData,
+        backgroundColor: 'rgba(53, 162, 235, 0.8)',  // Blue for tickets
       },
       {
         type: 'bar',
-        label: 'Vé VIP',
-        data: monthlyTicketData.vipTickets,
-        backgroundColor: 'rgba(255, 99, 132, 0.8)',
+        label: 'Combo',
+        data: comboSalesData,
+        backgroundColor: 'rgba(255, 99, 132, 0.8)',  // Red for combos
       },
       {
         type: 'line',
         label: 'Doanh thu (triệu VND)',
-        data: monthlyTicketData.revenue,
+        data: ticketSalesRevenueData,
         borderColor: 'rgba(75, 192, 192, 1)',
         backgroundColor: 'rgba(75, 192, 192, 0.2)',
         borderWidth: 2,
@@ -292,11 +299,11 @@ const Dashboard = () => {
       setTopMovies([]);
       setTopGenres([]);
       setTopCombos([]);
-      setMonthlyTicketData({
-        regularTickets: Array(12).fill(0),
-        vipTickets: Array(12).fill(0),
-        revenue: Array(12).fill(0)
-      });
+      
+      // Reset chart data
+      setTicketSalesData([]);
+      setComboSalesData([]);
+      setTicketSalesRevenueData([]);
       
       // Fetch all data
       const dashboardData = await fetchAllDashboardData(timeFilter, theaterFilter);
@@ -342,12 +349,174 @@ const Dashboard = () => {
       const monthlyData = processMonthlyTicketSales(dashboardData.orderData);
       setMonthlyTicketData(monthlyData);
       
+      // Process ticket sales data based on time filter type
+      processTicketSalesDataByTimeFilter(timeFilter, dashboardData.orderData);
+      
     } catch (error) {
       setError(formatDashboardError(error));
     } finally {
       setIsLoading(false);
       setChartsLoading(false);
     }
+  };
+
+  // Add new function to process ticket sales data based on time filter
+  const processTicketSalesDataByTimeFilter = (timeFilter, orderData) => {
+    if (!timeFilter || !orderData) {
+      return;
+    }
+
+    // Check if it's a month filter (format: MM_YYYY)
+    if (/^\d{2}_\d{4}$/.test(timeFilter)) {
+      const [month, year] = timeFilter.split('_');
+      const monthIndex = parseInt(month) - 1;
+      const yearValue = parseInt(year);
+      
+      // Set chart title to show month and year
+      const monthNames = ['January', 'February', 'March', 'April', 'May', 'June', 
+                         'July', 'August', 'September', 'October', 'November', 'December'];
+      setTicketSalesChartTitle(`${monthNames[monthIndex]} ${yearValue} Daily Sales`);
+      
+      // Process daily data for the selected month
+      processDailyTicketAndComboSales(orderData, monthIndex, yearValue);
+    }
+    // Check if it's a quarter filter (format: Q1_YYYY to Q4_YYYY)
+    else if (/^Q[1-4]_\d{4}$/.test(timeFilter)) {
+      const quarter = parseInt(timeFilter.charAt(1));
+      const year = parseInt(timeFilter.substring(3));
+      
+      setTicketSalesChartTitle(`Quarter ${quarter}/${year} Sales`);
+      
+      // Process monthly data for the selected quarter
+      processQuarterlyTicketAndComboSales(orderData, quarter, year);
+    }
+    // Default case (year or all)
+    else {
+      // If it's a year
+      if (/^\d{4}$/.test(timeFilter)) {
+        setTicketSalesChartTitle(`Year ${timeFilter} Sales`);
+      } else {
+        setTicketSalesChartTitle('Monthly Sales');
+      }
+      
+      // Process monthly data as before
+      const monthlyData = processMonthlyTicketAndComboSales(orderData);
+      
+      // Set chart data
+      setTicketSalesLabels(['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec']);
+      setTicketSalesData(monthlyData.ticketSales);
+      setComboSalesData(monthlyData.comboSales);
+      setTicketSalesRevenueData(monthlyData.revenue);
+    }
+  };
+
+  // Add new function to process daily ticket and combo sales for a month
+  const processDailyTicketAndComboSales = (orderData, monthIndex, year) => {
+    // Get the number of days in the selected month
+    const daysInMonth = new Date(year, monthIndex + 1, 0).getDate();
+    
+    // Initialize arrays for each day (1-31)
+    const ticketSales = Array(daysInMonth).fill(0);
+    const comboSales = Array(daysInMonth).fill(0);
+    const revenue = Array(daysInMonth).fill(0);
+    const labels = Array.from({length: daysInMonth}, (_, i) => `${i+1}`);
+    
+    // Process each order
+    orderData.forEach(order => {
+      const orderDate = new Date(order.orderCreateAt);
+      // Check if the order is from the selected month and year
+      if (orderDate.getMonth() === monthIndex && orderDate.getFullYear() === year) {
+        const day = orderDate.getDate() - 1; // Convert to 0-based index
+        
+        // Add ticket and combo data
+        ticketSales[day] += Math.round(order.ticketTotal / 100000); // Assuming average price
+        comboSales[day] += order.comboTotal ? Math.round(order.comboTotal / 80000) : 0; // Assuming average combo price
+        
+        // Revenue in millions
+        revenue[day] += (order.orderTotal / 1000000);
+      }
+    });
+    
+    // Update state with processed data
+    setTicketSalesLabels(labels);
+    setTicketSalesData(ticketSales);
+    setComboSalesData(comboSales);
+    setTicketSalesRevenueData(revenue);
+  };
+
+  // Add new function to process quarterly ticket and combo sales
+  const processQuarterlyTicketAndComboSales = (orderData, quarter, year) => {
+    // Get the months in the selected quarter
+    const startMonth = (quarter - 1) * 3;
+    const months = [startMonth, startMonth + 1, startMonth + 2];
+    const monthNames = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+    
+    // Initialize arrays for each month in the quarter
+    const ticketSales = Array(3).fill(0);
+    const comboSales = Array(3).fill(0);
+    const revenue = Array(3).fill(0);
+    const labels = months.map(month => monthNames[month]);
+    
+    // Process each order
+    orderData.forEach(order => {
+      const orderDate = new Date(order.orderCreateAt);
+      // Check if the order is from the selected year
+      if (orderDate.getFullYear() === year) {
+        const month = orderDate.getMonth();
+        // Check if the month is in the selected quarter
+        const quarterIndex = months.indexOf(month);
+        if (quarterIndex !== -1) {
+          // Add ticket and combo data
+          ticketSales[quarterIndex] += Math.round(order.ticketTotal / 100000);
+          comboSales[quarterIndex] += order.comboTotal ? Math.round(order.comboTotal / 80000) : 0;
+          
+          // Revenue in millions
+          revenue[quarterIndex] += (order.orderTotal / 1000000);
+        }
+      }
+    });
+    
+    // Update state with processed data
+    setTicketSalesLabels(labels);
+    setTicketSalesData(ticketSales);
+    setComboSalesData(comboSales);
+    setTicketSalesRevenueData(revenue);
+  };
+
+  // Add new function to process monthly ticket and combo sales
+  const processMonthlyTicketAndComboSales = (orderData) => {
+    // Initialize arrays for each month (0-11)
+    const ticketSales = Array(12).fill(0);
+    const comboSales = Array(12).fill(0);
+    const revenue = Array(12).fill(0);
+
+    if (!orderData || orderData.length === 0) {
+      setTicketSalesLabels(['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec']);
+      setTicketSalesData(ticketSales);
+      setComboSalesData(comboSales);
+      setTicketSalesRevenueData(revenue);
+      return;
+    }
+
+    // Process each order
+    orderData.forEach(order => {
+      // Extract month from order date (orderCreateAt)
+      const orderDate = new Date(order.orderCreateAt);
+      const month = orderDate.getMonth(); // 0-based (0 for January)
+      
+      // Add ticket and combo data
+      ticketSales[month] += Math.round(order.ticketTotal / 100000);
+      comboSales[month] += order.comboTotal ? Math.round(order.comboTotal / 80000) : 0;
+      
+      // Revenue in millions
+      revenue[month] += (order.orderTotal / 1000000);
+    });
+
+    // Set chart data
+    setTicketSalesLabels(['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec']);
+    setTicketSalesData(ticketSales);
+    setComboSalesData(comboSales);
+    setTicketSalesRevenueData(revenue);
   };
 
   // Also update the select handlers to call fetchDataBasedOnFilters
@@ -645,7 +814,7 @@ const Dashboard = () => {
           <StyledCard>
             <CardContent>
               <Typography variant="h6" gutterBottom>
-                Monthly Ticket Sales
+                {ticketSalesChartTitle}
               </Typography>
               <Box sx={{ height: 300, mt: 2, position: 'relative' }}>
                 {chartsLoading && (
@@ -665,8 +834,8 @@ const Dashboard = () => {
                   </Box>
                 )}
                 <BarChart 
-                  title="Ticket Sales by Month" 
-                  chartData={ticketSalesData} // Pass your custom data here
+                  title={ticketSalesChartTitle}
+                  chartData={ticketSalesChartData} 
                 />
               </Box>
             </CardContent>
