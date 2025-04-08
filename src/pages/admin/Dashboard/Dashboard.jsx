@@ -641,7 +641,7 @@ const Dashboard = () => {
           color: theme.palette.text.primary
         }}
       >
-        Dashboard
+        Tổng quan
       </Typography>
       
       {/* Hàng 1: Stats Cards */}
@@ -649,7 +649,7 @@ const Dashboard = () => {
         <Grid item xs={12} sm={4} md={4}>
           <StatCard 
             icon={<MovieIcon sx={{ color: '#FF4D4D' }} />} 
-            title="Total Movies" 
+            title="Tổng số phim" 
             value={movieCount} 
             bgColor={colors.movies}
           />
@@ -657,7 +657,7 @@ const Dashboard = () => {
         <Grid item xs={12} sm={4} md={4}>
           <StatCard 
             icon={<TheatersIcon sx={{ color: '#F9376E' }} />} 
-            title="Theaters" 
+            title="Rạp chiếu" 
             value={theaterCount} 
             bgColor={colors.theaters}
           />
@@ -665,7 +665,7 @@ const Dashboard = () => {
         <Grid item xs={12} sm={4} md={4}>
           <StatCard 
             icon={<ConfirmationNumberIcon sx={{ color: '#00C896' }} />} 
-            title="Tickets Sold Today" 
+            title="Vé bán hôm nay" 
             value={ticketsToday} 
             bgColor={colors.tickets}
           />
@@ -825,7 +825,11 @@ const Dashboard = () => {
           <StyledCard>
             <CardContent>
               <Typography variant="h6" gutterBottom>
-                {ticketSalesChartTitle}
+                {ticketSalesChartTitle.replace('Monthly Ticket Sales', 'Doanh thu hàng tháng')
+                                     .replace('Monthly Sales', 'Doanh thu hàng tháng')
+                                     .replace('Daily Sales', 'Doanh thu hàng ngày')
+                                     .replace('Year', 'Năm')
+                                     .replace('Quarter', 'Quý')}
               </Typography>
               <Box sx={{ height: 300, mt: 2, position: 'relative' }}>
                 {chartsLoading && (
@@ -841,11 +845,15 @@ const Dashboard = () => {
                     backgroundColor: 'rgba(255,255,255,0.7)',
                     zIndex: 1
                   }}>
-                    <Typography>Loading data...</Typography>
+                    <Typography>Đang tải dữ liệu...</Typography>
                   </Box>
                 )}
                 <BarChart 
-                  title={ticketSalesChartTitle}
+                  title={ticketSalesChartTitle.replace('Monthly Ticket Sales', 'Doanh thu hàng tháng')
+                                            .replace('Monthly Sales', 'Doanh thu hàng tháng')
+                                            .replace('Daily Sales', 'Doanh thu hàng ngày')
+                                            .replace('Year', 'Năm')
+                                            .replace('Quarter', 'Quý')}
                   chartData={ticketSalesChartData} 
                 />
               </Box>
@@ -857,7 +865,7 @@ const Dashboard = () => {
           <StyledCard>
             <CardContent>
               <Typography variant="h6" gutterBottom>
-                Genre Distribution
+                Phân bố doanh thu
               </Typography>
               <Box sx={{ height: 300, mt: 2, position: 'relative' }}>
                 {chartsLoading && (
@@ -873,10 +881,10 @@ const Dashboard = () => {
                     backgroundColor: 'rgba(255,255,255,0.7)',
                     zIndex: 1
                   }}>
-                    <Typography>Loading data...</Typography>
+                    <Typography>Đang tải dữ liệu...</Typography>
                   </Box>
                 )}
-                <PieChart title="Movie Genre Distribution" chartData={genreDistributionData} />
+                <PieChart title="Phân bố doanh thu" chartData={genreDistributionData} />
               </Box>
             </CardContent>
           </StyledCard>

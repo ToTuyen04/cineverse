@@ -1,36 +1,57 @@
 import axios from 'axios';
 
+// Create a unified API client with common configuration
 const apiClient = axios.create({
-  baseURL: 'https://cinemamanagement.azurewebsites.net/api',
+  baseURL: 'https://localhost:7212/api',
+  // baseURL: 'https://cinemamanagement.azurewebsites.net/api',
+  timeout: 10000,
   headers: {
-    'Content-Type': 'application/json'
+    'Content-Type': 'application/json',
+    'Accept': 'application/json'
   }
 });
 
-// Interceptor để thêm token vào header của mỗi request
+// Request interceptor - adds auth token and logs requests
 apiClient.interceptors.request.use(
   config => {
-    const token = localStorage.getItem('userToken');
+    // Sửa key lấy token từ localStorage
+    const token = localStorage.getItem('token');
     if (token) {
       config.headers.Authorization = `Bearer ${token}`;
     }
+    console.log(`[API REQUEST] ${config.method.toUpperCase()} ${config.url}`);
     return config;
   },
-  error => Promise.reject(error)
-);
-
-// Interceptor để xử lý response
-apiClient.interceptors.response.use(
-  response => response,
   error => {
-    // Xử lý lỗi token hết hạn hoặc không hợp lệ
-    if (error.response && error.response.status === 401) {
-      localStorage.removeItem('userToken');
-      localStorage.removeItem('userData');
-      // Có thể thêm chuyển hướng về trang login nếu cần
-    }
     return Promise.reject(error);
   }
 );
 
+// Response interceptor - handles auth errors and logs responses
+apiClient.interceptors.response.use(
+  response => {
+    return response;
+  },
+  error => {
+    // Handle authentication errors
+    if (error.response && error.response.status === 401) {
+      // Sửa key xóa token
+      localStorage.removeItem('token');
+      localStorage.removeItem('userEmail');
+      localStorage.removeItem('userFullName');
+      localStorage.removeItem('expirationTime');
+      localStorage.removeItem('isStaff');
+      localStorage.removeItem('role');
+      
+      // Optional: redirect to login page
+      // window.location.href = '/login';
+    }
+    
+    console.error(`[API ERROR] ${error.message}`, error.response?.data);
+    return Promise.reject(error);
+  }
+);
+
+// For backwards compatibility with any import of the old API file
+export const api = apiClient;
 export default apiClient;
