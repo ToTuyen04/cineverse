@@ -21,7 +21,7 @@ export const getShowtimesByTheater = async (theaterId) => {
 
 export const getSeatsByShowtime = async (showtimeId) => {
   try {
-    const response = await apiClient.get(`/showtimes/Booking/${showtimeId}`);
+    const response = await apiClient.get(`/showtimes/booking/${showtimeId}`);
     const { chairs, combos } = response.data;
 
     // Map dữ liệu ghế

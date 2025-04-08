@@ -8,7 +8,7 @@ export const createOrder = async (orderPayload) => {
 
 // Gọi API tạo link thanh toán VNPay
 export const createPaymentUrl = async (orderId) => {
-  const response = await apiClient.post('/Payment/create-payment-url', { orderId });
+  const response = await apiClient.post('/payment/create-payment-url', { orderId });
   return response.data;
 };
 
@@ -26,7 +26,7 @@ export const getOrderById = async (orderId) => {
 // Thêm hàm mới để xử lý callback VNPay từ frontend
 export const processVnPayCallback = async (params) => {
   try {
-    const response = await apiClient.get('/Payment/process-payment-callback', { params });
+    const response = await apiClient.get('/payment/process-payment-callback', { params });
     return response.data;
   } catch (error) {
     console.error('Error processing VNPay callback:', error);
