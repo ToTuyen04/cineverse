@@ -8,11 +8,10 @@ import {
   Button,
   Grid,
   Typography,
-  useTheme,
-  Box
+  useTheme
 } from '@mui/material';
 
-const TheaterForm = ({ open, handleClose, theater, onSubmit, isEdit = false, isView = false }) => {
+const TheaterForm = ({ open, handleClose, theater, onSubmit, isEdit = false }) => {
   const theme = useTheme();
   const [formData, setFormData] = useState({
     theaterId: '',
@@ -26,7 +25,7 @@ const TheaterForm = ({ open, handleClose, theater, onSubmit, isEdit = false, isV
   
   // If editing mode and theater data is provided, initialize form
   useEffect(() => {
-    if ((isEdit || isView) && theater) {
+    if (isEdit && theater) {
       setFormData({
         theaterId: theater.theaterId || '',
         theaterName: theater.theaterName || '',
@@ -46,7 +45,7 @@ const TheaterForm = ({ open, handleClose, theater, onSubmit, isEdit = false, isV
     }
     // Reset errors when dialog opens/closes
     setErrors({});
-  }, [isEdit, isView, theater, open]);
+  }, [isEdit, theater, open]);
   
   const handleInputChange = (e) => {
     const { name, value } = e.target;
@@ -74,9 +73,9 @@ const TheaterForm = ({ open, handleClose, theater, onSubmit, isEdit = false, isV
   
   const validateForm = () => {
     const newErrors = {};
-    if (!formData.theaterName) newErrors.theaterName = 'Tên rạp là bắt buộc';
-    if (!formData.theaterLocation) newErrors.theaterLocation = 'Địa điểm là bắt buộc';
-    if (!formData.theaterHotline) newErrors.theaterHotline = 'Hotline là bắt buộc';
+    if (!formData.theaterName) newErrors.theaterName = 'Theater name is required';
+    if (!formData.theaterLocation) newErrors.theaterLocation = 'Location is required';
+    if (!formData.theaterHotline) newErrors.theaterHotline = 'Hotline is required';
     
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
@@ -95,9 +94,6 @@ const TheaterForm = ({ open, handleClose, theater, onSubmit, isEdit = false, isV
       onSubmit(submitData);
     }
   };
-  
-  // Tạo title và nội dung cho mode xem
-  let titleText = isView ? 'Chi tiết rạp' : (isEdit ? 'Chỉnh sửa rạp' : 'Thêm rạp mới');
   
   return (
     <Dialog
@@ -118,7 +114,7 @@ const TheaterForm = ({ open, handleClose, theater, onSubmit, isEdit = false, isV
         borderBottom: `1px solid ${theme.palette.divider}`
       }}>
         <Typography variant="h5" fontWeight={600}>
-          {titleText}
+          {isEdit ? 'Edit Theater' : 'Add New Theater'}
         </Typography>
       </DialogTitle>
       <DialogContent sx={{ pt: 3 }}>
@@ -126,16 +122,16 @@ const TheaterForm = ({ open, handleClose, theater, onSubmit, isEdit = false, isV
           {/* Basic Info Section */}
           <Grid item xs={12}>
             <Typography variant="subtitle1" fontWeight={600} gutterBottom>
-              Thông tin rạp
+              Theater Information
             </Typography>
           </Grid>
           
-          {/* Theater ID field - only shown in edit/view mode */}
-          {(isEdit || isView) && (
+          {/* Theater ID field - only shown in edit mode */}
+          {isEdit && (
             <Grid item xs={12}>
               <TextField
                 fullWidth
-                label="Mã rạp"
+                label="Theater ID"
                 value={formData.theaterId}
                 InputProps={{
                   readOnly: true,
@@ -145,92 +141,52 @@ const TheaterForm = ({ open, handleClose, theater, onSubmit, isEdit = false, isV
             </Grid>
           )}
           
-          {/* Display fields as read-only in view mode */}
-          {isView ? (
-            <>
-              <Grid item xs={12}>
-                <Box sx={{ mb: 2 }}>
-                  <Typography variant="subtitle2" color="text.secondary" gutterBottom>
-                    Tên rạp
-                  </Typography>
-                  <Typography variant="body1">
-                    {formData.theaterName || 'Không có dữ liệu'}
-                  </Typography>
-                </Box>
-              </Grid>
-              
-              <Grid item xs={12}>
-                <Box sx={{ mb: 2 }}>
-                  <Typography variant="subtitle2" color="text.secondary" gutterBottom>
-                    Địa điểm
-                  </Typography>
-                  <Typography variant="body1">
-                    {formData.theaterLocation || 'Không có dữ liệu'}
-                  </Typography>
-                </Box>
-              </Grid>
-              
-              <Grid item xs={12}>
-                <Box sx={{ mb: 2 }}>
-                  <Typography variant="subtitle2" color="text.secondary" gutterBottom>
-                    Hotline
-                  </Typography>
-                  <Typography variant="body1">
-                    {formData.theaterHotline || 'Không có dữ liệu'}
-                  </Typography>
-                </Box>
-              </Grid>
-            </>
-          ) : (
-            <>
-              <Grid item xs={12}>
-                <TextField
-                  fullWidth
-                  label="Tên rạp"
-                  name="theaterName"
-                  value={formData.theaterName}
-                  onChange={handleInputChange}
-                  error={!!errors.theaterName}
-                  helperText={errors.theaterName}
-                  variant="outlined"
-                />
-              </Grid>
-              
-              <Grid item xs={12}>
-                <TextField
-                  fullWidth
-                  label="Địa điểm"
-                  name="theaterLocation"
-                  value={formData.theaterLocation}
-                  onChange={handleInputChange}
-                  error={!!errors.theaterLocation}
-                  helperText={errors.theaterLocation}
-                  variant="outlined"
-                  placeholder="123 Đường ABC, Thành phố, Quốc gia"
-                />
-              </Grid>
-              
-              <Grid item xs={12}>
-                <TextField
-                  fullWidth
-                  label="Hotline"
-                  name="theaterHotline"
-                  value={formData.theaterHotline}
-                  onChange={handleInputChange}
-                  error={!!errors.theaterHotline}
-                  helperText={errors.theaterHotline}
-                  variant="outlined"
-                  placeholder="1900 6017"
-                />
-              </Grid>
-            </>
-          )}
+          <Grid item xs={12}>
+            <TextField
+              fullWidth
+              label="Theater Name"
+              name="theaterName"
+              value={formData.theaterName}
+              onChange={handleInputChange}
+              error={!!errors.theaterName}
+              helperText={errors.theaterName}
+              variant="outlined"
+            />
+          </Grid>
+          
+          <Grid item xs={12}>
+            <TextField
+              fullWidth
+              label="Location"
+              name="theaterLocation"
+              value={formData.theaterLocation}
+              onChange={handleInputChange}
+              error={!!errors.theaterLocation}
+              helperText={errors.theaterLocation}
+              variant="outlined"
+              placeholder="123 Main St, City, Country"
+            />
+          </Grid>
+          
+          <Grid item xs={12}>
+            <TextField
+              fullWidth
+              label="Hotline"
+              name="theaterHotline"
+              value={formData.theaterHotline}
+              onChange={handleInputChange}
+              error={!!errors.theaterHotline}
+              helperText={errors.theaterHotline}
+              variant="outlined"
+              placeholder="1900 6017"
+            />
+          </Grid>
           
           {/* Hidden field for search name */}
           <Grid item xs={12} style={{ display: 'none' }}>
             <TextField
               fullWidth
-              label="Tên tìm kiếm"
+              label="Search Name"
               name="theaterSearchName"
               value={formData.theaterSearchName}
               onChange={handleInputChange}
@@ -245,20 +201,16 @@ const TheaterForm = ({ open, handleClose, theater, onSubmit, isEdit = false, isV
           variant="outlined"
           sx={{ borderRadius: 1 }}
         >
-          {isView ? 'Đóng' : 'Hủy'}
+          Cancel
         </Button>
-        
-        {/* Hiển thị nút submit chỉ khi không phải chế độ xem */}
-        {!isView && (
-          <Button 
-            onClick={handleSubmit}
-            variant="contained"
-            color="primary"
-            sx={{ borderRadius: 1, px: 3 }}
-          >
-            {isEdit ? 'Cập nhật' : 'Tạo mới'}
-          </Button>
-        )}
+        <Button 
+          onClick={handleSubmit}
+          variant="contained"
+          color="primary"
+          sx={{ borderRadius: 1, px: 3 }}
+        >
+          {isEdit ? 'Update' : 'Create'}
+        </Button>
       </DialogActions>
     </Dialog>
   );

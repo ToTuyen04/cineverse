@@ -3,8 +3,7 @@ import {
   Box, Typography, Button, Paper, Table, TableBody, TableCell, TableContainer, 
   TableHead, TableRow, Chip, IconButton, TextField, InputAdornment,
   useTheme, alpha, CircularProgress, Alert, Pagination, PaginationItem,
-  Select, MenuItem, FormControl, Snackbar, FormControlLabel, Switch, Tabs, Tab,
-  TableSortLabel // Add this import
+  Select, MenuItem, FormControl, Snackbar
 } from '@mui/material';
 import { styled } from '@mui/material/styles';
 import EditIcon from '@mui/icons-material/Edit';
@@ -13,8 +12,6 @@ import AddIcon from '@mui/icons-material/Add';
 import SearchIcon from '@mui/icons-material/Search';
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import ArrowForwardIcon from '@mui/icons-material/ArrowForward';
-import FilterAltIcon from '@mui/icons-material/FilterAlt';
-import ViewIcon from '@mui/icons-material/Visibility';
 import useShowtimes from '../../../hooks/useShowtimes';
 import ShowtimeForm from './ShowtimeForm';
 
@@ -146,7 +143,7 @@ const AvailabilityChip = ({ available, endDate }) => {
   
   return (
     <Chip 
-      label={isAvailable ? "Khả dụng" : "Không khả dụng"} 
+      label={isAvailable ? "Available" : "Unavailable"} 
       size="small" 
       sx={{ 
         bgcolor: bgColor,
@@ -165,29 +162,16 @@ const Showtimes = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [searchDebounce, setSearchDebounce] = useState('');
   
-  // State for client-side filtering - set 'client' as default search mode
-  const [localSearchTerm, setLocalSearchTerm] = useState('');
-  const [searchMode, setSearchMode] = useState('client'); // Changed default to 'client'
-  const [filteredShowtimes, setFilteredShowtimes] = useState([]);
-  const [currentTab, setCurrentTab] = useState(0); // 0: All, 1: Movie, 2: Room, 3: Theater
-  
   // State for showtime form
   const [openShowtimeForm, setOpenShowtimeForm] = useState(false);
   const [selectedShowtime, setSelectedShowtime] = useState(null);
   const [isEditMode, setIsEditMode] = useState(false);
-  const [viewMode, setViewMode] = useState(false);
   
   // State for feedback messages
   const [snackbar, setSnackbar] = useState({
     open: false,
     message: '',
     severity: 'success' // or 'error'
-  });
-  
-  // State for sorting
-  const [sortConfig, setSortConfig] = useState({
-    key: 'showtimeStartAt',
-    direction: 'desc'  // Changed from 'showtimeId'/'asc' to 'showtimeStartAt'/'desc'
   });
   
   // Use the custom hook to fetch showtimes
@@ -203,103 +187,19 @@ const Showtimes = () => {
     refreshShowtimes 
   } = useShowtimes();
 
-  // Set up search debounce for server-side search
+  // Set up search debounce
   useEffect(() => {
     const timer = setTimeout(() => {
-      if (searchMode === 'server') {
-        setSearchDebounce(searchTerm);
-      }
+      setSearchDebounce(searchTerm);
     }, 500);
     
     return () => clearTimeout(timer);
-  }, [searchTerm, searchMode]);
+  }, [searchTerm]);
   
-  // Initial data fetch - include a larger pageSize to get more data for client filtering
+  // Fetch showtimes when pagination or search changes
   useEffect(() => {
-    if (searchMode === 'server') {
-      refreshShowtimes(page, rowsPerPage, searchDebounce);
-    } else {
-      // For client-side search, fetch a larger dataset initially
-      refreshShowtimes(1, 50, ''); // Get 50 records for client-side filtering
-    }
-  }, [refreshShowtimes, page, rowsPerPage, searchDebounce, searchMode]);
-  
-  // Handle client-side filtering
-  useEffect(() => {
-    if (searchMode === 'client' && showtimes.length > 0) {
-      const term = localSearchTerm.toLowerCase().trim();
-      if (!term) {
-        setFilteredShowtimes(showtimes);
-        return;
-      }
-      
-      let filtered;
-      
-      // Filter based on selected tab
-      switch(currentTab) {
-        case 1: // Movie tab
-          filtered = showtimes.filter(showtime => 
-            showtime.movieName && showtime.movieName.toLowerCase().includes(term)
-          );
-          break;
-          
-        case 2: // Room tab
-          filtered = showtimes.filter(showtime => 
-            showtime.roomName && showtime.roomName.toLowerCase().includes(term)
-          );
-          break;
-          
-        case 3: // Theater tab
-          filtered = showtimes.filter(showtime => 
-            showtime.roomTheaterName && showtime.roomTheaterName.toLowerCase().includes(term)
-          );
-          break;
-          
-        default: // All tab (0) or any other value
-          filtered = showtimes.filter(showtime => 
-            (showtime.movieName && showtime.movieName.toLowerCase().includes(term)) ||
-            (showtime.roomName && showtime.roomName.toLowerCase().includes(term)) ||
-            (showtime.roomTheaterName && showtime.roomTheaterName.toLowerCase().includes(term))
-          );
-      }
-      
-      setFilteredShowtimes(filtered);
-    } else {
-      setFilteredShowtimes(showtimes);
-    }
-  }, [localSearchTerm, showtimes, searchMode, currentTab]);
-  
-  // Initialize filtered showtimes when showtimes change
-  useEffect(() => {
-    setFilteredShowtimes(showtimes);
-  }, [showtimes]);
-  
-  // Handle search mode toggle
-  const handleSearchModeChange = (event) => {
-    setSearchMode(event.target.checked ? 'client' : 'server');
-    // Reset search terms when switching modes
-    if (!event.target.checked) {
-      setLocalSearchTerm('');
-    } else {
-      setSearchTerm('');
-      setSearchDebounce('');
-    }
-  };
-
-  // Handle tab change
-  const handleTabChange = (event, newValue) => {
-    setCurrentTab(newValue);
-  };
-  
-  // Handle local search input change
-  const handleLocalSearchChange = (e) => {
-    setLocalSearchTerm(e.target.value);
-  };
-  
-  // Handle server search input change
-  const handleServerSearchChange = (e) => {
-    setSearchTerm(e.target.value);
-  };
+    refreshShowtimes(page, rowsPerPage, searchDebounce);
+  }, [refreshShowtimes, page, rowsPerPage, searchDebounce]);
   
   // Handle page change - now uses 1-based pagination to match the API
   const handleChangePage = (event, newPage) => {
@@ -315,48 +215,22 @@ const Showtimes = () => {
   
   // Handle add showtime button click
   const handleAddShowtimeClick = () => {
-    // Make sure to completely reset everything before opening form
+    setIsEditMode(false);
     setSelectedShowtime(null);
-    setTimeout(() => {
-      setIsEditMode(false);
-      setViewMode(false);
-      setOpenShowtimeForm(true);
-    }, 0);
-  };
-  
-  // Handle row click to view showtime details
-  const handleRowClick = async (showtimeId) => {
-    try {
-      console.log(`Viewing showtime details for ID: ${showtimeId}`);
-      const showtimeData = await getShowtime(showtimeId);
-      
-      if (showtimeData) {
-        setSelectedShowtime(showtimeData);
-        setIsEditMode(false);
-        setViewMode(true);
-        setOpenShowtimeForm(true);
-      } else {
-        showSnackbar('Failed to load showtime details: No data returned', 'error');
-      }
-    } catch (err) {
-      console.error('Error getting showtime details:', err);
-      showSnackbar(`Failed to load showtime details: ${err.message || 'Unknown error'}`, 'error');
-    }
+    setOpenShowtimeForm(true);
   };
   
   // Handle edit showtime button click
-  const handleEditClick = async (e, showtimeId) => {
-    // Stop event propagation to prevent row click handler from firing
-    e.stopPropagation();
-    
+  const handleEditClick = async (showtimeId) => {
     try {
       console.log(`Fetching showtime details for ID: ${showtimeId}`);
       const showtimeData = await getShowtime(showtimeId);
       
+      console.log('Received showtime data:', showtimeData);
+      
       if (showtimeData) {
         setSelectedShowtime(showtimeData);
         setIsEditMode(true);
-        setViewMode(false);
         setOpenShowtimeForm(true);
       } else {
         showSnackbar('Failed to load showtime details: No data returned', 'error');
@@ -404,16 +278,13 @@ const Showtimes = () => {
   };
   
   // Handle delete showtime
-  const handleDeleteShowtime = async (e, id) => {
-    // Stop event propagation to prevent row click handler from firing
-    e.stopPropagation();
-    
-    if (window.confirm('Bạn có chắc chắn muốn xóa suất chiếu này không?')) {
+  const handleDeleteShowtime = async (id) => {
+    if (window.confirm('Are you sure you want to delete this showtime?')) {
       const result = await removeShowtime(id);
       if (result.success) {
-        showSnackbar('Xóa suất chiếu thành công', 'success');
+        showSnackbar('Showtime deleted successfully', 'success');
       } else {
-        showSnackbar(`Xóa suất chiếu thất bại: ${result.error}`, 'error');
+        showSnackbar(`Failed to delete showtime: ${result.error}`, 'error');
       }
     }
   };
@@ -431,85 +302,6 @@ const Showtimes = () => {
   const handleCloseSnackbar = () => {
     setSnackbar(prev => ({ ...prev, open: false }));
   };
-
-  // Sort function for table data
-  const sortData = (data, config) => {
-    if (!config.key) return data;
-    
-    return [...data].sort((a, b) => {
-      // Handle different data types
-      switch (config.key) {
-        case 'showtimeId':
-          return config.direction === 'asc' 
-            ? a.showtimeId - b.showtimeId 
-            : b.showtimeId - a.showtimeId;
-            
-        case 'movieName':
-          if (!a.movieName) return config.direction === 'asc' ? 1 : -1;
-          if (!b.movieName) return config.direction === 'asc' ? -1 : 1;
-          return config.direction === 'asc' 
-            ? a.movieName.localeCompare(b.movieName) 
-            : b.movieName.localeCompare(a.movieName);
-            
-        case 'showtimeStartAt':
-          if (!a.showtimeStartAt) return config.direction === 'asc' ? 1 : -1;
-          if (!b.showtimeStartAt) return config.direction === 'asc' ? -1 : 1;
-          return config.direction === 'asc' 
-            ? new Date(a.showtimeStartAt) - new Date(b.showtimeStartAt)
-            : new Date(b.showtimeStartAt) - new Date(a.showtimeStartAt);
-            
-        case 'roomName':
-          if (!a.roomName) return config.direction === 'asc' ? 1 : -1;
-          if (!b.roomName) return config.direction === 'asc' ? -1 : 1;
-          return config.direction === 'asc' 
-            ? a.roomName.localeCompare(b.roomName) 
-            : b.roomName.localeCompare(a.roomName);
-            
-        case 'roomScreenTypeName':
-          if (!a.roomScreenTypeName) return config.direction === 'asc' ? 1 : -1;
-          if (!b.roomScreenTypeName) return config.direction === 'asc' ? -1 : 1;
-          return config.direction === 'asc' 
-            ? a.roomScreenTypeName.localeCompare(b.roomScreenTypeName) 
-            : b.roomScreenTypeName.localeCompare(a.roomScreenTypeName);
-            
-        case 'roomTheaterName':
-          if (!a.roomTheaterName) return config.direction === 'asc' ? 1 : -1;
-          if (!b.roomTheaterName) return config.direction === 'asc' ? -1 : 1;
-          return config.direction === 'asc' 
-            ? a.roomTheaterName.localeCompare(b.roomTheaterName) 
-            : b.roomTheaterName.localeCompare(a.roomTheaterName);
-            
-        case 'showtimeAvailable':
-          // Convert to boolean and then compare
-          const aAvailable = Boolean(a.showtimeAvailable);
-          const bAvailable = Boolean(b.showtimeAvailable);
-          if (aAvailable === bAvailable) return 0;
-          
-          // For availability, true (available) should come first in ascending order
-          if (config.direction === 'asc') {
-            return aAvailable ? -1 : 1;
-          } else {
-            return aAvailable ? 1 : -1;
-          }
-          
-        default:
-          return 0;
-      }
-    });
-  };
-  
-  // Handle column header click for sorting
-  const handleSort = (key) => {
-    const direction = sortConfig.key === key && sortConfig.direction === 'asc' ? 'desc' : 'asc';
-    setSortConfig({ key, direction });
-  };
-
-  // Apply sorting to the filtered showtimes
-  const sortedShowtimes = React.useMemo(() => {
-    // Make sure to always sort by date as default when no other sort is specified
-    const config = sortConfig.key ? sortConfig : { key: 'showtimeStartAt', direction: 'desc' };
-    return sortData(searchMode === 'client' ? filteredShowtimes : showtimes, config);
-  }, [filteredShowtimes, showtimes, sortConfig, searchMode]);
 
   useEffect(() => {
     if (showtimes.length > 0) {
@@ -566,80 +358,49 @@ const Showtimes = () => {
             py: 1
           }}
         >
-          Thêm suất chiếu mới
+          Add New Showtime
         </Button>
       </Box>
       
-      {/* Enhanced search box - hide the toggle switch since default is client */}
+      {/* Enhanced search box */}
       <Box sx={{ mb: 3 }}>
-        <Paper
-          sx={{ 
-            p: 2, 
-            borderRadius: 1,
-            backgroundColor: theme.palette.mode === 'light' 
-              ? alpha(theme.palette.common.white, 0.9)
-              : alpha(theme.palette.background.paper, 0.6),
+        <TextField
+          fullWidth
+          variant="outlined"
+          placeholder="Search for showtimes..."
+          value={searchTerm}
+          onChange={(e) => setSearchTerm(e.target.value)}
+          InputProps={{
+            startAdornment: (
+              <InputAdornment position="start">
+                <SearchIcon color="action" />
+              </InputAdornment>
+            ),
+            sx: { 
+              backgroundColor: theme.palette.background.paper,
+              borderRadius: 1,
+              '& .MuiOutlinedInput-notchedOutline': {
+                borderColor: theme.palette.mode === 'light' 
+                  ? 'rgba(0, 0, 0, 0.15)' 
+                  : 'rgba(255, 255, 255, 0.15)'
+              },
+              '&:hover .MuiOutlinedInput-notchedOutline': {
+                borderColor: theme.palette.mode === 'light' 
+                  ? 'rgba(0, 0, 0, 0.3)' 
+                  : 'rgba(255, 255, 255, 0.3)'
+              },
+              '&.Mui-focused .MuiOutlinedInput-notchedOutline': {
+                borderColor: theme.palette.primary.main
+              },
+              color: theme.palette.text.primary
+            }
           }}
-        >
-          {/* Search info text */}
-          {/* <Box sx={{ display: 'flex', justifyContent: 'flex-end', mb: 1 }}>
-            <Typography variant="caption" color="text.secondary" sx={{ ml: 2 }}>
-              Đang lọc {filteredShowtimes.length} trong số {showtimes.length} suất chiếu
-            </Typography>
-          </Box> */}
-          
-          {/* Client-side search with tabs - shown by default */}
-          <Box sx={{ width: '100%', mb: 1 }}>
-            <Tabs 
-              value={currentTab} 
-              onChange={handleTabChange}
-              variant="scrollable"
-              scrollButtons="auto"
-              sx={{
-                '& .MuiTab-root': {
-                  textTransform: 'none',
-                  minWidth: 100,
-                  fontWeight: 500
-                }
-              }}
-            >
-              <Tab label="Tất cả" icon={<FilterAltIcon fontSize="small" />} iconPosition="start" />
-              <Tab label="Phim" />
-              <Tab label="Phòng" />
-              <Tab label="Rạp" />
-            </Tabs>
-          </Box>
-          
-          <TextField
-            fullWidth
-            variant="outlined"
-            placeholder={`Tìm kiếm ${currentTab === 0 ? 'tất cả các trường' : currentTab === 1 ? 'theo tên phim' : currentTab === 2 ? 'theo tên phòng' : 'theo tên rạp'}...`}
-            value={localSearchTerm}
-            onChange={handleLocalSearchChange}
-            InputProps={{
-              startAdornment: (
-                <InputAdornment position="start">
-                  <SearchIcon color="action" />
-                </InputAdornment>
-              ),
-              endAdornment: localSearchTerm && (
-                <InputAdornment position="end">
-                  <IconButton 
-                    size="small" 
-                    onClick={() => setLocalSearchTerm('')}
-                    edge="end"
-                  >
-                    x
-                  </IconButton>
-                </InputAdornment>
-              ),
-              sx: { 
-                borderRadius: 1,
-                backgroundColor: theme.palette.background.paper,
-              }
-            }}
-          />
-        </Paper>
+          sx={{
+            '& .MuiInputLabel-root': {
+              color: theme.palette.text.secondary
+            }
+          }}
+        />
       </Box>
       
       {/* Display loading indicator */}
@@ -657,7 +418,7 @@ const Showtimes = () => {
       )}
       
       {/* Enhanced table with better Paper background handling */}
-      {(!loading || searchMode === 'client') && !error && (
+      {!loading && !error && (
         <>
           <TableContainer 
             component={Paper} 
@@ -677,79 +438,19 @@ const Showtimes = () => {
                     ? alpha(theme.palette.primary.main, 0.05)
                     : alpha(theme.palette.common.white, 0.05) 
                 }}>
-                  <StyledTableCell>
-                    <TableSortLabel
-                      active={sortConfig.key === 'showtimeId'}
-                      direction={sortConfig.key === 'showtimeId' ? sortConfig.direction : 'asc'}
-                      onClick={() => handleSort('showtimeId')}
-                    >
-                      ID
-                    </TableSortLabel>
-                  </StyledTableCell>
-                  <StyledTableCell>
-                    <TableSortLabel
-                      active={sortConfig.key === 'movieName'}
-                      direction={sortConfig.key === 'movieName' ? sortConfig.direction : 'asc'}
-                      onClick={() => handleSort('movieName')}
-                    >
-                      Phim
-                    </TableSortLabel>
-                  </StyledTableCell>
-                  <StyledTableCell>
-                    <TableSortLabel
-                      active={sortConfig.key === 'showtimeStartAt'}
-                      direction={sortConfig.key === 'showtimeStartAt' ? sortConfig.direction : 'desc'}
-                      onClick={() => handleSort('showtimeStartAt')}
-                    >
-                      Khung giờ chiếu phim
-                    </TableSortLabel>
-                  </StyledTableCell>
-                  <StyledTableCell>
-                    <TableSortLabel
-                      active={sortConfig.key === 'roomName'}
-                      direction={sortConfig.key === 'roomName' ? sortConfig.direction : 'asc'}
-                      onClick={() => handleSort('roomName')}
-                    >
-                      Phòng
-                    </TableSortLabel>
-                  </StyledTableCell>
-                  <StyledTableCell>
-                    <TableSortLabel
-                      active={sortConfig.key === 'roomScreenTypeName'}
-                      direction={sortConfig.key === 'roomScreenTypeName' ? sortConfig.direction : 'asc'}
-                      onClick={() => handleSort('roomScreenTypeName')}
-                    >
-                      Loại màn hình
-                    </TableSortLabel>
-                  </StyledTableCell>
-                  <StyledTableCell>
-                    <TableSortLabel
-                      active={sortConfig.key === 'roomTheaterName'}
-                      direction={sortConfig.key === 'roomTheaterName' ? sortConfig.direction : 'asc'}
-                      onClick={() => handleSort('roomTheaterName')}
-                    >
-                      Rạp phim
-                    </TableSortLabel>
-                  </StyledTableCell>
-                  <StyledTableCell>
-                    <TableSortLabel
-                      active={sortConfig.key === 'showtimeAvailable'}
-                      direction={sortConfig.key === 'showtimeAvailable' ? sortConfig.direction : 'asc'}
-                      onClick={() => handleSort('showtimeAvailable')}
-                    >
-                      Khả dụng
-                    </TableSortLabel>
-                  </StyledTableCell>
+                  <StyledTableCell>ID</StyledTableCell>
+                  <StyledTableCell>Phim</StyledTableCell>
+                  <StyledTableCell>Khung giờ chiếu phim</StyledTableCell>
+                  <StyledTableCell>Phòng</StyledTableCell>
+                  <StyledTableCell>Loại màn hình</StyledTableCell>
+                  <StyledTableCell>Rạp phim</StyledTableCell>
+                  <StyledTableCell>Khả dụng</StyledTableCell>
                   <StyledTableCell align="center">Chức năng</StyledTableCell>
                 </TableRow>
               </TableHead>
               <TableBody>
-                {/* Use sorted showtimes instead of filtered or regular showtimes */}
-                {sortedShowtimes.map((showtime) => (
-                  <StyledTableRow 
-                    key={showtime.showtimeId} 
-                    onClick={() => handleRowClick(showtime.showtimeId)}
-                  >
+                {showtimes.map((showtime) => (
+                  <StyledTableRow key={showtime.showtimeId}>
                     <StyledTableCell>{showtime.showtimeId}</StyledTableCell> 
                     <StyledTableCell>{showtime.movieName}</StyledTableCell>
                     <StyledTableCell>{formatDateTime(showtime.showtimeStartAt)} - {formatDateTime(showtime.showtimeEndAt)}</StyledTableCell>
@@ -767,22 +468,8 @@ const Showtimes = () => {
                     <StyledTableCell align="center">
                       <IconButton 
                         size="small" 
-                        color="info"
-                        onClick={(e) => handleRowClick(showtime.showtimeId)}
-                        sx={{ 
-                          backgroundColor: alpha(theme.palette.info.main, 0.1),
-                          marginRight: 1,
-                          '&:hover': {
-                            backgroundColor: alpha(theme.palette.info.main, 0.2),
-                          }
-                        }}
-                      >
-                        <ViewIcon fontSize="small" />
-                      </IconButton>
-                      <IconButton 
-                        size="small" 
                         color="primary"
-                        onClick={(e) => handleEditClick(e, showtime.showtimeId)}
+                        onClick={() => handleEditClick(showtime.showtimeId)}
                         sx={{ 
                           backgroundColor: alpha(theme.palette.primary.main, 0.1),
                           marginRight: 1,
@@ -795,7 +482,7 @@ const Showtimes = () => {
                       </IconButton>
                       <IconButton 
                         size="small"
-                        onClick={(e) => handleDeleteShowtime(e, showtime.showtimeId)}
+                        onClick={() => handleDeleteShowtime(showtime.showtimeId)}
                         sx={{ 
                           color: theme.palette.mode === 'light' ? theme.palette.grey[700] : theme.palette.text.primary,
                           backgroundColor: theme.palette.mode === 'light' 
@@ -816,11 +503,11 @@ const Showtimes = () => {
                 ))}
                 
                 {/* Show message when no showtimes are found */}
-                {sortedShowtimes.length === 0 && (
+                {showtimes.length === 0 && (
                   <TableRow>
                     <TableCell colSpan={8} align="center" sx={{ py: 3 }}>
                       <Typography variant="body1">
-                        Không tìm thấy suất chiếu nào
+                        No showtimes found
                       </Typography>
                     </TableCell>
                   </TableRow>
@@ -829,126 +516,123 @@ const Showtimes = () => {
             </Table>
           </TableContainer>
           
-          {/* Pagination - show client-side pagination */}
-          {!loading && !error && (
-            <Box sx={{ 
-              display: 'flex', 
-              justifyContent: 'space-between',
-              alignItems: 'center',
-              mt: 4,
-              mb: 2,
-              flexDirection: { xs: 'column', sm: 'row' },
-              gap: 2
-            }}>
-              <Typography variant="body2" sx={{ color: theme.palette.text.secondary }}>
-                {`Hiển thị ${filteredShowtimes.length} trong số ${showtimes.length} suất chiếu`}
-              </Typography>
-              
-              {/* Client-side pagination for filtered results */}
-              <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
-                {/* Only show pagination when there are multiple pages */}
-                {Math.ceil(filteredShowtimes.length / rowsPerPage) > 1 && (
-                  <Pagination
-                    count={Math.ceil(filteredShowtimes.length / rowsPerPage)}
-                    page={page}
-                    onChange={handleChangePage}
-                    color="primary"
-                    size="large"
-                    renderItem={(item) => (
-                      <PaginationItem
-                        slots={{ previous: ArrowBackIcon, next: ArrowForwardIcon }}
-                        {...item}
-                        sx={{
-                          '&.Mui-selected': {
-                            backgroundColor: theme.palette.primary.main,
-                            color: '#fff',
-                            fontWeight: 'bold',
-                            '&:hover': {
-                              backgroundColor: theme.palette.primary.dark,
-                            }
-                          },
-                          '&.MuiPaginationItem-page': {
-                            borderRadius: 1,
-                            mx: 0.5,
-                            border: '1px solid',
-                            borderColor: theme.palette.mode === 'light'
-                              ? 'rgba(0, 0, 0, 0.12)'
-                              : 'rgba(255, 255, 255, 0.12)',
-                          },
-                          '&.MuiPaginationItem-previousNext': {
-                            border: '1px solid',
-                            borderColor: theme.palette.mode === 'light'
-                              ? 'rgba(0, 0, 0, 0.12)'
-                              : 'rgba(255, 255, 255, 0.12)',
-                            borderRadius: 1,
-                            backgroundColor: theme.palette.mode === 'light'
-                              ? alpha(theme.palette.common.white, 0.9)
-                              : alpha(theme.palette.common.black, 0.2),
+          {/* Updated pagination and rows per page controls for server-side pagination */}
+          <Box sx={{ 
+            display: 'flex', 
+            justifyContent: 'space-between',
+            alignItems: 'center',
+            mt: 4,
+            mb: 2,
+            flexDirection: { xs: 'column', sm: 'row' },
+            gap: 2
+          }}>
+            <Typography variant="body2" sx={{ color: theme.palette.text.secondary }}>
+              {`Showing ${showtimes.length} of ${pagination.totalCount} showtimes`}
+            </Typography>
+            
+            <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
+              {/* Only show pagination when there are multiple pages */}
+              {pagination.totalPages > 1 && (
+                <Pagination
+                  count={pagination.totalPages}
+                  page={page} // Already 1-based from our state
+                  onChange={handleChangePage}
+                  color="primary"
+                  size="large"
+                  renderItem={(item) => (
+                    <PaginationItem
+                      slots={{ previous: ArrowBackIcon, next: ArrowForwardIcon }}
+                      {...item}
+                      sx={{
+                        '&.Mui-selected': {
+                          backgroundColor: theme.palette.primary.main,
+                          color: '#fff',
+                          fontWeight: 'bold',
+                          '&:hover': {
+                            backgroundColor: theme.palette.primary.dark,
                           }
-                        }}
-                      />
-                    )}
+                        },
+                        '&.MuiPaginationItem-page': {
+                          borderRadius: 1,
+                          mx: 0.5,
+                          border: '1px solid',
+                          borderColor: theme.palette.mode === 'light'
+                            ? 'rgba(0, 0, 0, 0.12)'
+                            : 'rgba(255, 255, 255, 0.12)',
+                        },
+                        '&.MuiPaginationItem-previousNext': {
+                          border: '1px solid',
+                          borderColor: theme.palette.mode === 'light'
+                            ? 'rgba(0, 0, 0, 0.12)'
+                            : 'rgba(255, 255, 255, 0.12)',
+                          borderRadius: 1,
+                          backgroundColor: theme.palette.mode === 'light'
+                            ? alpha(theme.palette.common.white, 0.9)
+                            : alpha(theme.palette.common.black, 0.2),
+                        }
+                      }}
+                    />
+                  )}
+                  sx={{
+                    '& .MuiPagination-ul': {
+                      flexWrap: 'nowrap',
+                    }
+                  }}
+                />
+              )}
+              
+              {/* Rows per page selector */}
+              <Box sx={{ 
+                display: 'flex', 
+                alignItems: 'center',
+                gap: 1
+              }}>
+                <Typography variant="body2" sx={{ color: theme.palette.text.secondary }}>
+                  Rows per page:
+                </Typography>
+                <FormControl 
+                  variant="outlined" 
+                  size="small" 
+                  sx={{
+                    minWidth: 80,
+                    '& .MuiOutlinedInput-root': {
+                      borderRadius: 1,
+                      borderColor: theme.palette.mode === 'light' 
+                        ? 'rgba(0, 0, 0, 0.12)' 
+                        : 'rgba(255, 255, 255, 0.12)',
+                    }
+                  }}
+                >
+                  <Select
+                    value={rowsPerPage}
+                    onChange={handleChangeRowsPerPage}
                     sx={{
-                      '& .MuiPagination-ul': {
-                        flexWrap: 'nowrap',
+                      backgroundColor: theme.palette.mode === 'light'
+                        ? alpha(theme.palette.common.white, 0.9)
+                        : alpha(theme.palette.background.paper, 0.9),
+                      '& .MuiSelect-select': {
+                        padding: '8px 12px'
                       }
                     }}
-                  />
-                )}
-                
-                {/* Rows per page selector */}
-                <Box sx={{ 
-                  display: 'flex', 
-                  alignItems: 'center',
-                  gap: 1
-                }}>
-                  <Typography variant="body2" sx={{ color: theme.palette.text.secondary }}>
-                    Số hàng mỗi trang:
-                  </Typography>
-                  <FormControl 
-                    variant="outlined" 
-                    size="small" 
-                    sx={{
-                      minWidth: 80,
-                      '& .MuiOutlinedInput-root': {
-                        borderRadius: 1,
-                        borderColor: theme.palette.mode === 'light' 
-                          ? 'rgba(0, 0, 0, 0.12)' 
-                          : 'rgba(255, 255, 255, 0.12)',
+                    MenuProps={{
+                      PaperProps: {
+                        sx: {
+                          backgroundColor: theme.palette.background.paper,
+                          color: theme.palette.text.primary
+                        }
                       }
                     }}
                   >
-                    <Select
-                      value={rowsPerPage}
-                      onChange={handleChangeRowsPerPage}
-                      sx={{
-                        backgroundColor: theme.palette.mode === 'light'
-                          ? alpha(theme.palette.common.white, 0.9)
-                          : alpha(theme.palette.background.paper, 0.9),
-                        '& .MuiSelect-select': {
-                          padding: '8px 12px'
-                        }
-                      }}
-                      MenuProps={{
-                        PaperProps: {
-                          sx: {
-                            backgroundColor: theme.palette.background.paper,
-                            color: theme.palette.text.primary
-                          }
-                        }
-                      }}
-                    >
-                      {[5, 10, 25].map((option) => (
-                        <MenuItem key={option} value={option}>
-                          {option}
-                        </MenuItem>
-                      ))}
-                    </Select>
-                  </FormControl>
-                </Box>
+                    {[5, 10, 25].map((option) => (
+                      <MenuItem key={option} value={option}>
+                        {option}
+                      </MenuItem>
+                    ))}
+                  </Select>
+                </FormControl>
               </Box>
             </Box>
-          )}
+          </Box>
         </>
       )}
       
@@ -959,7 +643,6 @@ const Showtimes = () => {
         showtime={selectedShowtime}
         onSubmit={handleSubmitShowtime}
         isEdit={isEditMode}
-        viewOnly={viewMode}
       />
       
       {/* Feedback Snackbar */}

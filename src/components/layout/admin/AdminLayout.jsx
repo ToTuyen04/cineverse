@@ -1,44 +1,37 @@
-import React, { useState, useContext } from "react";
-import { styled, useTheme } from "@mui/material/styles";
-import Box from "@mui/material/Box";
-import MuiDrawer from "@mui/material/Drawer";
-import MuiAppBar from "@mui/material/AppBar";
-import Toolbar from "@mui/material/Toolbar";
-import List from "@mui/material/List";
-import CssBaseline from "@mui/material/CssBaseline";
-import Typography from "@mui/material/Typography";
-import Divider from "@mui/material/Divider";
-import IconButton from "@mui/material/IconButton";
-import MenuIcon from "@mui/icons-material/Menu";
-import ChevronLeftIcon from "@mui/icons-material/ChevronLeft";
-import ChevronRightIcon from "@mui/icons-material/ChevronRight";
-import ListItem from "@mui/material/ListItem";
-import ListItemButton from "@mui/material/ListItemButton";
-import ListItemIcon from "@mui/material/ListItemIcon";
-import ListItemText from "@mui/material/ListItemText";
-import DashboardIcon from "@mui/icons-material/Dashboard";
-import MovieIcon from "@mui/icons-material/Movie";
-import TheatersIcon from "@mui/icons-material/Theaters";
-import DateRangeIcon from "@mui/icons-material/DateRange";
-import FastfoodIcon from '@mui/icons-material/Fastfood';  // Icon cho thức ăn và đồ uống
-import ShoppingBasketIcon from '@mui/icons-material/ShoppingBasket';  // Icon cho combos
-import LocalOfferIcon from '@mui/icons-material/LocalOffer';  // Icon cho vouchers
-import ShoppingCartIcon from '@mui/icons-material/ShoppingCart';
-import PeopleIcon from "@mui/icons-material/People";
-import SettingsIcon from "@mui/icons-material/Settings";
-import AccountCircle from "@mui/icons-material/AccountCircle";
-import Badge from "@mui/material/Badge";
-import NotificationsIcon from "@mui/icons-material/Notifications";
-import MailIcon from "@mui/icons-material/Mail";
-import MenuItem from "@mui/material/MenuItem";
-import Menu from "@mui/material/Menu";
-import Brightness4Icon from "@mui/icons-material/Brightness4";
-import Brightness7Icon from "@mui/icons-material/Brightness7";
-import { useNavigate, useLocation } from "react-router-dom";
-import { ColorModeContext } from "../../../context/ThemeContext";
-import { useAuth } from "../../../contexts/AuthContext";
-import { AdminPanelSettings, AdminPanelSettingsOutlined, AdminPanelSettingsRounded, AdminPanelSettingsSharp, AdminPanelSettingsTwoTone, Security, SecurityOutlined } from "@mui/icons-material";
-import FileDownloadIcon from '@mui/icons-material/FileDownload';
+import React, { useState, useContext } from 'react';
+import { styled, useTheme } from '@mui/material/styles';
+import Box from '@mui/material/Box';
+import MuiDrawer from '@mui/material/Drawer';
+import MuiAppBar from '@mui/material/AppBar';
+import Toolbar from '@mui/material/Toolbar';
+import List from '@mui/material/List';
+import CssBaseline from '@mui/material/CssBaseline';
+import Typography from '@mui/material/Typography';
+import Divider from '@mui/material/Divider';
+import IconButton from '@mui/material/IconButton';
+import MenuIcon from '@mui/icons-material/Menu';
+import ChevronLeftIcon from '@mui/icons-material/ChevronLeft';
+import ChevronRightIcon from '@mui/icons-material/ChevronRight';
+import ListItem from '@mui/material/ListItem';
+import ListItemButton from '@mui/material/ListItemButton';
+import ListItemIcon from '@mui/material/ListItemIcon';
+import ListItemText from '@mui/material/ListItemText';
+import DashboardIcon from '@mui/icons-material/Dashboard';
+import MovieIcon from '@mui/icons-material/Movie';
+import TheatersIcon from '@mui/icons-material/Theaters';
+import DateRangeIcon from '@mui/icons-material/DateRange';
+import PeopleIcon from '@mui/icons-material/People';
+import SettingsIcon from '@mui/icons-material/Settings';
+import AccountCircle from '@mui/icons-material/AccountCircle';
+import Badge from '@mui/material/Badge';
+import NotificationsIcon from '@mui/icons-material/Notifications';
+import MailIcon from '@mui/icons-material/Mail';
+import MenuItem from '@mui/material/MenuItem';
+import Menu from '@mui/material/Menu';
+import Brightness4Icon from '@mui/icons-material/Brightness4';
+import Brightness7Icon from '@mui/icons-material/Brightness7';
+import { useNavigate, useLocation } from 'react-router-dom';
+import { ColorModeContext } from '../../../context/ThemeContext';
 import EventSeatIcon from '@mui/icons-material/EventSeat';
 
 const drawerWidth = 240;
@@ -105,7 +98,7 @@ const Drawer = styled(MuiDrawer, {
   }),
 }));
 
-const LogoText = styled(Typography)(() => ({
+const LogoText = styled(Typography)(({ theme }) => ({
   fontSize: "1.5rem",
   fontWeight: 700,
   background: "linear-gradient(to right, #FF4D4D, #F9376E)",
@@ -124,19 +117,15 @@ const ContentWrapper = styled(Box)(({ theme }) => ({
 }));
 
 const menuItems = [
-  { text: "Dashboard", icon: <DashboardIcon />, path: "/admin/dashboard" },
-  { text: "Bộ Phim", icon: <MovieIcon />, path: "/admin/movies" },
-  { text: "Chi nhánh rạp", icon: <TheatersIcon />, path: "/admin/theaters" },
+  { text: 'Dashboard', icon: <DashboardIcon />, path: '/admin/dashboard' },
+  { text: 'Thức ăn và đồ uống', icon: <MovieIcon />, path: '/admin/fnbs' },  
+  { text: 'Bộ Phim', icon: <MovieIcon />, path: '/admin/movies' },
+  { text: 'Chi nhánh rạp', icon: <TheatersIcon />, path: '/admin/theaters' },
+  { text: 'Suất chiếu', icon: <DateRangeIcon />, path: '/admin/showtimes' },
+  { text: 'Vouchers', icon: <DateRangeIcon />, path: '/admin/vouchers' },
+  { text: 'Người dùng', icon: <PeopleIcon />, path: '/admin/users' },
   { text: 'Quản lý ghế', icon: <EventSeatIcon />, path: '/admin/seats' },
-  { text: "Suất chiếu", icon: <DateRangeIcon />, path: "/admin/showtimes" },
-  { text: "Đơn hàng", icon: <ShoppingCartIcon />, path: "/admin/orders" },
-  { text: "Thức ăn và đồ uống", icon: <FastfoodIcon />, path: "/admin/fnbs" },
-  { text: "Combos", icon: <ShoppingBasketIcon />, path: "/admin/combos" },
-  { text: "Vouchers", icon: <LocalOfferIcon />, path: "/admin/vouchers" },
-  { text: "Khách hàng", icon: <PeopleIcon />, path: "/admin/users" },
-  { text: "Nhân viên & Quản trị", icon: <Security />, path: "/admin/staffs" },
-  { text: "Cấu hình", icon: <SettingsIcon />, path: "/admin/configs" },
-  { text: "Excel", icon: <FileDownloadIcon />, path: "/admin/excels" },
+  { text: 'Configurations', icon: <SettingsIcon />, path: '/admin/configs' },
 ];
 
 export default function AdminLayout({ children }) {
@@ -146,7 +135,6 @@ export default function AdminLayout({ children }) {
   const [anchorEl, setAnchorEl] = useState(null);
   const navigate = useNavigate();
   const location = useLocation();
-  const { user, logout } = useAuth();
 
   const handleDrawerOpen = () => {
     setOpen(true);
@@ -162,17 +150,6 @@ export default function AdminLayout({ children }) {
 
   const handleMenuClose = () => {
     setAnchorEl(null);
-  };
-
-  const handleProfileClick = () => {
-    handleMenuClose();
-    navigate("/admin/profile");
-  };
-
-  const handleLogout = () => {
-    handleMenuClose();
-    logout();
-    navigate("/login");
   };
 
   const isMenuOpen = Boolean(anchorEl);
@@ -193,9 +170,16 @@ export default function AdminLayout({ children }) {
       open={isMenuOpen}
       onClose={handleMenuClose}
     >
-      <MenuItem onClick={handleProfileClick}>Profile</MenuItem>
+      <MenuItem onClick={handleMenuClose}>Profile</MenuItem>
       <MenuItem onClick={handleMenuClose}>Settings</MenuItem>
-      <MenuItem onClick={handleLogout}>Logout</MenuItem>
+      <MenuItem
+        onClick={() => {
+          handleMenuClose();
+          navigate("/");
+        }}
+      >
+        Logout
+      </MenuItem>
     </Menu>
   );
 
@@ -217,7 +201,7 @@ export default function AdminLayout({ children }) {
             <MenuIcon />
           </IconButton>
           <LogoText variant="h6" noWrap component="div">
-            CINEVERSE
+            CINEMA ADMIN
           </LogoText>
           <Box sx={{ flexGrow: 1 }} />
           <IconButton

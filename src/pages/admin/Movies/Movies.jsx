@@ -4,7 +4,8 @@ import {
   TableHead, TableRow, Chip, IconButton, TextField, InputAdornment,
   useTheme, alpha, CircularProgress, Alert, Pagination, PaginationItem,
   Select, MenuItem, FormControl, Snackbar, InputLabel, OutlinedInput, Collapse,
-  Accordion, AccordionSummary, AccordionDetails, Grid, Divider, FormGroup, FormControlLabel, Checkbox
+  Accordion, AccordionSummary, AccordionDetails, Grid, Divider, FormGroup, FormControlLabel, Checkbox,
+  TableSortLabel,
 } from '@mui/material';
 import { styled } from '@mui/material/styles';
 import EditIcon from '@mui/icons-material/Edit';
@@ -20,14 +21,20 @@ import useMovies from '../../../hooks/useMovies';
 import MovieForm from './MovieForm';
 import { getAllGenres, getMovieById } from '../../../api/services/movieService'; // Add getMovieById import
 
-// Enhanced styling for table cells with better light/dark mode support
+// Enhanced styling for table cells with better light/dark mode support and sorting
 const StyledTableCell = styled(TableCell)(({ theme }) => ({
   borderBottom: `1px solid ${theme.palette.mode === 'light' 
     ? 'rgba(0, 0, 0, 0.15)' // Darker border in light mode
     : 'rgba(255, 255, 255, 0.15)'}`,
   color: theme.palette.text.primary,
   padding: '16px',
-  fontWeight: theme.palette.mode === 'light' ? 500 : 400
+  fontWeight: theme.palette.mode === 'light' ? 500 : 400,
+  '&.sortable': {
+    cursor: 'pointer',
+    '&:hover': {
+      backgroundColor: alpha(theme.palette.primary.main, 0.04),
+    },
+  }
 }));
 
 // Enhanced table row styling
@@ -448,13 +455,81 @@ const Movies = () => {
 
   // Handle sorting changes
   const handleSortChange = useCallback((field, order) => {
-    setSorting(prev => ({
+    handleFilterChange('sorting', {
       movieSortBy: field,
       sortOrder: order
-    }));
+    });
     setPage(0);
     setShouldFetchMovies(true); // Enable fetch when sorting changes
-  }, []);
+  }, [handleFilterChange]);
+
+  // Add state to track sorting column and direction
+  const [sortConfig, setSortConfig] = useState({
+    key: null,        // Column identifier
+    direction: 'asc'  // 'asc' or 'desc'
+  });
+
+  // Map column keys to API sorting values
+  const columnToSortMapping = {
+    'id': { field: '0', name: 'ID' },         // CreatedAt as proxy for ID 
+    'title': { field: '0', name: 'Title' },   // Using CreatedAt as proxyname
+    'duration': { field: '0', name: 'Duration' }, // Using CreatedAt as proxyon
+    'startDate': { field: '1', name: 'Release Date' }, // StartAt
+    'endDate': { field: '2', name: 'End Date' }  // EndAt
+  };
+
+  // Handle column header click to toggle sorting
+  const handleColumnSort = (columnKey) => {
+    // Skip if column isn't sortable
+    if (!columnToSortMapping[columnKey]) return;
+    
+    let newDirection = 'asc';
+    let apiSortOrder = '0'; // Ascending=0
+    
+    // Toggle direction if same column clicked again
+    if (sortConfig.key === columnKey) {
+      newDirection = sortConfig.direction === 'asc' ? 'desc' : 'asc';
+      apiSortOrder = newDirection === 'asc' ? '0' : '1'; // Ascending=0, Descending=1
+    } else {
+      // Default to ascending for new column
+      apiSortOrder = '0'; // Ascending=0
+    }
+    
+    // Update sort config state
+    setSortConfig({
+      key: columnKey,
+      direction: newDirection
+    });
+    
+    // Get the corresponding API field value
+    const sortField = columnToSortMapping[columnKey].field;
+    
+    console.log(`Sorting by ${columnKey} (API field: ${sortField}) in ${newDirection} order`);
+    
+    // Update filters with new sorting parameters
+    handleFilterChange('sorting', { 
+      movieSortBy: sortField,
+      sortOrder: apiSortOrder
+    });
+    
+    // Apply filters immediately to see sorting
+    setAppliedFilters(prev => ({
+      ...prev,
+      sorting: {
+        movieSortBy: sortField,
+        sortOrder: apiSortOrder
+      }
+    }));
+    
+    // Reset to first page and fetch movies with new sort
+    setPage(0);
+    setShouldFetchMovies(true);
+  };
+
+  // Function to get proper direction for TableSortLabel
+  const getSortDirection = (columnKey) => {
+    return sortConfig.key === columnKey ? sortConfig.direction : false;
+  };
 
   // Modify this useEffect to avoid double fetching on initial load
   useEffect(() => {
@@ -803,12 +878,53 @@ const Movies = () => {
                     ? alpha(theme.palette.primary.main, 0.05)
                     : alpha(theme.palette.common.white, 0.05) 
                 }}>
-                  <StyledTableCell>ID</StyledTableCell>
+                  <StyledTableCell 
+                    className="sortable"
+                    onClick={() => handleColumnSort('id')}
+                  >
+                    <TableSortLabel
+                      active={sortConfig.key === 'id'}
+                      direction={getSortDirection('id') || 'asc'}
+                    >
+                      ID
+                    </TableSortLabel>
+                  </StyledTableCell>
                   <StyledTableCell>Ảnh</StyledTableCell>
-                  <StyledTableCell>Tiêu đề phim</StyledTableCell>
+                  <StyledTableCell 
+                    className="sortable"
+                    onClick={() => handleColumnSort('title')}
+                  >
+                    <TableSortLabel
+                      active={sortConfig.key === 'title'}
+                      direction={getSortDirection('title') || 'asc'}
+                    >
+                      Tiêu đề phim
+                    </TableSortLabel>
+                  </StyledTableCell>
                   <StyledTableCell>Thể loại</StyledTableCell>
-                  <StyledTableCell align="right">Thời lượng (phút)</StyledTableCell>
-                  <StyledTableCell>Ngày công chiếu</StyledTableCell>
+                  <StyledTableCell 
+                    align="right"
+                    className="sortable"
+                    onClick={() => handleColumnSort('duration')}
+                  >
+                    <TableSortLabel
+                      active={sortConfig.key === 'duration'}
+                      direction={getSortDirection('duration') || 'asc'}
+                    >
+                      Thời lượng (phút)
+                    </TableSortLabel>
+                  </StyledTableCell>
+                  <StyledTableCell 
+                    className="sortable"
+                    onClick={() => handleColumnSort('startDate')}
+                  >
+                    <TableSortLabel
+                      active={sortConfig.key === 'startDate'}
+                      direction={getSortDirection('startDate') || 'asc'}
+                    >
+                      Ngày công chiếu
+                    </TableSortLabel>
+                  </StyledTableCell>
                   <StyledTableCell>Trạng thái</StyledTableCell>
                   <StyledTableCell align="center">Chức năng</StyledTableCell>
                 </TableRow>

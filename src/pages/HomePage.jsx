@@ -464,6 +464,75 @@ const StyledSelect = styled.select`
   }
 `;
 
+// Thêm LoadingOverlay component
+const LoadingOverlay = styled.div`
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.85);
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  z-index: 9999;
+  backdrop-filter: blur(5px);
+`;
+
+const LoadingContent = styled.div`
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+`;
+
+const LoadingSpinner = styled.div`
+  width: 60px;
+  height: 60px;
+  border: 4px solid rgba(255, 255, 255, 0.1);
+  border-radius: 50%;
+  border-top: 4px solid #F9376E;
+  animation: spin 1s linear infinite;
+  margin-bottom: 20px;
+
+  @keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+  }
+  
+  @media (max-width: 576px) {
+    width: 50px;
+    height: 50px;
+  }
+`;
+
+const LoadingLogo = styled.div`
+  font-size: 2.5rem;
+  font-weight: 700;
+  color: white;
+  margin-bottom: 20px;
+  background: linear-gradient(to right, #FF4D4D, #F9376E);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  
+  @media (max-width: 576px) {
+    font-size: 2rem;
+  }
+`;
+
+const LoadingText = styled.div`
+  color: white;
+  font-size: 1.2rem;
+  text-align: center;
+  max-width: 80%;
+  margin-top: 10px;
+  
+  @media (max-width: 576px) {
+    font-size: 1rem;
+  }
+`;
+
 function HomePage() {
   const [nowShowingMovies, setNowShowingMovies] = useState([]);
   const [comingSoonMovies, setComingSoonMovies] = useState([]);
@@ -481,6 +550,9 @@ function HomePage() {
   const [filteredTimes, setFilteredTimes] = useState([]);
   const [loadingMovies, setLoadingMovies] = useState(false);
   const [loadingSchedule, setLoadingSchedule] = useState(false);
+  // Thêm state để theo dõi tiến trình tải
+  const [loadingProgress, setLoadingProgress] = useState('Đang tải dữ liệu phim...');
+  const [initialDataLoaded, setInitialDataLoaded] = useState(false);
 
   const navigate = useNavigate(); // Thêm hook để chuyển hướng
 
@@ -488,35 +560,20 @@ function HomePage() {
     const fetchMovieData = async () => {
       try {
         setLoading(true);
+        setLoadingProgress('Đang tải dữ liệu phim...');
+        
+        // Fetch movie data
         const [nowShowing, comingSoon, banner] = await Promise.all([
           getNowShowingMovies(),
           getComingSoonMovies(),
           getBannerMovie()
         ]);
 
-        const uniqueBannerMovies = [banner, ...nowShowing.slice(0, 4)].filter(
-          (movie, index, self) => self.findIndex(m => m.id === movie.id) === index
-        );
-        setNowShowingMovies(nowShowing);
-        setComingSoonMovies(comingSoon);
-        setBannerMovies(uniqueBannerMovies);
-      } catch (error) {
-        console.error('Error fetching movie data:', error);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchMovieData();
-  }, []);
-
-  useEffect(() => {
-    const fetchTheaters = async () => {
-      try {
+        setLoadingProgress('Đang tải dữ liệu rạp chiếu...');
+        // Fetch theaters data
         const theatersData = await getTheaters();
-
-        // Áp dụng mapping để chuyển đổi cấu trúc dữ liệu
-        // theaterId -> id, theaterName -> name
+        
+        // Format theaters data
         const formattedTheaters = theatersData.map(theater => ({
           id: theater.theaterId,
           name: theater.theaterName,
@@ -524,13 +581,27 @@ function HomePage() {
           hotline: theater.theaterHotline
         }));
 
+        const uniqueBannerMovies = [banner, ...nowShowing.slice(0, 4)].filter(
+          (movie, index, self) => self.findIndex(m => m.id === movie.id) === index
+        );
+
+        // Update all states
+        setNowShowingMovies(nowShowing);
+        setComingSoonMovies(comingSoon);
+        setBannerMovies(uniqueBannerMovies);
         setTheaters(formattedTheaters);
+        
+        // Set initial data loaded flag
+        setInitialDataLoaded(true);
       } catch (error) {
-        console.error('Error loading theaters:', error);
+        console.error('Error fetching initial data:', error);
+        setLoadingProgress('Đã xảy ra lỗi khi tải dữ liệu. Vui lòng thử lại sau...');
+      } finally {
+        setLoading(false);
       }
     };
 
-    fetchTheaters();
+    fetchMovieData();
   }, []);
 
   // Chuyển banner ngay lập tức không có animation
@@ -640,6 +711,7 @@ function HomePage() {
   const fetchMovies = async (theaterId) => {
     try {
       setLoadingMovies(true);
+      setLoadingProgress('Đang tải danh sách phim cho rạp đã chọn...');
       
       // Sử dụng API mới để lấy phim theo rạp
       const moviesData = await getMoviesByTheater(theaterId);
@@ -663,6 +735,7 @@ function HomePage() {
 const fetchSchedule = async (movieId, theaterId) => {
   try {
     setLoadingSchedule(true);
+    setLoadingProgress('Đang tải lịch chiếu cho phim đã chọn...');
     const response = await getMovieScheduleByTheaterAndMovie(movieId, theaterId);
     
     
@@ -754,8 +827,32 @@ const fetchSchedule = async (movieId, theaterId) => {
 
   const currentBanner = bannerMovies[currentBannerIndex];
 
+  // Hiển thị LoadingOverlay khi đang tải dữ liệu ban đầu
+  if (!initialDataLoaded) {
+    return (
+      <LoadingOverlay>
+        <LoadingContent>
+          <LoadingLogo>CineVerse</LoadingLogo>
+          <LoadingSpinner />
+          <LoadingText>{loadingProgress}</LoadingText>
+        </LoadingContent>
+      </LoadingOverlay>
+    );
+  }
+
   return (
     <>
+      {/* Hiển thị loading overlay khi fetch dữ liệu từ API */}
+      {(loading || loadingMovies || loadingSchedule) && (
+        <LoadingOverlay>
+          <LoadingContent>
+            <LoadingLogo>CineVerse</LoadingLogo>
+            <LoadingSpinner />
+            <LoadingText>{loadingProgress}</LoadingText>
+          </LoadingContent>
+        </LoadingOverlay>
+      )}
+      
       <PageContainer>
         {/* Banner Poster Phim với nút điều hướng */}
         <BannerContainer>

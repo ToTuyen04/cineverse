@@ -7,10 +7,9 @@ import apiClient from "./apiClient";
  * Lấy thông tin người dùng
  * @returns {Promise<object>} - Thông tin người dùng
  */
-export const getUserProfile = async () => {
+export const getUserProfile = async (token) => {
   try {
     // Lấy token từ localStorage
-    const token = localStorage.getItem('token');
 
     if (!token) {
       throw new Error('Không tìm thấy token xác thực');
@@ -24,31 +23,32 @@ export const getUserProfile = async () => {
     });
 
     // Lấy dữ liệu từ response
-    const userData = response.data;
+    // const userData = response.data;
+    return response.data;
 
     // Map dữ liệu từ API vào định dạng cần thiết cho ứng dụng
-    return {
-      // Thông tin cơ bản từ API
-      email: userData.email,
-      firstName: userData.firstName,
-      lastName: userData.lastName,
-      phoneNumber: userData.phoneNumber,
-      avatar: userData.avatar,
-      dateOfBirth: userData.dateOfBirth,
-      gender: userData.gender,
-      userRank: userData.userRank || 'Mầm',
-      userPoint: userData.userPoint || 0,
-      createdAt: userData.createdAt,
+    // return {
+    //   // Thông tin cơ bản từ API
+    //   email: userData.email,
+    //   firstName: userData.firstName,
+    //   lastName: userData.lastName,
+    //   phoneNumber: userData.phoneNumber,
+    //   avatar: userData.avatar,
+    //   dateOfBirth: userData.dateOfBirth,
+    //   gender: userData.gender,
+    //   userRank: userData.userRank || 'Mầm',
+    //   userPoint: userData.userPoint || 0,
+    //   createdAt: userData.createdAt,
 
-      // Các trường bổ sung cho tương thích với code hiện tại
-      user_search_name: `${userData.firstName || ''} ${userData.lastName || ''}`.trim(),
-      user_avatar: userData.avatar,
-      user_date_of_birth: userData.dateOfBirth || null,
-      user_gender: mapGenderToCode(userData.gender),
-      user_point: userData.userPoint || 0,
-      user_status: 'active',
-      rank_id: userData.userRank
-    };
+    //   // Các trường bổ sung cho tương thích với code hiện tại
+    //   user_search_name: `${userData.firstName || ''} ${userData.lastName || ''}`.trim(),
+    //   user_avatar: userData.avatar,
+    //   user_date_of_birth: userData.dateOfBirth || null,
+    //   user_gender: mapGenderToCode(userData.gender),
+    //   user_point: userData.userPoint || 0,
+    //   user_status: 'active',
+    //   rank_id: userData.userRank
+    // };
   } catch (error) {
     console.error('Error getting user profile:', error);
 

@@ -1,5 +1,5 @@
-import React, { useState, useEffect } from "react";
-import {
+import React, { useState, useEffect } from 'react';
+import { 
   Dialog,
   DialogTitle,
   DialogContent,
@@ -19,66 +19,72 @@ import {
   Switch,
   FormControlLabel,
   InputAdornment,
-  Alert,
-} from "@mui/material";
-import { fileToBase64 } from "../../../utils/fileUtils";
-import { FNB_TYPES, FNB_TYPE_OPTIONS } from "../../../utils/constants";
+  Alert
+} from '@mui/material';
 
-const FnbForm = ({
-  open,
-  handleClose,
-  fnb,
-  onSubmit,
-  isEdit = false,
-  isViewOnly = false,
-}) => {
+const FnbForm = ({ open, handleClose, fnb, onSubmit, isEdit = false, isViewOnly = false }) => {
   const theme = useTheme();
-
+  
   // Form state
   const [formData, setFormData] = useState({
-    fnbId: "",
-    fnbName: "",
-    fnbPoster: "",
-    fnbType: FNB_TYPES.FOOD,
+    fnbId: '',
+    fnbName: '',
+    fnbType: 0,
     fnbListPrice: 0,
-    fnbAvailable: true,
+    fnbAvailable: true
   });
-  const [imageFile, setImageFile] = useState(null);
-  const [imagePreview, setImagePreview] = useState("");
   const [errors, setErrors] = useState({});
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   // Reset form function
   const resetForm = () => {
     setFormData({
-      fnbId: "",
-      fnbName: "",
-      fnbPoster: "",
-      fnbType: FNB_TYPES.FOOD,
+      fnbId: '',
+      fnbName: '',
+      fnbType: 0,
       fnbListPrice: 0,
-      fnbAvailable: true,
+      fnbAvailable: true
     });
-    setImageFile(null);
-    setImagePreview("");
     setErrors({});
   };
 
   // Initialize form with fnb data or reset for new fnb
   useEffect(() => {
     if ((isEdit || isViewOnly) && fnb) {
-      setFormData({
-        fnbId: fnb.fnbId || "",
-        fnbName: fnb.fnbName || "",
-        fnbPoster: fnb.fnbPoster || "",
-        fnbType: fnb.fnbType || FNB_TYPES.FOOD,
-        fnbListPrice:
-          typeof fnb.fnbListPrice === "number" ? fnb.fnbListPrice : 0,
-        fnbAvailable: Boolean(fnb.fnbAvailable),
-      });
-
-      if (fnb.fnbPoster) {
-        setImagePreview(fnb.fnbPoster);
+      // Parse fnbType to a number regardless of whether it's a string or number
+      const fnbTypeAsNumber = fnb.fnbType !== undefined ? Number(fnb.fnbType) : 0;
+      
+      // Better handling of availability status - convert to boolean properly
+      let isAvailable = false;
+      if (typeof fnb.fnbAvailable === 'boolean') {
+        isAvailable = fnb.fnbAvailable;
+      } else if (typeof fnb.fnbAvailable === 'string') {
+        isAvailable = fnb.fnbAvailable.toLowerCase() === 'true' || fnb.fnbAvailable === '1';
+      } else if (typeof fnb.fnbAvailable === 'number') {
+        isAvailable = fnb.fnbAvailable === 1;
       }
+      
+      setFormData({
+        fnbId: fnb.fnbId || '',
+        fnbName: fnb.fnbName || '',
+        fnbType: fnbTypeAsNumber,
+        fnbListPrice: typeof fnb.fnbListPrice === 'number' ? fnb.fnbListPrice : 0,
+        fnbAvailable: isAvailable
+      });
+      
+      console.log('Setting form data:', {
+        id: fnb.fnbId,
+        name: fnb.fnbName,
+        type: {
+          original: fnb.fnbType,
+          converted: fnbTypeAsNumber
+        },
+        availability: {
+          original: fnb.fnbAvailable,
+          typeOf: typeof fnb.fnbAvailable,
+          converted: isAvailable
+        }
+      });
     } else {
       resetForm();
     }
@@ -94,109 +100,67 @@ const FnbForm = ({
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
-    setFormData((prev) => ({
+    setFormData(prev => ({
       ...prev,
-      [name]: value,
+      [name]: value
     }));
     // Clear error when field is modified
     if (errors[name]) {
-      setErrors((prev) => ({ ...prev, [name]: null }));
+      setErrors(prev => ({ ...prev, [name]: null }));
     }
   };
 
   const handlePriceChange = (e) => {
     const value = e.target.value;
-    if (value === "" || (/^\d*$/.test(value) && parseInt(value) >= 0)) {
-      const numericValue = value === "" ? 0 : parseInt(value);
-      setFormData((prev) => ({
+    if (value === '' || (/^\d*$/.test(value) && parseInt(value) >= 0)) {
+      const numericValue = value === '' ? 0 : parseInt(value);
+      setFormData(prev => ({
         ...prev,
-        fnbListPrice: numericValue,
+        fnbListPrice: numericValue
       }));
       if (errors.fnbListPrice) {
-        setErrors((prev) => ({ ...prev, fnbListPrice: null }));
+        setErrors(prev => ({ ...prev, fnbListPrice: null }));
       }
     }
   };
 
   const handleAvailabilityChange = (e) => {
-    setFormData((prev) => ({
+    setFormData(prev => ({
       ...prev,
-      fnbAvailable: e.target.checked,
+      fnbAvailable: e.target.checked
     }));
-  };
-
-  const handleFileChange = (e) => {
-    const file = e.target.files[0];
-    if (!file) return;
-
-    // Validate file type
-    if (!file.type.match("image.*")) {
-      setErrors((prev) => ({
-        ...prev,
-        fnbPoster: "Please select an image file",
-      }));
-      return;
-    }
-
-    // Validate file size (5MB)
-    if (file.size > 5 * 1024 * 1024) {
-      setErrors((prev) => ({
-        ...prev,
-        fnbPoster: "Image size should be less than 5MB",
-      }));
-      return;
-    }
-
-    setImageFile(file);
-
-    // Create preview URL
-    const reader = new FileReader();
-    reader.onloadend = () => {
-      setImagePreview(reader.result);
-    };
-    reader.readAsDataURL(file);
-
-    // Clear error if exists
-    if (errors.fnbPoster) {
-      setErrors((prev) => ({
-        ...prev,
-        fnbPoster: null,
-      }));
-    }
   };
 
   // Form validation
   const validateForm = () => {
     const newErrors = {};
-
+    
     // Name validation
     if (!formData.fnbName.trim()) {
-      newErrors.fnbName = "Tên không được để trống";
+      newErrors.fnbName = 'Name is required';
     } else if (formData.fnbName.trim().length < 2) {
-      newErrors.fnbName = "Tên phải có ít nhất 2 ký tự";
+      newErrors.fnbName = 'Name must be at least 2 characters';
     } else if (formData.fnbName.length > 100) {
-      newErrors.fnbName = "Tên không được vượt quá 100 ký tự";
+      newErrors.fnbName = 'Name cannot exceed 100 characters';
     }
 
     // Type validation
-    if (!formData.fnbType) {
-      newErrors.fnbType = "Vui lòng chọn loại";
-    } else if (
-      ![FNB_TYPES.FOOD, FNB_TYPES.BEVERAGE].includes(formData.fnbType)
-    ) {
-      newErrors.fnbType = "Loại không hợp lệ";
+    if (formData.fnbType === null || formData.fnbType === undefined) {
+      newErrors.fnbType = 'Type is required';
+    } else if (![0, 1].includes(Number(formData.fnbType))) {
+      newErrors.fnbType = 'Invalid type selected';
     }
 
     // Price validation
     const price = Number(formData.fnbListPrice);
     if (!price) {
-      newErrors.fnbListPrice = "Giá không được để trống";
+      newErrors.fnbListPrice = 'Price is required';
     } else if (price <= 0) {
-      newErrors.fnbListPrice = "Giá phải lớn hơn 0";
+      newErrors.fnbListPrice = 'Price must be greater than 0';
     } else if (price > 10000000) {
-      newErrors.fnbListPrice = "Giá không được vượt quá 10,000,000 VND";
+      newErrors.fnbListPrice = 'Price cannot exceed 10,000,000 VND';
     } else if (!Number.isInteger(price)) {
-      newErrors.fnbListPrice = "Giá phải là số nguyên";
+      newErrors.fnbListPrice = 'Price must be a whole number';
     }
 
     setErrors(newErrors);
@@ -208,34 +172,22 @@ const FnbForm = ({
     if (validateForm()) {
       setIsSubmitting(true);
       try {
-        const fnbFormData = new FormData();
-
-        // Append basic fields from formData state
-        fnbFormData.append("FnbName", formData.fnbName);
-        fnbFormData.append("FnbType", formData.fnbType);
-        fnbFormData.append("FnbListPrice", formData.fnbListPrice.toString());
-        fnbFormData.append("FnbAvailable", formData.fnbAvailable.toString());
-
-        // Handle image - only append if there's a new image
-        if (imageFile) {
-          fnbFormData.append("FnbPoster", imageFile);
-        }
-
-        // Submit form based on mode
-        if (isEdit) {
-          await onSubmit(formData.fnbId, fnbFormData);
-        } else {
-          await onSubmit(fnbFormData);
-        }
-
+        const submitData = {
+          ...formData,
+          fnbType: Number(formData.fnbType),
+          fnbListPrice: Number(formData.fnbListPrice)
+        };
+        
+        await onSubmit(submitData);
+        handleClose();
         if (!isEdit) {
           resetForm();
         }
       } catch (error) {
         console.error("Error submitting form:", error);
-        setErrors((prev) => ({
+        setErrors(prev => ({
           ...prev,
-          submit: error.response?.data?.message || "Failed to submit form",
+          submit: error.message || 'Failed to submit form'
         }));
       } finally {
         setIsSubmitting(false);
@@ -252,90 +204,28 @@ const FnbForm = ({
       PaperProps={{
         sx: {
           borderRadius: 2,
-          boxShadow: theme.shadows[10],
-        },
+          boxShadow: theme.shadows[10]
+        }
       }}
       disableEscapeKeyDown={isSubmitting}
     >
-      <DialogTitle
-        sx={{
-          pb: 1,
-          pt: 2,
-          borderBottom: `1px solid ${theme.palette.divider}`,
-        }}
-      >
+      <DialogTitle sx={{ 
+        pb: 1, 
+        pt: 2,
+        borderBottom: `1px solid ${theme.palette.divider}`
+      }}>
         <Typography variant="h5" fontWeight={600} component="div">
-          {isViewOnly
-            ? "F&B Item Details"
-            : isEdit
-            ? "Edit F&B Item"
-            : "Add New F&B Item"}
+          {isViewOnly 
+            ? "F&B Item Details" 
+            : isEdit 
+              ? "Edit F&B Item" 
+              : "Add New F&B Item"}
         </Typography>
       </DialogTitle>
 
       <DialogContent sx={{ pt: 3 }}>
         <Box component="form" noValidate>
           <Grid container spacing={3}>
-            {/* Image Upload */}
-            <Grid item xs={12}>
-              <Box sx={{ mb: 2 }}>
-                <input
-                  accept="image/*"
-                  type="file"
-                  id="fnb-poster"
-                  onChange={handleFileChange}
-                  style={{ display: "none" }}
-                  disabled={isViewOnly || isSubmitting}
-                />
-                <label htmlFor="fnb-poster">
-                  <Button
-                    variant="outlined"
-                    component="span"
-                    disabled={isViewOnly || isSubmitting}
-                  >
-                    Upload Poster
-                  </Button>
-                </label>
-                {errors.fnbPoster && (
-                  <Typography color="error" variant="caption" display="block">
-                    {errors.fnbPoster}
-                  </Typography>
-                )}
-              </Box>
-              {imagePreview && (
-                <Box sx={{ mt: 2, position: "relative" }}>
-                  <img
-                    src={imagePreview}
-                    alt="F&B preview"
-                    style={{
-                      maxWidth: "100%",
-                      maxHeight: "200px",
-                      objectFit: "contain",
-                    }}
-                  />
-                  {!isViewOnly && (
-                    <Button
-                      onClick={() => {
-                        setImageFile(null);
-                        setImagePreview("");
-                        setFormData((prev) => ({
-                          ...prev,
-                          fnbPoster: "",
-                        }));
-                      }}
-                      variant="contained"
-                      color="error"
-                      size="small"
-                      sx={{ position: "absolute", top: 8, right: 8 }}
-                      disabled={isSubmitting}
-                    >
-                      Remove
-                    </Button>
-                  )}
-                </Box>
-              )}
-            </Grid>
-
             {/* Basic Information */}
             <Grid item xs={12}>
               <Typography variant="h6" sx={{ mb: 2 }}></Typography>
@@ -356,23 +246,23 @@ const FnbForm = ({
                   />
                 </Grid>
                 <Grid item xs={12}>
-                  <FormControl fullWidth error={!!errors.fnbType}>
-                    <InputLabel>Loại</InputLabel>
+                  <FormControl 
+                    fullWidth 
+                    error={!!errors.fnbType}
+                  >
+                    <InputLabel>Type</InputLabel>
                     <Select
                       name="fnbType"
                       value={formData.fnbType}
                       onChange={handleInputChange}
-                      label="Loại"
+                      label="Type"
                       disabled={isSubmitting}
                       inputProps={{
                         readOnly: isViewOnly,
                       }}
                     >
-                      {FNB_TYPE_OPTIONS.map((option) => (
-                        <MenuItem key={option.value} value={option.value}>
-                          {option.label}
-                        </MenuItem>
-                      ))}
+                      <MenuItem value={0}>Thức ăn</MenuItem>
+                      <MenuItem value={1}>Đồ uống</MenuItem>
                     </Select>
                     {errors.fnbType && (
                       <FormHelperText>{errors.fnbType}</FormHelperText>
@@ -384,9 +274,7 @@ const FnbForm = ({
 
             {/* Price */}
             <Grid item xs={12}>
-              <Typography variant="h6" sx={{ mb: 2 }}>
-                Price
-              </Typography>
+              <Typography variant="h6" sx={{ mb: 2 }}>Price</Typography>
               <TextField
                 fullWidth
                 label="List Price"
@@ -399,20 +287,16 @@ const FnbForm = ({
                 disabled={isSubmitting}
                 InputProps={{
                   readOnly: isViewOnly,
-                  startAdornment: (
-                    <InputAdornment position="start">VND</InputAdornment>
-                  ),
+                  startAdornment: <InputAdornment position="start">VND</InputAdornment>,
                 }}
               />
             </Grid>
 
             {/* Availability */}
             <Grid item xs={12}>
-              <Typography variant="h6" sx={{ mb: 2 }}>
-                Availability
-              </Typography>
+              <Typography variant="h6" sx={{ mb: 2 }}>Availability</Typography>
               {isViewOnly ? (
-                <Typography sx={{ ml: 1, color: "text.primary" }}>
+                <Typography sx={{ ml: 1, color: 'text.primary' }}>
                   {formData.fnbAvailable ? "Available" : "Unavailable"}
                 </Typography>
               ) : (
@@ -432,17 +316,17 @@ const FnbForm = ({
             {/* Error Display */}
             {errors.submit && (
               <Grid item xs={12}>
-                <Alert severity="error">{errors.submit}</Alert>
+                <Alert severity="error">
+                  {errors.submit}
+                </Alert>
               </Grid>
             )}
           </Grid>
         </Box>
       </DialogContent>
 
-      <DialogActions
-        sx={{ px: 3, py: 2, borderTop: `1px solid ${theme.palette.divider}` }}
-      >
-        <Button
+      <DialogActions sx={{ px: 3, py: 2, borderTop: `1px solid ${theme.palette.divider}` }}>
+        <Button 
           onClick={handleDialogClose}
           variant={isViewOnly ? "contained" : "outlined"}
           color={isViewOnly ? "primary" : "inherit"}
@@ -451,25 +335,21 @@ const FnbForm = ({
         >
           {isViewOnly ? "Close" : "Cancel"}
         </Button>
-
+        
         {!isViewOnly && (
-          <Button
+          <Button 
             onClick={handleSubmit}
             variant="contained"
             color="primary"
             sx={{ borderRadius: 1, px: 3, minWidth: 100 }}
             disabled={isSubmitting}
-            startIcon={
-              isSubmitting && <CircularProgress size={20} color="inherit" />
-            }
+            startIcon={isSubmitting && (
+              <CircularProgress size={20} color="inherit" />
+            )}
           >
-            {isSubmitting
-              ? isEdit
-                ? "Đang cập nhật..."
-                : "Đang tạo mới..."
-              : isEdit
-              ? "Cập nhật"
-              : "Tạo mới"}
+            {isSubmitting 
+              ? (isEdit ? 'Đang cập nhật...' : 'Đang tạo mới...') 
+              : (isEdit ? 'Cập nhật' : 'Tạo mới')}
           </Button>
         )}
       </DialogActions>

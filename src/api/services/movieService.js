@@ -50,7 +50,7 @@ export const getAllMovies = async (includeUnavailable = false) => {
  * @param {number} pageSize - Số phim mỗi trang
  * @param {string} searchTerm - Từ khóa tìm kiếm
  * @param {Array} genreIds - Danh sách ID thể loại phim cần lọc
- * @param {string} movieSortBy - Sắp xếp theo (CreatedAt=0, StartAt=1, EndAt=2)
+ * @param {string} movieSortBy - Sắp xếp theo (CreatedAt=0, StartAt=1, EndAt=2, MovieName=3, Duration=4)
  * @param {string} sortOrder - Thứ tự sắp xếp (Ascending=0, Descending=1)
  * @returns {Promise} Promise trả về danh sách phim phân trang
  */

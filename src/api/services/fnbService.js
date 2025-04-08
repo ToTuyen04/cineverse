@@ -1,4 +1,4 @@
-import apiClient from "./apiClient";
+import apiClient from './apiClient';
 
 /**
  * Get all F&B items
@@ -9,7 +9,7 @@ export const getAllFnbs = async () => {
     const response = await apiClient.get("/fnbs");
     return response.data;
   } catch (error) {
-    console.error("Error fetching F&B items:", error);
+    console.error('Error fetching F&B items:', error);
     throw error;
   }
 };
@@ -36,31 +36,27 @@ export const getFnbsPaginated = async (
     // Gọi API lấy toàn bộ danh sách F&B thay vì sử dụng endpoint phân trang
     const response = await apiClient.get("/fnbs");
     const allData = response.data;
-
+    
     // Xử lý tìm kiếm nếu có
     let filteredData = allData;
     if (searchTerm) {
-      filteredData = allData.filter(
-        (item) =>
-          item.fnbName &&
-          item.fnbName.toLowerCase().includes(searchTerm.toLowerCase())
+      filteredData = allData.filter(item => 
+        item.fnbName && item.fnbName.toLowerCase().includes(searchTerm.toLowerCase())
       );
     }
-
+    
     // Xử lý lọc theo loại nếu có
     if (fnbType !== null && fnbType !== undefined) {
-      filteredData = filteredData.filter(
-        (item) => item.fnbType === Number(fnbType)
-      );
+      filteredData = filteredData.filter(item => item.fnbType === Number(fnbType));
     }
-
+    
     // Xử lý sắp xếp nếu có
     if (fnbSortBy !== null && fnbSortBy !== undefined) {
       filteredData.sort((a, b) => {
         let compareResult = 0;
-        switch (Number(fnbSortBy)) {
+        switch(Number(fnbSortBy)) {
           case 0: // Sort by Name
-            compareResult = (a.fnbName || "").localeCompare(b.fnbName || "");
+            compareResult = (a.fnbName || '').localeCompare(b.fnbName || '');
             break;
           case 1: // Sort by Type
             compareResult = (a.fnbType || 0) - (b.fnbType || 0);
@@ -74,24 +70,24 @@ export const getFnbsPaginated = async (
         return Number(sortOrder) === 1 ? -compareResult : compareResult; // 1 is descending
       });
     }
-
+    
     // Thực hiện phân trang tại client
     const totalItems = filteredData.length;
     const totalPages = Math.ceil(totalItems / pageSize);
     const startIndex = (pageIndex - 1) * pageSize;
     const endIndex = Math.min(startIndex + pageSize, totalItems);
     const paginatedData = filteredData.slice(startIndex, endIndex);
-
+    
     // Trả về kết quả phân trang có cấu trúc tương tự như API
     return {
       items: paginatedData,
       pageIndex: pageIndex,
       pageSize: pageSize,
       totalItems: totalItems,
-      totalPages: totalPages,
+      totalPages: totalPages
     };
   } catch (error) {
-    console.error("Error fetching paginated F&B items:", error);
+    console.error('Error fetching paginated F&B items:', error);
     throw error;
   }
 };
@@ -120,7 +116,7 @@ export const getAvailableFnbs = async () => {
     const response = await apiClient.get("/fnbs/available");
     return response.data;
   } catch (error) {
-    console.error("Error fetching available F&B items:", error);
+    console.error('Error fetching available F&B items:', error);
     throw error;
   }
 };
@@ -148,12 +144,7 @@ export const getFnbsByType = async (type) => {
  * @param {string} additionalParams - Additional parameters
  * @returns {Promise} Promise that returns matching F&B items
  */
-export const searchFnbs = async (
-  query,
-  pageIndex = 1,
-  pageSize = 10,
-  additionalParams = ""
-) => {
+export const searchFnbs = async (query, pageIndex = 1, pageSize = 10, additionalParams = '') => {
   try {
     const url = `/fnbs/${pageIndex}/${pageSize}?searchTerm=${encodeURIComponent(
       query
@@ -168,7 +159,7 @@ export const searchFnbs = async (
 
 /**
  * Create new F&B item
- * @param {FormData} fnbData - F&B item data to create
+ * @param {Object} fnbData - F&B item data to create
  * @returns {Promise} Promise that returns created F&B item
  */
 export const createFnb = async (fnbData) => {
@@ -182,13 +173,11 @@ export const createFnb = async (fnbData) => {
     console.log("Create F&B response:", response.data);
     return response.data;
   } catch (error) {
-    console.error("Error creating F&B item:", error);
-
+    console.error('Error creating F&B item:', error);
     if (error.response) {
-      console.error("Error response:", error.response.data);
-      console.error("Error status:", error.response.status);
+      console.error('Error response:', error.response.data);
+      console.error('Error status:', error.response.status);
     }
-
     throw error;
   }
 };
@@ -196,7 +185,7 @@ export const createFnb = async (fnbData) => {
 /**
  * Update F&B item
  * @param {number|string} id - ID of F&B item to update
- * @param {FormData} fnbData - Updated F&B item data
+ * @param {Object} fnbData - Updated F&B item data
  * @returns {Promise} Promise that returns updated F&B item
  */
 export const updateFnb = async (id, fnbData) => {
@@ -213,13 +202,11 @@ export const updateFnb = async (id, fnbData) => {
     console.log("Update F&B response:", response.data);
     return response.data;
   } catch (error) {
-    console.error("Error updating F&B item:", error);
-
+    console.error(`Error updating F&B item with ID ${id}:`, error);
     if (error.response) {
-      console.error("Error response:", error.response.data);
-      console.error("Error status:", error.response.status);
+      console.error('Error response:', error.response.data);
+      console.error('Error status:', error.response.status);
     }
-
     throw error;
   }
 };
@@ -249,5 +236,5 @@ export default {
   searchFnbs,
   createFnb,
   updateFnb,
-  deleteFnb,
+  deleteFnb
 };

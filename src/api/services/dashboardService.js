@@ -29,10 +29,10 @@ export const getBasicDashboardData = async () => {
 /**
  * Lấy dữ liệu dashboard chi tiết từ API
  * @param {string} theater - ID của rạp hoặc 'All' cho tất cả rạp
- * @param {string} time - Thời gian (định dạng: MM_YYYY, Q1_YYYY, YYYY, hoặc 'All')
- * @returns {Promise} Promise trả về dữ liệu dashboard chi tiết
+ * @param {string} time - Thời gian (định dạng: MM_YYYY, Q1_YYYY, YYYY, hoặc 'all')
+ * @returns {Promise} Promise trả về dữ liệu dashboard
  */
-export const getDetailedDashboardData = async (theater = 'All', time = 'All') => {
+export const getDashboardData = async (theater = 'All', time = 'All') => {
   try {
     // Validate time format to ensure it matches expected patterns
     if (time && time !== 'All') {
@@ -54,7 +54,7 @@ export const getDetailedDashboardData = async (theater = 'All', time = 'All') =>
     const response = await apiClient.get(`/dashboard/order-dashboard/${theater}/${time}`);
     return response.data;
   } catch (error) {
-    console.error('Error fetching detailed dashboard data:', error);
+    console.error('Error fetching dashboard data:', error);
     
     // Log chi tiết hơn nếu có response error
     if (error.response) {
@@ -68,107 +68,119 @@ export const getDetailedDashboardData = async (theater = 'All', time = 'All') =>
 
 /**
  * Lấy tổng số phim
+ * @param {string} theater - ID của rạp hoặc 'All' cho tất cả rạp
+ * @param {string} time - Thời gian (định dạng: MM_YYYY, Q1_YYYY, YYYY, hoặc 'all')
  * @returns {Promise<number>} Promise trả về tổng số phim
  */
-export const getTotalMovies = async () => {
-  const data = await getBasicDashboardData();
-  return data.totalMovie || 0;
+export const getTotalMovies = async (theater = 'All', time = 'All') => {
+  const data = await getDashboardData(theater, time);
+  return data.totalMoive;
 };
 
 /**
  * Lấy tổng số rạp
+ * @param {string} theater - ID của rạp hoặc 'All' cho tất cả rạp
+ * @param {string} time - Thời gian (định dạng: MM_YYYY, Q1_YYYY, YYYY, hoặc 'all')
  * @returns {Promise<number>} Promise trả về tổng số rạp
  */
-export const getTotalTheaters = async () => {
-  const data = await getBasicDashboardData();
-  return data.totalTheater || 0;
+export const getTotalTheaters = async (theater = 'All', time = 'All') => {
+  const data = await getDashboardData(theater, time);
+  return data.totalTheater;
 };
 
 /**
  * Lấy danh sách tên rạp
+ * @param {string} theater - ID của rạp hoặc 'All' cho tất cả rạp
+ * @param {string} time - Thời gian (định dạng: MM_YYYY, Q1_YYYY, YYYY, hoặc 'all')
  * @returns {Promise<Array>} Promise trả về danh sách tên rạp
  */
-export const getTheaterNames = async () => {
-  const data = await getBasicDashboardData();
-  return data.theaterNames || [];
+export const getTheaterNames = async (theater = 'All', time = 'All') => {
+  const data = await getDashboardData(theater, time);
+  return data.theaterNames;
 };
 
 /**
  * Lấy số vé bán được trong ngày hôm nay
+ * @param {string} theater - ID của rạp hoặc 'All' cho tất cả rạp
+ * @param {string} time - Thời gian (định dạng: MM_YYYY, Q1_YYYY, YYYY, hoặc 'all')
  * @returns {Promise<number>} Promise trả về số vé bán được trong ngày
  */
-export const getTicketsSoldToday = async () => {
-  const data = await getBasicDashboardData();
-  return data.ticketToday || 0;
+export const getTicketsSoldToday = async (theater = 'All', time = 'All') => {
+  const data = await getDashboardData(theater, time);
+  return data.ticketToday;
 };
 
 /**
  * Lấy tổng số vé đã bán
  * @param {string} theater - ID của rạp hoặc 'All' cho tất cả rạp
- * @param {string} time - Thời gian (định dạng: MM_YYYY, Q1_YYYY, YYYY, hoặc 'All')
+ * @param {string} time - Thời gian (định dạng: MM_YYYY, Q1_YYYY, YYYY, hoặc 'all')
  * @returns {Promise<number>} Promise trả về tổng số vé đã bán
  */
 export const getTotalTickets = async (theater = 'All', time = 'All') => {
-  const data = await getDetailedDashboardData(theater, time);
-  return data.totalTicket || 0;
+  const data = await getDashboardData(theater, time);
+  return data.totalTicket;
 };
 
 /**
  * Lấy tổng số combo đã bán
  * @param {string} theater - ID của rạp hoặc 'All' cho tất cả rạp
- * @param {string} time - Thời gian (định dạng: MM_YYYY, Q1_YYYY, YYYY, hoặc 'All')
+ * @param {string} time - Thời gian (định dạng: MM_YYYY, Q1_YYYY, YYYY, hoặc 'all')
  * @returns {Promise<number>} Promise trả về tổng số combo đã bán
  */
 export const getTotalCombos = async (theater = 'All', time = 'All') => {
-  const data = await getDetailedDashboardData(theater, time);
-  return data.totalCombo || 0;
+  const data = await getDashboardData(theater, time);
+  return data.totalCombo;
 };
 
 /**
  * Lấy dữ liệu đơn hàng cho dashboard
  * @param {string} theater - ID của rạp hoặc 'All' cho tất cả rạp
- * @param {string} time - Thời gian (định dạng: MM_YYYY, Q1_YYYY, YYYY, hoặc 'All')
+ * @param {string} time - Thời gian (định dạng: MM_YYYY, Q1_YYYY, YYYY, hoặc 'all')
  * @returns {Promise<Array>} Promise trả về danh sách dữ liệu đơn hàng
  */
 export const getOrderDashboardData = async (theater = 'All', time = 'All') => {
-  const data = await getDetailedDashboardData(theater, time);
-  return data.orderDashboards || [];
+  const data = await getDashboardData(theater, time);
+  return data.orderDashboards;
 };
 
 /**
  * Lấy dữ liệu thể loại phim cho dashboard
  * @param {string} theater - ID của rạp hoặc 'All' cho tất cả rạp
- * @param {string} time - Thời gian (định dạng: MM_YYYY, Q1_YYYY, YYYY, hoặc 'All')
+ * @param {string} time - Thời gian (định dạng: MM_YYYY, Q1_YYYY, YYYY, hoặc 'all')
  * @returns {Promise<Array>} Promise trả về danh sách dữ liệu thể loại phim
  */
 export const getGenreDashboardData = async (theater = 'All', time = 'All') => {
-  const data = await getDetailedDashboardData(theater, time);
-  return data.genresDashboards || [];
+  const data = await getDashboardData(theater, time);
+  return data.genresDashboards;
 };
 
 /**
  * Lấy dữ liệu phim cho dashboard
  * @param {string} theater - ID của rạp hoặc 'All' cho tất cả rạp
- * @param {string} time - Thời gian (định dạng: MM_YYYY, Q1_YYYY, YYYY, hoặc 'All')
+ * @param {string} time - Thời gian (định dạng: MM_YYYY, Q1_YYYY, YYYY, hoặc 'all')
  * @returns {Promise<Array>} Promise trả về danh sách dữ liệu phim
  */
 export const getMovieDashboardData = async (theater = 'All', time = 'All') => {
-  const data = await getDetailedDashboardData(theater, time);
-  return data.movieDashboards || [];
+  const data = await getDashboardData(theater, time);
+  return data.movieDashboards;
 };
 
 /**
  * Lấy dữ liệu combo cho dashboard
  * @param {string} theater - ID của rạp hoặc 'All' cho tất cả rạp
- * @param {string} time - Thời gian (định dạng: MM_YYYY, Q1_YYYY, YYYY, hoặc 'All')
+ * @param {string} time - Thời gian (định dạng: MM_YYYY, Q1_YYYY, YYYY, hoặc 'all')
  * @returns {Promise<Array>} Promise trả về danh sách dữ liệu combo
  */
 export const getComboDashboardData = async (theater = 'All', time = 'All') => {
-  const data = await getDetailedDashboardData(theater, time);
-  return data.comboDashboards || [];
+  const data = await getDashboardData(theater, time);
+  return data.comboDashboards;
 };
 
-// Format lỗi từ API để hiển thị 
+/**
+ * Format lỗi từ API để hiển thị 
+ * @param {Object} error - Đối tượng lỗi từ axios
+ * @returns {string} Thông báo lỗi đã định dạng
+ */
 export const formatDashboardError = (error) => {
   if (error.response) {
     return `Lỗi ${error.response.status}: ${error.response.data.message || 'Đã xảy ra lỗi'}`;
@@ -181,8 +193,7 @@ export const formatDashboardError = (error) => {
 
 // Export các hàm API
 export default {
-  getBasicDashboardData,
-  getDetailedDashboardData,
+  getDashboardData,
   getTotalMovies,
   getTotalTheaters,
   getTheaterNames,

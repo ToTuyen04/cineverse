@@ -384,17 +384,9 @@ const LoginPage = () => {
       // Cập nhật context với thông tin user
       login(userData);
 
-      // Kiểm tra nếu user là staff thì chuyển đến trang DASHBOARD
-      if (userData.isStaff) {
-        console.log('Staff user logged in:', userData);
-        navigate('/admin', { replace: true });
-        return;
-      }
-
       // Đăng nhập thành công, chuyển về trang chủ hoặc trang yêu cầu trước đó
       if (from === '/login') {
         // Nếu người dùng truy cập trực tiếp vào trang đăng nhập, chuyển về trang chủ
-        console.log('Thông tin logger: ', userData);
         navigate('/');
       } else {
         // Nếu người dùng bị chuyển hướng đến trang đăng nhập từ trang khác, quay lại trang đó
