@@ -294,7 +294,7 @@ export default function AdminLayout({ children }) {
                   justifyContent: open ? "initial" : "center",
                   px: 2.5,
                   backgroundColor:
-                    location.pathname === item.path
+                    location.pathname.replace(/\/$/, '') === item.path.replace(/\/$/, '')
                       ? "rgba(249, 55, 110, 0.2)"
                       : "transparent",
                   "&:hover": {
@@ -309,7 +309,7 @@ export default function AdminLayout({ children }) {
                     mr: open ? 3 : "auto",
                     justifyContent: "center",
                     color:
-                      location.pathname === item.path
+                      location.pathname.replace(/\/$/, '') === item.path.replace(/\/$/, '')
                         ? "#F9376E"
                         : theme.palette.text.primary,
                   }}
@@ -321,11 +321,11 @@ export default function AdminLayout({ children }) {
                   sx={{
                     opacity: open ? 1 : 0,
                     color:
-                      location.pathname === item.path
+                      location.pathname.replace(/\/$/, '') === item.path.replace(/\/$/, '')
                         ? "#F9376E"
                         : theme.palette.text.primary,
                     "& .MuiTypography-root": {
-                      fontWeight: location.pathname === item.path ? 600 : 400,
+                      fontWeight: location.pathname.replace(/\/$/, '') === item.path.replace(/\/$/, '') ? 600 : 400,
                     },
                   }}
                 />
