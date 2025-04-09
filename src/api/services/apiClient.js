@@ -4,7 +4,7 @@ import axios from 'axios';
 const apiClient = axios.create({
   // baseURL: 'https://localhost:7212/api',
   baseURL: 'https://cinemamanagement.azurewebsites.net/api',
-  timeout: 10000,
+  timeout: 1000000,
   headers: {
     'Content-Type': 'application/json',
     'Accept': 'application/json'
@@ -12,7 +12,7 @@ const apiClient = axios.create({
 });
 
 // Request interceptor - adds auth token and logs requests
-apiClient.interceptors.request.use(
+apiClient.interceptors.request.use( 
   config => {
     // Sửa key lấy token từ localStorage
     const token = localStorage.getItem('token');
