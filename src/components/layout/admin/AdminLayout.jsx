@@ -135,7 +135,7 @@ const menuItems = [
   { text: "Vouchers", icon: <LocalOfferIcon />, path: "/admin/vouchers" },
   { text: "Khách hàng", icon: <PeopleIcon />, path: "/admin/users" },
   { text: "Nhân viên & Quản trị", icon: <Security />, path: "/admin/staffs" },
-  { text: "Quản lý background-job", icon: <BackHandOutlined />, path: "/admin/configs" },
+  { text: "Quản lý background-job", icon: <BackHandOutlined />, path: "/admin/backgroundjob" },
   { text: "Cấu hình", icon: <SettingsIcon />, path: "/admin/configs" },
   { text: "Excel", icon: <FileDownloadIcon />, path: "/admin/excels" },
 ];
