@@ -7,8 +7,10 @@ import { bookTickets } from '../api/services/bookingService';
 import { checkVoucher } from '../api/services/voucherService';
 import { createOrder, createPaymentUrl } from '../api/services/orderService';
 import { getUserProfile } from '../api/services/userService';
+import { useAuth } from '../contexts/AuthContext'; // Import useAuth hook
 
 function PaymentPage() {
+  const { user, isLoggedIn } = useAuth(); // Lấy thông tin user và trạng thái đăng nhập từ AuthContext
   const location = useLocation();
   const navigate = useNavigate();
   const [voucherCode, setVoucherCode] = useState('');
@@ -21,7 +23,6 @@ function PaymentPage() {
   const [isProcessing, setIsProcessing] = useState(false);
   const [currentStep, setCurrentStep] = useState(1);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
-  const [user, setUser] = useState(null);
   const [userInfo, setUserInfo] = useState({
     orderName: '',
     orderEmail: '',
@@ -29,26 +30,41 @@ function PaymentPage() {
   });
   const [formErrors, setFormErrors] = useState({});
 
-  // Kiểm tra đăng nhập khi component mount
+  // Kiểm tra đăng nhập khi component mount và lấy thông tin từ AuthContext
   useEffect(() => {
-    const loadUserData = async () => {
-      const userProfile = await fetchUserProfile();
-      if (userProfile) {
-        setIsAuthenticated(true);
-        setUser(userProfile);
-        setUserInfo({
-          orderName: userProfile.fullName,
-          orderEmail: userProfile.email,
-          orderPhoneNumber: userProfile.phoneNumber
-        });
-        console.log('User profile:', userProfile);
-        console.log('User info:', userInfo);
-        setCurrentStep(2); // Skip bước 1 nếu đã đăng nhập
-      }
-    };
-
-    loadUserData();
-  }, []);
+    if (isLoggedIn && user) {
+      setIsAuthenticated(true);
+      
+      // Populate userInfo với thông tin từ AuthContext
+      setUserInfo({
+        orderName: `${user.firstName} ${user.lastName}`.trim(),
+        orderEmail: user.email || '',
+        orderPhoneNumber: user.phoneNumber || ''
+      });
+      
+      console.log('User from AuthContext:', user);
+      console.log('User info:', userInfo);
+      
+      // Skip bước 1 nếu đã đăng nhập
+      setCurrentStep(2);
+    } else {
+      // Fallback sang logic cũ nếu không lấy được thông tin từ AuthContext
+      const loadUserData = async () => {
+        const userProfile = await fetchUserProfile();
+        if (userProfile) {
+          setIsAuthenticated(true);
+          setUserInfo({
+            orderName: userProfile.fullName,
+            orderEmail: userProfile.email,
+            orderPhoneNumber: userProfile.phoneNumber
+          });
+          setCurrentStep(2);
+        }
+      };
+      
+      loadUserData();
+    }
+  }, [isLoggedIn, user]);
 
   // Kiểm tra dữ liệu từ location
   useEffect(() => {
@@ -59,7 +75,7 @@ function PaymentPage() {
     setPaymentData(location.state);
   }, [location, navigate]);
 
-  // Lấy thông tin người dùng
+  // Lấy thông tin người dùng (giữ lại như là fallback)
   const fetchUserProfile = async () => {
     const token = localStorage.getItem('token');
     const userProfile = JSON.parse(localStorage.getItem('userProfile')); // Parse JSON từ localStorage
@@ -68,7 +84,7 @@ function PaymentPage() {
       return {
         fullName: `${userProfile.firstName} ${userProfile.lastName}`.trim(),
         email: userProfile.email,
-        phoneNumber: userProfile.phoneNumber || '' // Lấy phoneNumber từ userProfile
+        phoneNumber: userProfile.phoneNumber || ''
       };
     } else if (token) {
       try {
@@ -76,7 +92,7 @@ function PaymentPage() {
         return {
           fullName: `${userProfile.firstName} ${userProfile.lastName}`.trim(),
           email: userProfile.email,
-          phoneNumber: userProfile.phoneNumber || '' // Lấy phoneNumber từ API nếu không có trong localStorage
+          phoneNumber: userProfile.phoneNumber || ''
         };
       } catch (error) {
         console.error('Failed to fetch user profile:', error);
@@ -141,7 +157,7 @@ function PaymentPage() {
           chairId: seat.chairId,
           version: seat.version
         })),
-        userId: isAuthenticated ? user.id : null,
+        userId: isAuthenticated ? user?.id : null,
         guestCheckOutRequest: !isAuthenticated
           ? {
               guestName: userInfo.orderName,
@@ -149,16 +165,18 @@ function PaymentPage() {
               guestPhoneNumber: userInfo.orderPhoneNumber
             }
           : {
-            guestName: `${user.fullName}`.trim(),
-            guestEmail: user.email || '',
-            guestPhoneNumber: user.phoneNumber || ''
+            guestName: userInfo.orderName,
+            guestEmail: userInfo.orderEmail,
+            guestPhoneNumber: userInfo.orderPhoneNumber
           },
         voucherId: appliedVoucher ? appliedVoucher.id : null,
         selectedCombos: (combo || []).map(item => ({
           comboId: item.id,
           quantity: item.quantity,
           price: item.price
-        }))
+        })),
+        // Add rank discount info from AuthContext if user is logged in
+        rankDiscount: isLoggedIn && user ? parseFloat(user.rankDiscount) || 0 : 0 
       };
       
       // Gọi API tạo đơn hàng
@@ -258,17 +276,27 @@ function PaymentPage() {
     return totalPrice;
   };
   
-  // Hàm tính số tiền giảm giá
+  // Hàm tính số tiền giảm giá từ voucher
   const calculateDiscountAmount = () => {
     if (!appliedVoucher) return 0;
     return appliedVoucher.actualDiscount || 0;
   };
   
+  // Hàm tính số tiền giảm giá từ rank (nếu có)
+  const calculateRankDiscountAmount = () => {
+    if (!isLoggedIn || !user || !user.rankDiscount) return 0;
+    
+    const subtotal = calculateSubtotal();
+    return subtotal * parseFloat(user.rankDiscount);
+  };
+  
   // Hàm tính tổng tiền cuối cùng
   const calculateFinalAmount = () => {
     const subtotal = calculateSubtotal();
-    const discountAmount = calculateDiscountAmount();
-    return Math.max(subtotal - discountAmount, 0);
+    const voucherDiscount = calculateDiscountAmount();
+    const rankDiscount = calculateRankDiscountAmount();
+    
+    return Math.max(subtotal - voucherDiscount - rankDiscount, 0);
   };
 
   // Hủy voucher đã áp dụng
@@ -475,6 +503,13 @@ function PaymentPage() {
                 <span>Tổng tiền:</span>
                 <span>{formatCurrency(paymentData.totalPrice)}</span>
               </div>
+
+              {isLoggedIn && user && user.rankDiscount > 0 && (
+                <div className="price-row discount">
+                  <span>Giảm giá hạng {user.rankName || 'thành viên'}:</span>
+                  <span>- {formatCurrency(calculateRankDiscountAmount())}</span>
+                </div>
+              )}
 
               {appliedVoucher && (
                 <div className="price-row discount">

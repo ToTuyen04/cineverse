@@ -512,7 +512,7 @@ export const updateCombo = async (id, comboData) => {
         console.log(`Need to fetch original combo to fix ${detailsWithMissingFnbId.length} missing FnbIds`);
         
         // Get the original combo using Fetch API
-        const baseUrl = apiClient.defaults.baseURL || 'https://localhost:7212/api';
+        const baseUrl = apiClient.defaults.baseURL || 'https://cinemamanagement.azurewebsites.net/api';
         fetch(`${baseUrl}/combos/${id}`, {
           method: 'GET',
           credentials: 'include'
@@ -598,11 +598,20 @@ export const updateCombo = async (id, comboData) => {
         };
         
         // Open the request - direct URL to match backend exactly
-        const baseUrl = apiClient.defaults.baseURL || 'https://localhost:7212/api';
+        const baseUrl = apiClient.defaults.baseURL || 'https://cinemamanagement.azurewebsites.net/api';
         const url = `${baseUrl}/combos/${id}`;
         console.log(`XHR Opening PUT request to: ${url}`);
         
         xhr.open("PUT", url, true);
+        
+        // Add authentication header from apiClient
+        const token = localStorage.getItem('token');
+        if (token) {
+          xhr.setRequestHeader('Authorization', `Bearer ${token}`);
+          console.log("Added Authorization header with token");
+        } else {
+          console.warn("No token found in localStorage for Authorization header");
+        }
         
         // Send the FormData directly
         console.log("XHR Sending FormData...");
@@ -615,11 +624,22 @@ export const updateCombo = async (id, comboData) => {
     // FALLBACK: If XHR fails, try fetch API
     try {
       console.log("Trying fetch API as fallback");
-      const baseUrl = apiClient.defaults.baseURL || 'https://localhost:7212/api';
+      const baseUrl = apiClient.defaults.baseURL || 'https://cinemamanagement.azurewebsites.net/api';
+      
+      // Get authentication token
+      const token = localStorage.getItem('token');
+      const headers = {};
+      
+      if (token) {
+        headers['Authorization'] = `Bearer ${token}`;
+        console.log("Added Authorization header with token to fetch request");
+      }
+      
       const response = await fetch(`${baseUrl}/combos/${id}`, {
         method: 'PUT',
         body: comboData,
-        credentials: 'include'
+        credentials: 'include',
+        headers: headers
       });
       
       if (!response.ok) {
@@ -632,12 +652,20 @@ export const updateCombo = async (id, comboData) => {
       
       // LAST RESORT: Try axios with explicit options
       console.log("Trying axios as last resort");
-      const response = await apiClient.put(`/combos/${id}`, comboData, {
-        headers: {
-          'Content-Type': undefined,
-          'X-Requested-With': 'XMLHttpRequest'
-        }
-      });
+      
+      // Get authentication headers from apiClient
+      const headers = {
+        'Content-Type': undefined,
+        'X-Requested-With': 'XMLHttpRequest'
+      };
+      
+      const token = localStorage.getItem('token');
+      if (token) {
+        headers['Authorization'] = `Bearer ${token}`;
+        console.log("Added Authorization header to axios request");
+      }
+      
+      const response = await apiClient.put(`/combos/${id}`, comboData, { headers });
       
       return response.data;
     }

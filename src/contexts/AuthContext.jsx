@@ -1,10 +1,11 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
-
+import { getUserProfile } from '../api/services/userService';
 const AuthContext = createContext();
 
 export const AuthProvider = ({ children }) => {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [user, setUser] = useState(null);
+  const [isCheckingAuth, setIsCheckingAuth] = useState(true);
 
   // Kiểm tra trạng thái đăng nhập ngay khi component mount
   useEffect(() => {
@@ -12,62 +13,103 @@ export const AuthProvider = ({ children }) => {
   }, []);
 
   // Hàm kiểm tra trạng thái đăng nhập
-  const checkLoginStatus = () => {
+  const checkLoginStatus = async () => {
+    setIsCheckingAuth(true);
     const token = localStorage.getItem('token');
-    const userEmail = localStorage.getItem('userEmail');
-    const userFullName = localStorage.getItem('userFullName');
-
-    if (token && userEmail) {
-      // Có thể bạn cần phân tách họ và tên
-      const nameParts = userFullName ? userFullName.split(' ') : [];
-      const firstName = nameParts.length > 1 ? nameParts.slice(1).join(' ') : (nameParts[0] || '');
-      const lastName = nameParts.length > 1 ? nameParts[0] : '';
-
-      setUser({
-        email: userEmail,
-        firstName: firstName,
-        lastName: lastName,
-        fullName: userFullName
-      });
-      setIsLoggedIn(true);
+  
+    if (token) {
+      try {
+        const profile = await getUserProfile(token);
+  
+        if (profile) {
+          setUser({
+            email: profile.email,
+            firstName: profile.firstName,
+            lastName: profile.lastName,
+            fullName: `${profile.lastName} ${profile.firstName}`.trim(),
+            rankDiscount: parseFloat(profile.rankDiscount) || 0,
+            avatar: profile.avatar,
+            phoneNumber: profile.phoneNumber,
+            dateOfBirth: profile.dateOfBirth,
+            gender: profile.gender,
+            userPoint: profile.userPoint,
+            rankName: profile.rankName,
+            userCreateAt: profile.userCreateAt
+          });
+          
+          setIsLoggedIn(true);
+        } else {
+          throw new Error('Failed to fetch user profile');
+        }
+      } catch (error) {
+        console.error('Error checking login status:', error);
+        logout();
+      } finally {
+        setIsCheckingAuth(false);
+      }
     } else {
-      setUser(null);
-      setIsLoggedIn(false);
+      logout();
+      setIsCheckingAuth(false);
     }
   };
 
   // Login function
-  const login = (userData) => {
+  const login = async (userData) => {
     // Đảm bảo xóa dữ liệu cũ trước khi lưu dữ liệu mới
     logout();
+    localStorage.setItem('token', userData.token);
     
     // Lưu thông tin đăng nhập vào localStorage
-    localStorage.setItem('token', userData.token);
-    localStorage.setItem('userEmail', userData.userEmail);
-    localStorage.setItem('userFullName', userData.userFullName);
-    
-    // Lưu role và isStaff nếu có
-    if (userData.role) localStorage.setItem('role', userData.role);
-    if (userData.isStaff !== undefined) localStorage.setItem('isStaff', userData.isStaff.toString());
+    console.log('userData', userData);
+    // // Lưu role và isStaff nếu có
+    // if (userData.role) localStorage.setItem('role', userData.role);
+    // if (userData.isStaff !== undefined) localStorage.setItem('isStaff', userData.isStaff.toString());
 
-    // Đặt thời gian hết hạn phiên đăng nhập
-    const expirationTime = new Date().getTime() + 24 * 60 * 60 * 1000;
-    localStorage.setItem('expirationTime', expirationTime.toString());
+    // // Đặt thời gian hết hạn phiên đăng nhập
+    // const expirationTime = new Date().getTime() + 24 * 60 * 60 * 1000;
+    // localStorage.setItem('expirationTime', expirationTime.toString());
 
-    // Phân tách họ và tên từ userFullName
-    const nameParts = userData.userFullName ? userData.userFullName.split(' ') : [];
-    const firstName = nameParts.length > 1 ? nameParts.slice(1).join(' ') : (nameParts[0] || '');
-    const lastName = nameParts.length > 1 ? nameParts[0] : '';
+    // // Phân tách họ và tên từ userFullName
+    // const nameParts = userData.userFullName ? userData.userFullName.split(' ') : [];
+    // const firstName = nameParts.length > 1 ? nameParts.slice(1).join(' ') : (nameParts[0] || '');
+    // const lastName = nameParts.length > 1 ? nameParts[0] : '';
 
-    // Cập nhật state
-    setUser({
-      email: userData.userEmail,
-      firstName: firstName,
-      lastName: lastName,
-      fullName: userData.userFullName
-    });
-    setIsLoggedIn(true);
-    
+    // // Cập nhật state
+    // setUser({
+    //   email: userData.userEmail,
+    //   firstName: firstName,
+    //   lastName: lastName,
+    //   fullName: userData.userFullName,
+    //   rankDiscount: userData.rankDiscount || 0,
+    // });
+    // setIsLoggedIn(true);
+    try {
+      const profile = await getUserProfile(userData.token);
+      if (profile) {
+        // Cập nhật state user
+        setUser({
+          email: profile.email,
+          firstName: profile.firstName,
+          lastName: profile.lastName,
+          fullName: `${profile.lastName} ${profile.firstName}`.trim(),
+          rankDiscount: parseFloat(profile.rankDiscount) || 0,
+          avatar: profile.avatar,
+          phoneNumber: profile.phoneNumber,
+          dateOfBirth: profile.dateOfBirth,
+          gender: profile.gender,
+          userPoint: profile.userPoint,
+          rankName: profile.rankName,
+          creatAt : profile.createdAt,
+        });
+  
+        setIsLoggedIn(true);
+      } else {
+        throw new Error('Failed to fetch user profile');
+      }
+    } catch (error) {
+      console.error('Error during login:', error);
+      alert('Đăng nhập thất bại. Vui lòng thử lại.');
+    }
    
   };
 
@@ -116,7 +158,7 @@ export const AuthProvider = ({ children }) => {
   };
 
   return (
-    <AuthContext.Provider value={{ isLoggedIn, user, login, logout, checkLoginStatus, updateUserInfo }}>
+    <AuthContext.Provider value={{ isLoggedIn, user, login, logout, checkLoginStatus, updateUserInfo, isCheckingAuth }}>
       {children}
     </AuthContext.Provider>
   );
