@@ -2360,9 +2360,9 @@ function ProfilePage() {
                                     <Button variant="outline-secondary" size="sm">
                                       <FaDownload size={12} className="me-1" /> Hóa đơn
                                     </Button>
-                                    {/* <Button variant="primary" size="sm">
+                                    <Button variant="primary" size="sm">
                                       <FaQrcode size={12} className="me-1" /> Mã QR
-                                    </Button> */}
+                                    </Button>
                                   </>
                                 )}
                               </TicketActions>
@@ -2419,4 +2419,3 @@ function ProfilePage() {
 };
 
 export default ProfilePage;
-
