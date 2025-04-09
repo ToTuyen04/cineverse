@@ -17,7 +17,7 @@ const useVouchers = () => {
     setLoading(true);
     setError(null);
     try {
-      const response = await axios.get('https://localhost:7212/api/Voucher');
+      const response = await axios.get('https://cinemamanagement.azurewebsites.net/api/vouchers');
       
       // Process the API response (which returns an array directly)
       const processedVouchers = response.data.map(voucher => ({
@@ -51,7 +51,7 @@ const useVouchers = () => {
     setLoading(true);
     setError(null);
     try {
-      const response = await axios.get('https://localhost:7212/api/Voucher', {
+      const response = await axios.get('https://cinemamanagement.azurewebsites.net/api/vouchers', {
         params: {
           pageNumber: page,
           pageSize,
@@ -106,7 +106,7 @@ const useVouchers = () => {
   const getVoucher = useCallback(async (voucherId) => {
     setLoading(true);
     try {
-      const response = await axios.get(`https://localhost:7212/api/Voucher/${voucherId}`);
+      const response = await axios.get(`https://cinemamanagement.azurewebsites.net/api/vouchers/${voucherId}`);
       const voucherData = response.data.data || response.data;
       
       // Convert discount from decimal to percentage
@@ -133,7 +133,7 @@ const useVouchers = () => {
         voucherDiscount: voucherData.voucherDiscount / 100
       };
       
-      const response = await axios.post('https://localhost:7212/api/Voucher', apiData);
+      const response = await axios.post('https://cinemamanagement.azurewebsites.net/api/vouchers', apiData);
       await refreshVouchers();
       return { success: true, data: response.data };
     } catch (err) {
@@ -154,7 +154,7 @@ const useVouchers = () => {
         voucherDiscount: voucherData.voucherDiscount / 100
       };
       
-      const response = await axios.put(`https://localhost:7212/api/Voucher/${voucherId}`, apiData);
+      const response = await axios.put(`https://cinemamanagement.azurewebsites.net/api/vouchers/${voucherId}`, apiData);
       await refreshVouchers();
       return { success: true, data: response.data };
     } catch (err) {
@@ -169,7 +169,7 @@ const useVouchers = () => {
   const removeVoucher = useCallback(async (voucherId) => {
     setLoading(true);
     try {
-      await axios.delete(`https://localhost:7212/api/Voucher/${voucherId}`);
+      await axios.delete(`https://cinemamanagement.azurewebsites.net/api/vouchers/${voucherId}`);
       await refreshVouchers();
       return { success: true };
     } catch (err) {
@@ -190,7 +190,7 @@ const useVouchers = () => {
     setError(null);
     try {
       // Use the search endpoint with pagination parameters
-      const response = await axios.get(`https://localhost:7212/api/Voucher/search`, {
+      const response = await axios.get(`https://cinemamanagement.azurewebsites.net/api/vouchers/search`, {
         params: {
           name: searchTerm,
           pageNumber: page,

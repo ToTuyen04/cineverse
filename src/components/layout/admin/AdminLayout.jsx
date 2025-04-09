@@ -37,7 +37,7 @@ import Brightness7Icon from "@mui/icons-material/Brightness7";
 import { useNavigate, useLocation } from "react-router-dom";
 import { ColorModeContext } from "../../../context/ThemeContext";
 import { useAuth } from "../../../contexts/AuthContext";
-import { AdminPanelSettings, AdminPanelSettingsOutlined, AdminPanelSettingsRounded, AdminPanelSettingsSharp, AdminPanelSettingsTwoTone, Security, SecurityOutlined } from "@mui/icons-material";
+import { AdminPanelSettings, AdminPanelSettingsOutlined, AdminPanelSettingsRounded, AdminPanelSettingsSharp, AdminPanelSettingsTwoTone, BackHandOutlined, Security, SecurityOutlined } from "@mui/icons-material";
 import FileDownloadIcon from '@mui/icons-material/FileDownload';
 import EventSeatIcon from '@mui/icons-material/EventSeat';
 
@@ -135,6 +135,7 @@ const menuItems = [
   { text: "Vouchers", icon: <LocalOfferIcon />, path: "/admin/vouchers" },
   { text: "Khách hàng", icon: <PeopleIcon />, path: "/admin/users" },
   { text: "Nhân viên & Quản trị", icon: <Security />, path: "/admin/staffs" },
+  { text: "Quản lý background-job", icon: <BackHandOutlined />, path: "/admin/configs" },
   { text: "Cấu hình", icon: <SettingsIcon />, path: "/admin/configs" },
   { text: "Excel", icon: <FileDownloadIcon />, path: "/admin/excels" },
 ];

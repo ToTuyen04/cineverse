@@ -37,6 +37,7 @@ import HumanResource from "./pages/admin/HumanResource/HumanResource";
 import Configuration from "./pages/admin/Configurations/Configuration";
 import RoomSeatsManagement from "./pages/admin/Seats/RoomSeatsManagement";
 import SeatManagement from "./pages/admin/Seats/SeatManagement";
+import Backgroundjob from "./pages/admin/BackgroundJob/Backgroundjob";
 
 // Contexts
 import { AuthProvider } from "./contexts/AuthContext";
@@ -319,6 +320,14 @@ function App() {
               element={
                 <AdminLayout>
                   <RoomSeatsManagement />
+                </AdminLayout>
+              }
+            />
+            <Route
+              path="/admin/backgroundjob"
+              element={
+                <AdminLayout>
+                  <Backgroundjob />
                 </AdminLayout>
               }
             />

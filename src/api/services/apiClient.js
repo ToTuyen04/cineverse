@@ -4,7 +4,7 @@ import axios from 'axios';
 const apiClient = axios.create({
   // baseURL: 'https://localhost:7212/api',
   baseURL: 'https://cinemamanagement.azurewebsites.net/api',
-  timeout: 1000000,
+  timeout: 10000,
   headers: {
     'Content-Type': 'application/json',
     'Accept': 'application/json'
